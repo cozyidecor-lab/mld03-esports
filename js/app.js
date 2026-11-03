@@ -203,15 +203,30 @@ const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</
 
 /* ---- mini games hub: every game lives here, so the menu stays short ---- */
 const GAMES=[
-  {id:'play',name:'MLD Flick',about:'Disc football. Pull back a disc, aim and flick it into the ball. Turn based.',tags:['2 players','Turn based'],
+  {id:'play',name:'MLD Flick',about:'Disc football. Pull back a disc, aim and flick it into the ball. Turn based.',tags:['Online','2 players','Turn based'],
    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="14" r="4"/><circle cx="17" cy="8" r="2.5"/><path d="M11 11l4-2"/></svg>'},
-  {id:'turbo',name:'MLD Turbo',about:'Car football. Drive, jump, flip and boost to smash the ball into the goal.',tags:['vs computer','2 players'],
+  {id:'turbo',name:'MLD Turbo',about:'Car football. Drive, jump, flip and boost to smash the ball into the goal.',tags:['Online','vs computer','2 players'],
    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>'},
 ];
+const LB_GAMES=[['flick','MLD Flick'],['turbo','MLD Turbo']];
+let lbGame='flick',lbOff=null;
 function gamesView(){
+  setTimeout(mountLeaderboard,0);
   return {t:'Mini <em>Games</em>',p:'Quick games to play with the squad. Pick one to start.',
-    b:`<div class="games">${GAMES.map(g=>`<button class="gcard" data-go="${g.id}"><span class="gi">${g.icon}</span><span><b>${g.name}</b><small>${g.about}</small><span class="tags">${g.tags.map(t=>`<span class="pill">${t}</span>`).join('')}</span></span></button>`).join('')}</div>`};
+    b:`<div class="games">${GAMES.map(g=>`<button class="gcard" data-go="${g.id}"><span class="gi">${g.icon}</span><span><b>${g.name}</b><small>${g.about}</small><span class="tags">${g.tags.map(t=>`<span class="pill">${t}</span>`).join('')}</span></span></button>`).join('')}</div>
+    <h2 class="sec">Mini games leaderboard <small>ONLINE WINS</small></h2>
+    <div class="pills" id="lbTabs">${LB_GAMES.map(([k,n])=>`<button class="pill${k===lbGame?' on':''}" data-lb="${k}">${n}</button>`).join('')}</div>
+    <div class="rows" id="lbRows"><p class="note">Loading…</p></div>`};
 }
+function mountLeaderboard(){
+  const box=document.getElementById('lbRows');if(!box)return;if(lbOff){lbOff();lbOff=null;}
+  lbOff=NET.onLeaderboard(lbGame,list=>{const b=document.getElementById('lbRows');if(!b)return;
+    if(list===null){b.innerHTML='<p class="note">The leaderboard could not connect. Check your internet and reload.</p>';return;}
+    b.innerHTML=list.length?list.slice(0,30).map((p,i)=>`<div class="row${i<3?' top3':''}"><div class="rk">${i+1}</div><div class="nm"><span class="av0">${esc(p.name.slice(0,2).toUpperCase())}</span><div><b>${esc(p.name)}</b><span>${p.wins} online win${p.wins===1?'':'s'}</span></div></div><div class="vl">${p.wins}<small>wins</small></div></div>`).join('')
+      :'<p class="note">No wins yet. Win an online match and your name goes here first.</p>';});
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-lb]');if(!t)return;lbGame=t.dataset.lb;
+  document.querySelectorAll('#lbTabs .pill').forEach(b=>b.classList.toggle('on',b.dataset.lb===lbGame));mountLeaderboard();});
 
 function renderStat(){
   const v=VIEWS[cur]();

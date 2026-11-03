@@ -95,7 +95,7 @@ const FL=(function(){
   /* ---------- turn flow ---------- */
   const isMyTurn=()=>S.mode==='local'||S.turn===S.me;
   function startMatch(){
-    S.board=setup(S.forms[0],S.forms[1]);S.score=[0,0];S.turn=0;S.shotN=0;S.lastShotSeen=0;S.lastSnapSeen=0;S.awaitingSnap=0;S.result=null;
+    S.recorded=false;S.board=setup(S.forms[0],S.forms[1]);S.score=[0,0];S.turn=0;S.shotN=0;S.lastShotSeen=0;S.lastSnapSeen=0;S.awaitingSnap=0;S.result=null;
     S.phase='play';S.turnStart=Date.now();ui();window.scrollTo(0,0);
   }
   function kickoffReset(conceded){S.board=setup(S.forms[0],S.forms[1]);S.turn=conceded;}
@@ -118,7 +118,10 @@ const FL=(function(){
   }
   function flash(team){const f=el('flFlash');if(!f)return;f.textContent=(S.mode==='local'?(team===0?'Red':'White'):(team===S.me?'You':'Opponent'))+' scored!';
     f.classList.remove('on');void f.offsetWidth;f.classList.add('on');}
-  function endMatch(){S.phase='over';ui();}
+  function endMatch(){S.phase='over';
+    if(S.mode==='online'){ if(S.result===S.me&&!S.recorded){S.recorded=true;NET.addWin('flick',S.myName);}
+      const c=ch;ch=null;if(c)setTimeout(()=>c.close(),3000); }
+    ui();}
   function updTimer(){const t=el('flTimer');if(!t)return;const left=Math.max(0,TURN_MS-(Date.now()-S.turnStart));
     t.style.width=(left/TURN_MS*100)+'%';
     if(left===0&&!S.anim&&isMyTurn()&&(S.mode==='local'||S.turn===S.me)&&S.phase==='play'){S.shooter=S.mode==='local'?S.turn:S.me;S.shotN++;resolveTurn(0);}}
@@ -144,36 +147,18 @@ const FL=(function(){
     shoot(a.d,vx,vy);ui();}
 
   /* ---------- online: matchmaking + sync over room presence ---------- */
-  function pres(p){if(S.room)S.room.presence(p).catch(()=>{});}
+  let ch=null,cancelFind=null;
+  function pres(p){if(ch)ch.send(p);}
   function sendSnap(goal){pres({snap:{n:S.shotN,pos:snapPos(S.board),score:S.score,turn:S.turn,res:S.result,goal:goal||0}});
     applyPos(S.board,snapPos(S.board));}
   function adoptSnap(sn){applyPos(S.board,sn.pos);const prev=S.score.slice();S.score=sn.score.slice();S.turn=sn.turn;S.result=sn.res;
     S.lastSnapSeen=sn.n;S.shotN=sn.n;S.awaitingSnap=0;S.turnStart=Date.now();
     if(sn.goal){const team=sn.goal===1?0:1;if(S.score[team]>prev[team])flash(team);}
     if(S.result!=null)endMatch();else ui();}
-  function peersList(){return S.room?S.room.peers():[];}
-  function onlinePeers(){return peersList().filter(p=>p.presence&&p.presence.g==='flick'&&!p.sameTab);}
-  function onPeers(){
-    const me=peersList().find(p=>p.sameTab);if(me)S.myPeer=me.peer;
-    const cnt=el('flOnline');if(cnt){const n=onlinePeers().length;cnt.textContent=n?`${n} other player${n>1?'s':''} here now`:'No one else is here right now';}
-    if(S.mode!=='online'||!S.myPeer)return;
-    if(S.phase==='search'){
-      const others=onlinePeers().filter(p=>p.presence.st==='search');
-      const all=[S.myPeer,...others.map(p=>p.peer)].sort();
-      if(all.length>=2&&(all[0]===S.myPeer||all[1]===S.myPeer)){
-        const opp=all[0]===S.myPeer?all[1]:all[0];
-        S.opp=opp;S.me=S.myPeer<opp?0:1;S.mid=[S.myPeer,opp].sort().join('~');
-        S.forms=[null,null];S.phase='form';pres({st:'match',mid:S.mid,fm:null,ready:false,shot:null,snap:null,aim:null});ui();
-      }
-      return;
-    }
-    const o=peersList().find(p=>p.peer===S.opp);
-    if(S.phase==='form'||S.phase==='play'){
-      const gone=!o||(o.presence.mid&&o.presence.mid!==S.mid)||(S.phase==='play'&&o.presence.mid!==S.mid)||o.presence.st==='idle';
-      if(gone){ S.result=S.me;S.left=true;endMatch(); return; }
-      if(o.presence.st==='search')return;
-    }
-    if(!o)return;const op=o.presence;
+  function onOpp(op){
+    if(S.mode!=='online')return;
+    if(op.name)S.oppName=op.name;
+    if(op.left){ if(S.phase==='form'||S.phase==='play'){S.result=S.me;S.left=true;endMatch();} return; }
     if(S.phase==='form'){S.forms[1-S.me]=op.ready?op.fm:null;ui();
       if(S.forms[0]&&S.forms[1])startMatch();return;}
     if(S.phase==='play'){
@@ -184,12 +169,16 @@ const FL=(function(){
         if(!S.anim||S.awaitingSnap!==op.snap.n){S.anim=false;adoptSnap(op.snap);}}
     }
   }
-  async function connect(){
-    if(S.room)return S.room;
-    try{const c=window.claude;if(!c||!c.use)return null;const r=await c.use('room');if(!r)return null;S.room=r;
-      r.onPeers(onPeers,()=>{S.room=null;ui();});pres({g:'flick',st:'idle'});return r;}catch(e){return null;}
+  function goOnline(){
+    if(!NET.available()){S.phase='menu';ui();return;}
+    NET.askName('MLD Flick').then(name=>{
+      if(!name)return;S.myName=name;S.mode='online';S.left=false;S.oppName='';S.phase='search';ui();
+      cancelFind=NET.findMatch('flick',name,m=>{cancelFind=null;S.me=m.me;S.mid=m.mid;S.oppName=m.opp;
+        ch=NET.channel('flick',m.mid,m.me);ch.send({name,fm:null,ready:false,shot:null,snap:null,aim:null});ch.onOpp(onOpp);
+        S.forms=[null,null];S.lastShotSeen=0;S.lastSnapSeen=0;S.phase='form';ui();});
+    });
   }
-
+  function leaveOnline(){if(cancelFind){cancelFind();cancelFind=null;}if(ch){ch.close();ch=null;}}
   /* ---------- screens ---------- */
   function formCards(team){return Object.entries(FORMS).map(([k,f])=>{
     const dots=f.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]-80}" r="5" fill="${team===0?'#e3191f':'#f2f2f0'}"/>`).join('');
@@ -197,42 +186,39 @@ const FL=(function(){
   function ui(){
     const box=el('flPanel');if(!box)return;
     const sc=el('flScore');const stage=el('flStage');
-    const nm=t=>S.mode==='local'?(t===0?'Red':'White'):(t===S.me?'You':'Opponent');
+    const nm=t=>S.mode==='local'?(t===0?'Red':'White'):(t===S.me?'You':(S.oppName||'Opponent'));
     stage.hidden=!(S.phase==='play'||S.phase==='over');const vg=el('v-game');if(vg)vg.classList.toggle('playing',!stage.hidden);
     if(S.phase==='menu'){
+      const on=NET.available();
       box.innerHTML=`<div class="flcard"><p>Pull back one of your discs, aim and let go to hit the ball. Teams take turns. First to <b>${WIN} goals</b> wins.</p>
-        <button class="flbtn red" data-fl="online">Find online match</button>
-        <p class="note" id="flOnline">${S.room===false?'':'Checking who is here…'}</p>
-        <button class="flbtn" data-fl="local">Play on this phone · 2 players</button>
-        <p class="note" id="flNoRoom" hidden>Online matches are not switched on for the website yet. Play on one phone for now.</p></div>`;
-      if(S.room===false){el('flNoRoom').hidden=false;el('flOnline').hidden=true;box.querySelector('[data-fl="online"]').disabled=true;}
-      else connect().then(r=>{if(!r){S.room=false;const a=el('flNoRoom'),b=el('flOnline'),c=box.querySelector('[data-fl="online"]');if(a)a.hidden=false;if(b)b.hidden=true;if(c)c.disabled=true;}else onPeers();});
+        <button class="flbtn red" data-fl="online" ${on?'':'disabled'}>Find online match</button>
+        <p class="note">${on?'Type your name and you are matched with the next player who taps Find online match. Wins go on the Mini Games leaderboard.':'Online play could not connect. Check your internet and reload the page.'}</p>
+        <button class="flbtn" data-fl="local">Play on this phone · 2 players</button></div>`;
     } else if(S.phase==='search'){
-      box.innerHTML=`<div class="flcard center"><div class="flspin"></div><b class="flbig">Looking for an opponent…</b><p class="note">The match starts as soon as another player taps Find online match.</p><button class="flbtn" data-fl="cancel">Cancel</button></div>`;
+      box.innerHTML=`<div class="flcard center"><div class="flspin"></div><b class="flbig">Looking for an opponent…</b><p class="note">Playing as <b>${(S.myName||'').replace(/</g,'&lt;')}</b>. The match starts as soon as another player taps Find online match.</p><button class="flbtn" data-fl="cancel">Cancel</button></div>`;
     } else if(S.phase==='form'){
       const team=S.mode==='local'?S.localPick:S.me;const mine=S.forms[team];
       const who=S.mode==='local'?(team===0?'Red team':'White team'):'Your team';
       const oppReady=S.mode==='online'&&S.forms[1-S.me];
       box.innerHTML=`<div class="flcard"><b class="flbig">${who}: pick a formation</b>
         <div class="flforms">${formCards(team)}</div>
-        ${S.mode==='online'?`<p class="note">${mine?'Locked in. ':''}Opponent ${oppReady?'is ready':'is still choosing'}.</p>`:''}</div>`;
+        ${S.mode==='online'?`<p class="note">You vs <b>${(S.oppName||'Opponent').replace(/</g,'&lt;')}</b>. ${mine?'Locked in. ':''}${oppReady?'They are ready.':'They are still choosing.'}</p>`:''}</div>`;
       if(mine)box.querySelectorAll('.flform').forEach(b=>b.classList.toggle('on',b.dataset.fm===mine));
     } else if(S.phase==='play'){
       const my=isMyTurn()&&!S.anim&&!(S.mode==='online'&&S.awaitingSnap);
-      box.innerHTML=`<div class="flturn ${S.turn===0?'red':'white'}">${S.anim?'…':S.mode==='local'?`${nm(S.turn)} to play`:my?'Your turn · pull back a disc':'Opponent is aiming…'}</div>`;
+      box.innerHTML=`<div class="flturn ${S.turn===0?'red':'white'}">${S.anim?'…':S.mode==='local'?`${nm(S.turn)} to play`:my?'Your turn · pull back a disc':`${(S.oppName||'Opponent').replace(/</g,'&lt;')} is aiming…`}</div>`;
     } else if(S.phase==='over'){
       const won=S.mode==='online'?S.result===S.me:null;
-      box.innerHTML=`<div class="flcard center"><b class="flbig">${S.left?'Opponent left. You win!':S.mode==='local'?`${nm(S.result)} wins!`:won?'You win!':'Opponent wins'}</b>
-        <p class="note">${S.score[0]} – ${S.score[1]}</p><div class="flrow"><button class="flbtn red" data-fl="${S.mode==='local'?'local':'online'}">Play again</button><button class="flbtn" data-fl="menu">Back</button></div></div>`;
+      box.innerHTML=`<div class="flcard center"><b class="flbig">${S.left?`${(S.oppName||'Opponent').replace(/</g,'&lt;')} left. You win!`:S.mode==='local'?`${nm(S.result)} wins!`:won?'You win!':`${nm(S.result).replace(/</g,'&lt;')} wins`}</b>
+        <p class="note">${S.score[0]} – ${S.score[1]}${S.mode==='online'&&won?' · win saved to the leaderboard':''}</p><div class="flrow"><button class="flbtn red" data-fl="${S.mode==='local'?'local':'online'}">Play again</button><button class="flbtn" data-fl="menu">Back</button></div></div>`;
     }
-    if(sc)sc.innerHTML=(S.phase==='play'||S.phase==='over')?`<span class="red">${S.mode==='local'?'Red':S.me===0?'You':'Opp'}</span><b>${S.score[0]} – ${S.score[1]}</b><span class="white">${S.mode==='local'?'White':S.me===1?'You':'Opp'}</span>`:'';
+    if(sc)sc.innerHTML=(S.phase==='play'||S.phase==='over')?`<span class="red">${S.mode==='local'?'Red':S.me===0?'You':(S.oppName||'Opp').replace(/</g,'&lt;')}</span><b>${S.score[0]} – ${S.score[1]}</b><span class="white">${S.mode==='local'?'White':S.me===1?'You':(S.oppName||'Opp').replace(/</g,'&lt;')}</span>`:'';
     size();draw();
   }
   function act(a){
-    if(a==='local'){S.mode='local';S.forms=[null,null];S.localPick=0;S.left=false;S.phase='form';ui();}
-    else if(a==='online'){connect().then(r=>{if(!r){S.room=false;S.phase='menu';ui();return;}
-      S.mode='online';S.left=false;S.phase='search';S.opp=null;S.mid=null;pres({g:'flick',st:'search',mid:null,fm:null,ready:false,shot:null,snap:null,aim:null});ui();onPeers();});}
-    else if(a==='cancel'||a==='menu'){S.phase='menu';S.mode=null;pres({st:'idle',mid:null,shot:null,snap:null,aim:null,ready:false});ui();}
+    if(a==='local'){leaveOnline();S.mode='local';S.forms=[null,null];S.localPick=0;S.left=false;S.phase='form';ui();}
+    else if(a==='online'){leaveOnline();goOnline();}
+    else if(a==='cancel'||a==='menu'){leaveOnline();S.phase='menu';S.mode=null;ui();}
   }
   function pickForm(k){
     if(S.phase!=='form')return;
@@ -246,6 +232,6 @@ const FL=(function(){
     document.addEventListener('click',e=>{const a=e.target.closest('[data-fl]');if(a)act(a.dataset.fl);const f=e.target.closest('[data-fm]');if(f)pickForm(f.dataset.fm);});
   }
   function show(){mount();if(!raf)raf=requestAnimationFrame(loop);if(S.phase==='menu'||!S.mode)S.phase=S.phase==='menu'?'menu':S.phase;ui();}
-  function hide(){if(raf){cancelAnimationFrame(raf);raf=0;}if(S.phase==='search')act('cancel');}
+  function hide(){if(raf){cancelAnimationFrame(raf);raf=0;}if(S.phase==='search'||S.phase==='form'||(S.mode==='online'&&S.phase==='play'))act('cancel');}
   return {show,hide,S,step,setup};
 })();

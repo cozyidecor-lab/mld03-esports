@@ -9,7 +9,53 @@ const TB=(function(){
 
   function car(team){const x=team===0?40:W-40;return {team,x,y:H-CH/2,vx:0,vy:0,a:0,f:team===0?1:-1,ground:true,jumps:0,airT:0,flip:0,flipDir:0,boost:100,boosting:false,spin:0};}
   function kickoff(){S.cars=[car(0),car(1)];S.ball={x:W/2,y:H-48,vx:0,vy:0,spin:0};S.count=2.2;S.trail=[];}
-  function start(mode){S.mode=mode;S.score=[0,0];S.t=MATCH;S.ot=false;kickoff();S.phase='play';ui();}
+  function start(mode){if(mode==='online'){goOnline();return;}leaveOnline();S.mode=mode;S.score=[0,0];S.t=MATCH;S.ot=false;kickoff();S.phase='play';ui();}
+  const nameOf=t=>S.mode==='cpu'?(t===0?'You':'CPU'):S.mode==='online'?(t===S.me?'You':(S.oppName||'Opponent')):(t===0?'Red':'White');
+  const escH=s=>String(s||'').replace(/</g,'&lt;');
+
+  /* ---------- online: host (side 0) runs the game, guest sends its controls and draws the host's state ---------- */
+  let ch=null,cancelFind=null,sendT=0,target=null,targetAt=0,jn=0,lastJn=0,lastIn='';
+  const r2=(v,n=2)=>Math.round(v*10**n)/10**n;
+  function goOnline(){
+    if(!NET.available()){S.phase='menu';ui();return;}
+    NET.askName('MLD Turbo').then(name=>{
+      if(!name)return;leaveOnline();S.myName=name;S.mode='online';S.oppName='';S.left=false;S.phase='search';ui();
+      cancelFind=NET.findMatch('turbo',name,m=>{cancelFind=null;S.me=m.me;S.oppName=m.opp;S.hostName=m.me===0?name:m.opp;S.guestName=m.me===0?m.opp:name;
+        ch=NET.channel('turbo',m.mid,m.me);ch.send({name,in:null,st:null});ch.onOpp(onOpp);
+        target=null;jn=0;lastJn=0;S.recorded=false;S.score=[0,0];S.t=MATCH;S.ot=false;kickoff();S.phase='play';ui();});
+    });
+  }
+  function leaveOnline(){if(cancelFind){cancelFind();cancelFind=null;}if(ch){ch.close();ch=null;}}
+  function onOpp(op){
+    if(S.mode!=='online')return;if(op.name)S.oppName=op.name;
+    if(op.left){if(S.phase==='play'){S.left=true;S.phase='over';ui();}return;}
+    if(S.me===0&&op.in){const io=inp[1];io.x=op.in.x||0;io.y=op.in.y||0;io.b=op.in.b?1:0;if((op.in.jn||0)>lastJn){lastJn=op.in.jn;io.jp=1;}}
+    if(S.me===1&&op.st){target=op.st;targetAt=performance.now();
+      S.score=target.s.slice();S.t=target.t;S.count=target.cnt;S.goalPause=target.gp;S.ot=!!target.ot;
+      if(target.fl&&target.fl!==S.flash){S.flash=target.fl;S.flashT=target.flt;}
+      if(target.ph==='over'&&S.phase==='play'){S.phase='over';ui();}}
+  }
+  function packState(){const b=S.ball;
+    return {c:S.cars.map(c=>[r2(c.x),r2(c.y),r2(c.vx),r2(c.vy),r2(c.a,3),c.f,Math.round(c.boost),c.boosting?1:0]),
+      b:[r2(b.x),r2(b.y),r2(b.vx),r2(b.vy),r2(b.spin,2)],s:S.score,t:r2(S.t,1),cnt:r2(S.count,2),gp:r2(S.goalPause,2),fl:S.flash||'',flt:r2(S.flashT,2),ot:S.ot?1:0,ph:S.phase};}
+  function follow(dt){ // guest: glide toward the host's latest state
+    if(!target)return;const age=Math.min(0.25,(performance.now()-targetAt)/1000),k=Math.min(1,dt*14);
+    target.c.forEach((t,i)=>{const c=S.cars[i];if(!c)return;const tx=t[0]+t[2]*age,ty=t[1]+t[3]*age;
+      if(Math.abs(tx-c.x)>30||Math.abs(ty-c.y)>30){c.x=tx;c.y=ty;}else{c.x+=(tx-c.x)*k;c.y+=(ty-c.y)*k;}
+      let da=t[4]-c.a;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;c.a+=da*k;c.f=t[5];c.boost=t[6];c.boosting=!!t[7];c.vx=t[2];c.vy=t[3];});
+    const b=S.ball,t=target.b,tx=t[0]+t[2]*age,ty=t[1]+t[3]*age;
+    if(Math.abs(tx-b.x)>30||Math.abs(ty-b.y)>30){b.x=tx;b.y=ty;}else{b.x+=(tx-b.x)*k;b.y+=(ty-b.y)*k;}b.spin=t[4];b.vx=t[2];b.vy=t[3];
+  }
+  function netTick(ts,dt){
+    if(S.mode!=='online'||!ch||S.phase!=='play')return;
+    if(S.me===1){follow(dt);const io=inp[0];if(io.jp){io.jp=0;jn++;}
+      const msg={x:r2(io.x||((io.r?1:0)-(io.l?1:0))),y:r2(io.y||0),b:io.b?1:0,jn};const j=JSON.stringify(msg);
+      if(ts-sendT>50&&j!==lastIn){sendT=ts;lastIn=j;ch.send({in:msg});}}
+    else if(ts-sendT>66){sendT=ts;ch.send({st:packState()});}
+  }
+  function finishOnline(){if(S.mode!=='online')return;
+    const won=S.left||S.score[S.me]>S.score[1-S.me];if(won&&!S.recorded){S.recorded=true;NET.addWin('turbo',S.myName);}
+    if(ch&&S.me===0&&!S.left)ch.send({st:packState()});const c=ch;ch=null;if(c)setTimeout(()=>c.close(),3000);}
 
   /* ---------- physics ---------- */
   function cornerPush(o,r){ // keep a circle inside the arena (top corners rounded), return true if touched
@@ -126,7 +172,7 @@ const TB=(function(){
     carCar();
     const sub=3;let goal=-1;
     for(let k=0;k<sub&&goal<0;k++){goal=stepBall(dt/sub);S.cars.forEach(carBall);}
-    if(goal>=0){S.score[goal]++;S.goalPause=2.2;S.flash=goal===0?(S.mode==='cpu'?'Goal!':'Red scores!'):(S.mode==='cpu'?'CPU scores':'White scores!');S.flashT=2;
+    if(goal>=0){S.score[goal]++;S.goalPause=2.2;S.flash=S.mode==='online'?`${goal===0?S.hostName:S.guestName} scores!`:goal===0?(S.mode==='cpu'?'Goal!':'Red scores!'):(S.mode==='cpu'?'CPU scores':'White scores!');S.flashT=2;
       if(S.ot)S.t=0;}
     if(S.t<=0&&S.goalPause<=0){ if(S.score[0]===S.score[1]){if(!S.ot){S.ot=true;S.t=999;S.flash='Overtime · next goal wins';S.flashT=2.2;}} else {S.t=0;S.phase='over';ui();} }
   }
@@ -134,7 +180,9 @@ const TB=(function(){
   function frame(ts){
     raf=requestAnimationFrame(frame);
     const dt=Math.min(0.05,(ts-(last||ts))/1000);last=ts;acc+=dt;
-    while(acc>=1/120){tick(1/120);acc-=1/120;}
+    const guest=S.mode==='online'&&S.me===1;
+    while(acc>=1/120){if(!guest)tick(1/120);acc-=1/120;}
+    netTick(ts,dt);
     fx=fx.filter(f=>(f.t-=dt)>0);if(S.flashT>0)S.flashT-=dt;
     draw();hud();
   }
@@ -188,7 +236,7 @@ const TB=(function(){
   function hud(){const s=el('tbScore');if(!s||S.phase==='menu')return;
     const t=S.ot?'OT':`${Math.floor(Math.max(0,S.t)/60)}:${String(Math.floor(Math.max(0,S.t)%60)).padStart(2,'0')}`;
     const txt=`${S.score[0]}|${t}|${S.score[1]}`;if(s.dataset.v===txt)return;s.dataset.v=txt;
-    s.innerHTML=`<span class="red">${S.mode==='cpu'?'You':'Red'}</span><b>${S.score[0]}</b><em>${t}</em><b>${S.score[1]}</b><span class="white">${S.mode==='cpu'?'CPU':'White'}</span>`;
+    s.innerHTML=`<span class="red">${escH(nameOf(0))}</span><b>${S.score[0]}</b><em>${t}</em><b>${S.score[1]}</b><span class="white">${escH(nameOf(1))}</span>`;
     [0,1].forEach(i=>{const m=el('tbBoost'+i);if(m&&S.cars[i])m.style.width=S.cars[i].boost+'%';});}
 
   /* ---------- controls ---------- */
@@ -222,11 +270,13 @@ const TB=(function(){
     const p=el('tbPanel'),stage=el('tbStage');if(!p)return;
     stage.hidden=S.phase==='menu';el('v-turbo').classList.toggle('playing',S.phase!=='menu');document.body.classList.toggle('tb-playing',S.phase==='play'&&isActive);
     if(S.phase==='menu'){p.innerHTML=`<div class="flcard"><p>Drive, jump and boost to smash the ball into the other goal. Left thumb: the joystick drives, and spins the car in the air. Right thumb: JUMP and BOOST. Tap JUMP again in the air to flip toward the way the stick is pushed; push the stick up (or leave it centred) for a straight double jump. Most goals in 2 minutes wins.</p>
-      <button class="flbtn red" data-tbgo="cpu">Play vs computer</button><button class="flbtn" data-tbgo="duo">2 players on this device</button>
+      <button class="flbtn red" data-tbgo="online" ${NET.available()?'':'disabled'}>Find online match</button><button class="flbtn" data-tbgo="cpu">Play vs computer</button><button class="flbtn" data-tbgo="duo">2 players on this device</button>
       <p class="note">Tip: turn your phone sideways for a bigger pitch. On a keyboard: arrows or WASD, Space to jump, Shift to boost. Player 2: J L, I to jump, K to boost.</p></div>`;}
-    else if(S.phase==='play'){p.innerHTML=`<div class="tbpads ${S.mode}">${pad(0)}${S.mode==='duo'?pad(1):''}</div>`;bindPads();}
-    else if(S.phase==='over'){const w=S.score[0]>S.score[1]?0:1;
-      p.innerHTML=`<div class="flcard center"><b class="flbig">${S.mode==='cpu'?(w===0?'You win!':'CPU wins'):(w===0?'Red wins!':'White wins!')}</b><p class="note">${S.score[0]} – ${S.score[1]}</p>
+    else if(S.phase==='search'){p.innerHTML=`<div class="flcard center"><div class="flspin"></div><b class="flbig">Looking for an opponent…</b><p class="note">Playing as <b>${escH(S.myName)}</b>. The match starts when another player taps Find online match.</p><button class="flbtn" data-tbgo="menu">Cancel</button></div>`;}
+    else if(S.phase==='play'){p.innerHTML=`<div class="tbpads ${S.mode==='duo'?'duo':'cpu'}">${pad(0)}${S.mode==='duo'?pad(1):''}</div>`;bindPads();}
+    else if(S.phase==='over'){const w=S.left?S.me:S.score[0]>S.score[1]?0:1;finishOnline();
+      const title=S.mode==='online'?(S.left?`${escH(S.oppName)} left. You win!`:w===S.me?'You win!':`${escH(S.oppName)} wins`):S.mode==='cpu'?(w===0?'You win!':'CPU wins'):(w===0?'Red wins!':'White wins!');
+      p.innerHTML=`<div class="flcard center"><b class="flbig">${title}</b><p class="note">${S.score[0]} – ${S.score[1]}${S.mode==='online'&&w===S.me?' · win saved to the leaderboard':''}</p>
       <div class="flrow"><button class="flbtn red" data-tbgo="${S.mode}">Play again</button><button class="flbtn" data-tbgo="menu">Back</button></div></div>`;}
     el('tbScore').dataset.v='';size();hud();draw();
   }
@@ -234,9 +284,9 @@ const TB=(function(){
   function mount(){if(mounted)return;mounted=true;cv=el('tbCanvas');ctx=cv.getContext('2d');
     window.addEventListener('resize',()=>{size();draw();});
     document.addEventListener('keydown',e=>key(e,true));document.addEventListener('keyup',e=>key(e,false));
-    document.addEventListener('click',e=>{const a=e.target.closest('[data-tbgo]');if(!a)return;const m=a.dataset.tbgo;if(m==='menu'){S.phase='menu';ui();}else start(m);});}
+    document.addEventListener('click',e=>{const a=e.target.closest('[data-tbgo]');if(!a)return;const m=a.dataset.tbgo;if(m==='menu'){leaveOnline();S.phase='menu';ui();}else start(m);});}
   function show(){mount();isActive=true;if(S.phase==='play'&&!S.ball)S.phase='menu';ui();last=0;if(!raf)raf=requestAnimationFrame(frame);}
-  function hide(){isActive=false;document.body.classList.remove('tb-playing');if(raf){cancelAnimationFrame(raf);raf=0;}inp.forEach(io=>{io.l=io.r=io.j=io.b=0;io.x=io.y=0;});}
+  function hide(){isActive=false;if(S.mode==='online'&&(S.phase==='search'||S.phase==='play')){leaveOnline();S.phase='menu';}document.body.classList.remove('tb-playing');if(raf){cancelAnimationFrame(raf);raf=0;}inp.forEach(io=>{io.l=io.r=io.j=io.b=0;io.x=io.y=0;});}
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&raf){cancelAnimationFrame(raf);raf=0;}else if(!document.hidden&&isActive&&!raf){last=0;raf=requestAnimationFrame(frame);}});
   return {show,hide,S,inp,tick,start};
 })();

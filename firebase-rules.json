@@ -1,0 +1,36 @@
+{
+  "rules": {
+    "players": {
+      ".read": true,
+      "$k": {
+        ".write": true,
+        ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 20"
+      }
+    },
+    "leaderboard": {
+      ".read": true,
+      "$game": {
+        "$k": {
+          ".write": true,
+          ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('wins').isNumber() && ((!data.exists() && newData.child('wins').val() == 1) || (data.exists() && newData.child('wins').val() == data.child('wins').val() + 1))"
+        }
+      }
+    },
+    "lobby": {
+      "$game": {
+        ".read": true,
+        "$id": {
+          ".write": true
+        }
+      }
+    },
+    "matches": {
+      "$game": {
+        "$m": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    }
+  }
+}

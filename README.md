@@ -16,3 +16,10 @@ A plain static website: no build step, no server code. Upload this whole folder 
 
 ## Hosting with your own domain
 Netlify, Cloudflare Pages or GitHub Pages all host this for free and let you add a custom domain.
+
+## Online play and the Mini Games leaderboard
+- `js/net.js` – names, matchmaking, online matches and the leaderboard
+- `js/firebase-config.js` – which Firebase project the site talks to (Firebase project "mld03")
+- `js/vendor/` – the Firebase library (v10.12.2), stored here so the site does not depend on a CDN
+- `firebase-rules.json` – the database rules to paste into Firebase → Realtime Database → Rules
+- Testing without Firebase: open the site with `?mock=1` in two tabs of the same browser
