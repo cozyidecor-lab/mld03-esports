@@ -395,3 +395,35 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
   #intro.play img{animation:none;opacity:1;transform:none;filter:none}
   body.ready .reveal{transition:opacity .2s}
 }
+
+/* ---- Turbo: Sideswipe-style touch controls ---- */
+.tbpad{align-items:flex-end}
+.tbstick{position:relative;width:132px;height:132px;flex:none;border-radius:50%;touch-action:none;user-select:none;-webkit-user-select:none}
+.tbstick .ring{position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.18)}
+.tbstick .knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(0,0,0,.5);transition:transform .08s}
+.tbstick.on .knob{transition:none;background:#fff}
+.tbstick.on .ring{border-color:var(--red)}
+.tbpad.p1 .tbstick .knob{background:rgba(227,25,31,.9)}
+.tbbtns{display:flex;gap:10px;align-items:flex-end}
+.tbbtns .jump{width:84px;height:84px;border-radius:50%;min-width:0;flex:none;font-size:1.05rem}
+.tbbtns .boost{width:70px;height:70px;border-radius:50%;min-width:0;flex:none;font-size:.85rem;margin-bottom:28px}
+.tbbtns .boost i{left:14px;right:14px;bottom:12px}
+.tbpads.duo .tbpad{flex-direction:row}
+.tbpads.duo .tbpad.p1{flex-direction:row-reverse}
+.tbpads.duo .tbstick{width:104px;height:104px}
+.tbpads.duo .tbbtns .jump{width:66px;height:66px}
+.tbpads.duo .tbbtns .boost{width:56px;height:56px;margin-bottom:20px}
+@media (orientation:landscape) and (max-height:520px){
+  #v-turbo.playing .tbpad button{flex:none;min-width:0}
+  #v-turbo.playing .tbbtns .jump{width:80px;height:80px}
+  #v-turbo.playing .tbbtns .boost{width:64px;height:64px}
+  #v-turbo.playing .tbstick .ring{background:rgba(20,20,24,.35)}
+}
+/* ---- Games hub ---- */
+.games{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.gcard{display:flex;gap:14px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px;width:100%}
+.gcard .gi{width:64px;height:64px;flex:none;border-radius:18px;background:var(--red);display:grid;place-items:center;color:#fff}
+.gcard .gi svg{width:34px;height:34px}
+.gcard b{display:block;font:400 1.5rem/1 var(--display);text-transform:uppercase}
+.gcard small{display:block;color:var(--muted);margin-top:4px;font-size:.88rem}
+.gcard .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}

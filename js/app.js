@@ -50,17 +50,18 @@ const CATS=[
 function leader(k){return [...D.players].sort((a,b)=>(b[k]??-1)-(a[k]??-1)||b.g-a.g)[0]}
 
 const GROUPS=[['',['home']],['Hall of fame',['mld-dor']],['All-time',['scorers','rating','trophies','runners','managers']],
-  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['side-quests','play','turbo']]];
+  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['side-quests','games']]];
 function navIcon(c){
   if(c.id==='home')return `<img alt="" src="${EMBLEM}" style="width:40px;height:40px;object-fit:cover;object-position:50% 45%">`;
   if(c.id==='mld-dor')return `<img alt="" src="${TROPHY}">`;
+  if(c.id==='games')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="17.5" cy="13.5" r="1"/></svg>`;
   if(c.id==='turbo')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>`;
   if(c.id==='play')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="14" r="4"/><circle cx="17" cy="8" r="2.5"/><path d="M11 11l4-2"/></svg>`;
   if(c.id==='side-quests')return `<img alt="" src="${MANDI_IC}" style="border-radius:50%">`;
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},games:{id:'games',t:'Games',lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
@@ -124,6 +125,7 @@ const VIEWS={
   goldenball:()=>awardsView(5,'Golden <em>Ball</em>','Highest rating of each tournament.','rating'),
   'mld-dor':ballonView,
   'side-quests':sideView,
+  games:gamesView,
 };
 function tourView(ty,title,p){
   const k=sub[ty==='T'?'team':ty==='D'?'dream':'auth'];
@@ -197,6 +199,19 @@ function ballonView(){
 }
 const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</th><th>Event</th><th>Team</th><th class="num">Goals</th><th class="num">Rating</th></tr></thead><tbody>
   ${rows.map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
+
+
+/* ---- mini games hub: every game lives here, so the menu stays short ---- */
+const GAMES=[
+  {id:'play',name:'MLD Flick',about:'Disc football. Pull back a disc, aim and flick it into the ball. Turn based.',tags:['2 players','Turn based'],
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="14" r="4"/><circle cx="17" cy="8" r="2.5"/><path d="M11 11l4-2"/></svg>'},
+  {id:'turbo',name:'MLD Turbo',about:'Car football. Drive, jump, flip and boost to smash the ball into the goal.',tags:['vs computer','2 players'],
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>'},
+];
+function gamesView(){
+  return {t:'Mini <em>Games</em>',p:'Quick games to play with the squad. Pick one to start.',
+    b:`<div class="games">${GAMES.map(g=>`<button class="gcard" data-go="${g.id}"><span class="gi">${g.icon}</span><span><b>${g.name}</b><small>${g.about}</small><span class="tags">${g.tags.map(t=>`<span class="pill">${t}</span>`).join('')}</span></span></button>`).join('')}</div>`};
+}
 
 function renderStat(){
   const v=VIEWS[cur]();

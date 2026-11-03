@@ -5,7 +5,7 @@ const TB=(function(){
   let cv,ctx,raf=0,last=0,acc=0,dpr=1,scale=1;
   const S={phase:'menu',mode:'cpu',t:MATCH,score:[0,0],cars:[],ball:null,count:0,ot:false,flash:'',flashT:0,goalPause:0,trail:[]};
   const keys={};
-  const inp=[{l:0,r:0,j:0,b:0,jp:0},{l:0,r:0,j:0,b:0,jp:0}];
+  const inp=[{l:0,r:0,j:0,b:0,jp:0,x:0,y:0},{l:0,r:0,j:0,b:0,jp:0,x:0,y:0}];
 
   function car(team){const x=team===0?40:W-40;return {team,x,y:H-CH/2,vx:0,vy:0,a:0,f:team===0?1:-1,ground:true,jumps:0,airT:0,flip:0,flipDir:0,boost:100,boosting:false,spin:0};}
   function kickoff(){S.cars=[car(0),car(1)];S.ball={x:W/2,y:H-48,vx:0,vy:0,spin:0};S.count=2.2;S.trail=[];}
@@ -39,20 +39,23 @@ const TB=(function(){
     return -1;
   }
   function stepCar(c,io,dt){
-    const dir=(io.r?1:0)-(io.l?1:0);
+    // analog stick (touch joystick) or digital left/right (keyboard / computer)
+    let ax=io.x||((io.r?1:0)-(io.l?1:0));if(Math.abs(ax)<0.18)ax=0;
+    const dir=ax>0?1:ax<0?-1:0, mag=Math.min(1,Math.abs(ax));
+    const flipDir=Math.abs(ax)>0.35&&!(io.y<-0.6&&Math.abs(ax)<0.55)?dir:0;
     // jump / double jump / flip (edge-triggered)
     if(io.jp){io.jp=0;
       if(c.ground){c.vy=-78;c.ground=false;c.jumps=1;c.airT=0;}
       else if(c.jumps===1&&c.airT<1.6){c.jumps=2;
-        if(dir){c.flip=0.42;c.flipDir=dir;c.vx+=dir*62;c.vy=Math.min(c.vy,-22);} else c.vy=Math.min(c.vy,-62);}
+        if(flipDir){c.flip=0.42;c.flipDir=flipDir;c.vx+=flipDir*62;c.vy=Math.min(c.vy,-22);} else c.vy=Math.min(c.vy,-62);}
     }
     if(c.ground){
-      if(dir){c.vx+=dir*(c.team===1&&S.mode==='cpu'?120:150)*dt;c.f=dir;} else c.vx*=1-3.2*dt;
+      if(dir){c.vx+=dir*(0.45+0.55*mag)*(c.team===1&&S.mode==='cpu'?120:150)*dt;c.f=dir;} else c.vx*=1-3.2*dt;
       c.a=0;
     } else {
       c.airT+=dt;
       if(c.flip>0){c.flip-=dt;c.a+= -c.flipDir*c.f*(Math.PI*2/0.42)*dt;}
-      else if(dir) c.a+= dir*c.f*-4.6*dt; // nose up/down relative to facing
+      else if(dir) c.a+= dir*(0.35+0.65*mag)*c.f*-4.6*dt; // stick left/right spins the car in the air
     }
     c.boosting=io.b&&c.boost>0;
     if(c.boosting){const nx=c.f*Math.cos(c.a),ny=Math.sin(c.a)*-1;c.vx+=nx*230*dt;c.vy+=ny*230*dt;c.boost=Math.max(0,c.boost-34*dt);}
@@ -190,14 +193,23 @@ const TB=(function(){
 
   /* ---------- controls ---------- */
   function pad(i){return `<div class="tbpad p${i}">
-    <div class="tbgrp"><button data-tb="${i}:l" aria-label="Left">◀</button><button data-tb="${i}:r" aria-label="Right">▶</button></div>
-    <div class="tbgrp"><button class="jump" data-tb="${i}:j" aria-label="Jump">JUMP</button><button class="boost" data-tb="${i}:b" aria-label="Boost">BOOST<i><s id="tbBoost${i}"></s></i></button></div></div>`;}
+    <div class="tbstick" data-stick="${i}" aria-label="Joystick: drive, and spin in the air"><div class="ring"></div><div class="knob"></div></div>
+    <div class="tbbtns"><button class="boost" data-tb="${i}:b" aria-label="Boost">BOOST<i><s id="tbBoost${i}"></s></i></button><button class="jump" data-tb="${i}:j" aria-label="Jump">JUMP</button></div></div>`;}
   function bindPads(){
     document.querySelectorAll('[data-tb]').forEach(btn=>{const [i,k]=btn.dataset.tb.split(':');const io=inp[+i];
       const on=e=>{e.preventDefault();btn.setPointerCapture&&btn.setPointerCapture(e.pointerId);btn.classList.add('on');if(k==='j'){io.j=1;io.jp=1;}else io[k]=1;};
       const off=e=>{btn.classList.remove('on');io[k]=0;};
       btn.addEventListener('pointerdown',on);btn.addEventListener('pointerup',off);btn.addEventListener('pointercancel',off);btn.addEventListener('pointerleave',off);
       btn.addEventListener('contextmenu',e=>e.preventDefault());});
+    document.querySelectorAll('[data-stick]').forEach(st=>{const io=inp[+st.dataset.stick];const knob=st.querySelector('.knob');let id=null;
+      const set=e=>{const r=st.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width*0.36;
+        let dx=e.clientX-cx,dy=e.clientY-cy;const L=Math.hypot(dx,dy);if(L>R){dx*=R/L;dy*=R/L;}
+        knob.style.transform=`translate(${dx}px,${dy}px)`;io.x=dx/R;io.y=dy/R;};
+      const end=()=>{id=null;io.x=0;io.y=0;knob.style.transform='';st.classList.remove('on');};
+      st.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;st.setPointerCapture(id);st.classList.add('on');set(e);});
+      st.addEventListener('pointermove',e=>{if(e.pointerId===id)set(e);});
+      st.addEventListener('pointerup',end);st.addEventListener('pointercancel',end);
+      st.addEventListener('contextmenu',e=>e.preventDefault());});
   }
   const KEYMAP={ArrowLeft:[0,'l'],ArrowRight:[0,'r'],ArrowUp:[0,'j'],' ':[0,'j'],Shift:[0,'b'],a:[0,'l'],d:[0,'r'],w:[0,'j'],
     j:[1,'l'],l:[1,'r'],i:[1,'j'],k:[1,'b']};
@@ -209,7 +221,7 @@ const TB=(function(){
   function ui(){
     const p=el('tbPanel'),stage=el('tbStage');if(!p)return;
     stage.hidden=S.phase==='menu';el('v-turbo').classList.toggle('playing',S.phase!=='menu');document.body.classList.toggle('tb-playing',S.phase==='play'&&isActive);
-    if(S.phase==='menu'){p.innerHTML=`<div class="flcard"><p>Drive, jump and boost to smash the ball into the other goal. Jump twice in the air to flip; hold a direction while flipping to dodge into the ball. Most goals in 2 minutes wins.</p>
+    if(S.phase==='menu'){p.innerHTML=`<div class="flcard"><p>Drive, jump and boost to smash the ball into the other goal. Left thumb: the joystick drives, and spins the car in the air. Right thumb: JUMP and BOOST. Tap JUMP again in the air to flip toward the way the stick is pushed; push the stick up (or leave it centred) for a straight double jump. Most goals in 2 minutes wins.</p>
       <button class="flbtn red" data-tbgo="cpu">Play vs computer</button><button class="flbtn" data-tbgo="duo">2 players on this device</button>
       <p class="note">Tip: turn your phone sideways for a bigger pitch. On a keyboard: arrows or WASD, Space to jump, Shift to boost. Player 2: J L, I to jump, K to boost.</p></div>`;}
     else if(S.phase==='play'){p.innerHTML=`<div class="tbpads ${S.mode}">${pad(0)}${S.mode==='duo'?pad(1):''}</div>`;bindPads();}
@@ -224,7 +236,7 @@ const TB=(function(){
     document.addEventListener('keydown',e=>key(e,true));document.addEventListener('keyup',e=>key(e,false));
     document.addEventListener('click',e=>{const a=e.target.closest('[data-tbgo]');if(!a)return;const m=a.dataset.tbgo;if(m==='menu'){S.phase='menu';ui();}else start(m);});}
   function show(){mount();isActive=true;if(S.phase==='play'&&!S.ball)S.phase='menu';ui();last=0;if(!raf)raf=requestAnimationFrame(frame);}
-  function hide(){isActive=false;document.body.classList.remove('tb-playing');if(raf){cancelAnimationFrame(raf);raf=0;}inp.forEach(io=>{io.l=io.r=io.j=io.b=0;});}
+  function hide(){isActive=false;document.body.classList.remove('tb-playing');if(raf){cancelAnimationFrame(raf);raf=0;}inp.forEach(io=>{io.l=io.r=io.j=io.b=0;io.x=io.y=0;});}
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&raf){cancelAnimationFrame(raf);raf=0;}else if(!document.hidden&&isActive&&!raf){last=0;raf=requestAnimationFrame(frame);}});
   return {show,hide,S,inp,tick,start};
 })();
