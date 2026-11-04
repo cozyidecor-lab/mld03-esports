@@ -15,5 +15,15 @@ window.MLD_DATA.dorNominees={total:30,list:[
   {rank:7,name:"Pranav",points:49.73,img:"images/mld-dor/7-Pranav.jpg"},
   {rank:8,name:"Ig Ezio",points:48.86,img:"images/mld-dor/8-Ig Ezio.jpg"},
   {rank:9,name:"Bujji",points:48.27,img:"images/mld-dor/9-Bujji.jpg"},
-  {rank:10,name:"Pete",points:46.89,img:"images/mld-dor/10-Pete.jpg"}
+  {rank:10,name:"Pete",points:46.89,img:"images/mld-dor/10-Pete.jpg"},
+  {rank:11,name:"Razin",points:44.69,img:"images/mld-dor/11-Razin.jpg"},
+  {rank:12,name:"Salman",points:44.59,img:"images/mld-dor/12-Salman.jpg"},
+  {rank:13,name:"WaCky",points:43.18,img:"images/mld-dor/13-WaCky.jpg"},
+  {rank:14,name:"Siyan",points:41.57,img:"images/mld-dor/14-Siyan.jpg"},
+  {rank:15,name:"Ashik",points:40.46,img:"images/mld-dor/15-Ashik.jpg"},
+  {rank:16,name:"Ronney",points:39.69,img:"images/mld-dor/16-Ronney.jpg"},
+  {rank:17,name:"Sreedev",points:38.69,img:"images/mld-dor/17-Sreedev.jpg"},
+  {rank:18,name:"Rashid",points:37.24,img:"images/mld-dor/18-Rashid.jpg"},
+  {rank:19,name:"Shijas",points:36.35,img:"images/mld-dor/19-Shijas.jpg"},
+  {rank:20,name:"Pugazh",points:36.23,img:"images/mld-dor/20-Pugazh.jpg"}
 ]};
