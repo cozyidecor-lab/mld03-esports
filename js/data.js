@@ -10,5 +10,10 @@ window.MLD_DATA.dorNominees={total:30,list:[
   {rank:2,name:"Cijin",points:92.23,img:"images/mld-dor/2-Cijin.jpg"},
   {rank:3,name:"Millaj",points:81.69,img:"images/mld-dor/3-Millaj.jpg"},
   {rank:4,name:"Vishnu",alias:"Derry",points:65.57,img:"images/mld-dor/4-Vishnu.jpg"},
-  {rank:5,name:"Nezel",points:65.52,img:"images/mld-dor/5-Nezel.jpg"}
+  {rank:5,name:"Nezel",points:65.52,img:"images/mld-dor/5-Nezel.jpg"},
+  {rank:6,name:"Harris",points:55.97,img:"images/mld-dor/6-Harris.jpg"},
+  {rank:7,name:"Pranav",points:49.73,img:"images/mld-dor/7-Pranav.jpg"},
+  {rank:8,name:"Ig Ezio",points:48.86,img:"images/mld-dor/8-Ig Ezio.jpg"},
+  {rank:9,name:"Bujji",points:48.27,img:"images/mld-dor/9-Bujji.jpg"},
+  {rank:10,name:"Pete",points:46.89,img:"images/mld-dor/10-Pete.jpg"}
 ]};

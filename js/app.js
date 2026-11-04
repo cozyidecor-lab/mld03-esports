@@ -207,7 +207,7 @@ function ballonView(){
 const ord=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
 function nomineesBlock(){
   const N=D.dorNominees;if(!N||!N.list.length)return'';
-  const L=[...N.list].sort((a,b)=>a.rank-b.rank),w=L[0],rest=L.slice(1);
+  const L=[...N.list].sort((a,b)=>a.rank-b.rank),w=L[0],rest=L.slice(1,5),more=L.slice(5);
   const card=(x,big)=>`<button class="nom${big?' win':''} r${x.rank}" data-poster="${esc(x.img)}" data-pname="${esc(x.name)}" aria-label="${esc(ord(x.rank))}: ${esc(x.alias?x.alias+' ('+x.name+')':x.name)}, ${x.points} MLD D'or points. Tap to enlarge.">
       <img src="${esc(x.img)}" alt="${esc(x.name)} MLD D'or poster" loading="lazy">
       <span class="nomrank">${big?'★ Winner':ord(x.rank)}</span>
@@ -215,6 +215,7 @@ function nomineesBlock(){
   return `<h2 class="sec" style="margin-top:0">The nominees <small>1ST MLD D'OR</small></h2>
     <p class="note" style="margin:-4px 0 12px">${N.total} players were nominated. Ranked by MLD D'or points: performance score 80% + jury vote 20%. Tap a poster to see it full size.</p>
     <div class="noms">${card(w,true)}<div class="nomgrid">${rest.map(x=>card(x,false)).join('')}</div></div>
+    ${more.length?`<h2 class="sec">Top 20 nominees <small>${ord(more[0].rank).toUpperCase()} – ${ord(more[more.length-1].rank).toUpperCase()}</small></h2><div class="nomgrid wide">${more.map(x=>card(x,false)).join('')}</div>`:''}
     ${N.list.length<N.total?`<p class="note nommore">Top ${N.list.length} of ${N.total} shown. The rest of the nominees are coming soon.</p>`:''}`;
 }
 document.addEventListener('click',e=>{
