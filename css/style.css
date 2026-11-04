@@ -564,3 +564,5 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
 
 /* all players */
 .aplist .row{grid-template-columns:1fr auto}
+.apseason{display:flex;justify-content:space-between;align-items:baseline;font:400 1.25rem var(--display);text-transform:uppercase;margin:14px 2px 2px}
+.apseason small{font:600 .72rem var(--label);letter-spacing:.12em;color:var(--muted)}

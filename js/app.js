@@ -480,7 +480,7 @@ function perfChart(n){
    `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, 15 per season-wide Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
 }
 
-renderHome();go(location.hash.slice(1));
+renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&VIEWS[h0])go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 
 /* ---- intro ---- */

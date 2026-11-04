@@ -216,5 +216,4 @@
   document.addEventListener('click',e=>{if(e.target.closest('[data-cswap]')){[CMP.a,CMP.b]=[CMP.b,CMP.a];rerender('cmpOut');}});
   VIEWS.compare=view;
   window.CMP=CMP;
-  if(location.hash==='#compare')go('compare');
 })();

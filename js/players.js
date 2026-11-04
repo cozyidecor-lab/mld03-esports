@@ -6,8 +6,8 @@
   const first={},firstIdx={};
   D.log.forEach((r,i)=>{if(!(r[2] in first)){first[r[2]]=r[0];firstIdx[r[2]]=i;}});
   D.trophies.forEach((t,i)=>{if(!(t[2] in first)){first[t[2]]=t[0];firstIdx[t[2]]=1e6+i;}});
-  const pos=n=>{const k=JOIN_ORDER.indexOf(n);return k>=0?k:1e3+(first[n]||99)*1e4+(firstIdx[n]||0)/1e3;};
-  const joined=[...D.players].filter(p=>!p.side).sort((a,b)=>pos(a.n)-pos(b.n));
+  const pos=n=>{const k=JOIN_ORDER.indexOf(n);return k>=0?k:1e3+(first[n]||99)*1e4;};
+  const joined=[...D.players].filter(p=>!p.side).sort((a,b)=>pos(a.n)-pos(b.n)||a.n.localeCompare(b.n,undefined,{sensitivity:'base'}));
   joined.forEach((p,i)=>p._join=i+1);
   const SORTS=[['join','Joined order'],['az','A – Z'],['za','Z – A'],['goals','Most goals'],['rating','Career rating'],['seasons','Most tournaments'],['trophies','Most trophies']];
   const st={sort:'join',q:''};
@@ -26,7 +26,10 @@
     const L=list();
     const lead=p=>st.sort==='join'?`#${p._join}`:st.sort==='goals'?p.g:st.sort==='rating'?fmt(p.cs):st.sort==='seasons'?p.t:st.sort==='trophies'?p.pt:`#${p._join}`;
     const lab=st.sort==='goals'?'goals':st.sort==='rating'?'score':st.sort==='seasons'?'played':st.sort==='trophies'?'titles':'joined';
-    return L.map(p=>`<button class="row${p.n===GOAT?' goat':''}" data-p="${esc(p.n)}"><div class="nm">${avatar(p.n)}<div><b>${esc(p.n)}</b>
+    let lastS=null;
+    const head=p=>{if(st.sort!=='join'||st.q.trim())return'';const s=JOIN_ORDER.includes(p.n)?'F':first[p.n];if(s===lastS)return'';lastS=s;
+      return `<div class="apseason">${s==='F'?'Founders':`Joined in Season ${s}`}<small>${s==='F'?JOIN_ORDER.length:L.filter(x=>!JOIN_ORDER.includes(x.n)&&first[x.n]===s).length} players</small></div>`;};
+    return L.map(p=>head(p)+`<button class="row${p.n===GOAT?' goat':''}" data-p="${esc(p.n)}"><div class="nm">${avatar(p.n)}<div><b>${esc(p.n)}</b>
       <span>Joined S${first[p.n]||'?'} · ${p.t} tournament${p.t===1?'':'s'} · ${p.g} goals</span>${miniIcons(p.n)}</div></div>
       <div class="vl">${lead(p)}<small>${lab}</small></div></button>`).join('')||'<p class="note">No player with that name.</p>';
   }
@@ -44,5 +47,4 @@
     document.querySelectorAll('#apSort .pill').forEach(x=>x.classList.toggle('on',x.dataset.aps===st.sort));
     document.getElementById('apRows').innerHTML=rows();});
   VIEWS['all-players']=view;
-  if(location.hash==='#all-players')go('all-players');
 })();
