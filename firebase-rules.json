@@ -31,6 +31,13 @@
           ".write": true
         }
       }
+    },
+    "likes": {
+      ".read": true,
+      "$k": {
+        ".write": true,
+        ".validate": "newData.child('n').isNumber() && ((!data.exists() && newData.child('n').val() == 1) || (data.exists() && newData.child('n').val() == data.child('n').val() + 1))"
+      }
     }
   }
 }

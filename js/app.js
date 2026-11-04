@@ -275,7 +275,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><h3>${esc(n)}</h3>${founderTag(n,'big')}
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div>${founderTag(n,'big')}
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
       <div class="tile"><b>${p.pt}</b><span>Trophies</span></div><div class="tile"><b>${p.ru}</b><span>Runner-up</span></div><div class="tile"><b>${p.mt}</b><span>As manager</span></div></div>
@@ -283,11 +283,30 @@ function openPlayer(n){
     ${tro.length?`<h2 class="sec">Honours</h2><div class="chips">${tro.map(t=>`<span class="chip${/Trophy/.test(t[3])?' on':''}">S${t[0]} ${t[3]==='Player Trophy'?'Champion':t[3]==='Manager Trophy'?'Champion manager':t[3]} · ${TYPE[t[1]]}</span>`).join('')}</div>`:''}
     <h2 class="sec">Season log</h2>${logTable(rows)}`;
   $('#sheetBody').classList.toggle('founder',n===FOUNDER);
-  $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);
+  $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);mountLike(n);
   if(AUDIO[n])$('#photoTools').insertAdjacentHTML('afterend',`<button class="chip on" data-replay="1" style="border:0;margin:0 0 8px">▶ Play ${esc(n)}'s sound again</button>`);
 }
 let sheetOpen=null;
-const closeSheet=()=>{$('#sheet').classList.remove('on');sheetOpen=null;stopIntro();};
+/* ---- likes on profiles: one per phone, remembered after refresh ---- */
+let likeOff=null;
+const likedSet=()=>{try{return new Set(JSON.parse(localStorage.getItem('mld-liked')||'[]'));}catch(e){return new Set();}};
+const markLiked=n=>{try{const s=likedSet();s.add(n);localStorage.setItem('mld-liked',JSON.stringify([...s]));}catch(e){}};
+const HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
+function mountLike(n){
+  if(likeOff){likeOff();likeOff=null;}
+  const box=document.getElementById('likeBox');if(!box)return;
+  if(!NET.available()){box.innerHTML='';return;}
+  let count=null,liked=likedSet().has(n);
+  const draw=()=>{const b=document.getElementById('likeBox');if(!b||sheetOpen!==n)return;
+    b.innerHTML=`<button class="likebtn${liked?' on':''}" data-like="1" aria-pressed="${liked}" aria-label="${liked?'You liked '+esc(n):'Like '+esc(n)}">${HEART}<span>${count==null?'':count}</span></button>`;};
+  draw();
+  likeOff=NET.onLikes(n,v=>{if(v===null)return;count=v;draw();});
+  box.onclick=e=>{if(!e.target.closest('[data-like]')||liked)return;
+    liked=true;markLiked(n);count=(count||0)+1;draw();
+    const btn=box.querySelector('.likebtn');if(btn){btn.classList.add('pop');}
+    NET.like(n);};
+}
+const closeSheet=()=>{if(likeOff){likeOff();likeOff=null;}$('#sheet').classList.remove('on');sheetOpen=null;stopIntro();};
 
 /* ---- routing ---- */
 /* ---- Games are locked behind an admin PIN while they are being finished ---- */
@@ -458,11 +477,11 @@ function openSidePlayer(n){
   const qs=SIDE.filter(q=>q.winner===n);
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">Side quest player</div><h3>${esc(n)}</h3>${cabinet(n)}
+    <div class="sub">Side quest player</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div>${cabinet(n)}
     <p class="note">No main MLD tournament stats recorded for ${esc(n)} yet.</p>
     <h2 class="sec">Side quests</h2><div class="rows">${qs.map(q=>`<button class="boot" data-go="side-quests" style="width:100%;text-align:left;color:inherit"><div class="s" style="font-size:.9rem">${esc(q.game)}</div><div class="who">${esc(q.name)}<small>Won ${q.wins} quick tournaments in ${esc(q.length)} · ${esc(q.prize)}</small></div><div class="n">1st</div></button>`).join('')}</div>`;
   $('#sheetBody').classList.remove('founder');
-  $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);
+  $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);mountLike(n);
 }
 
 /* ---- player sounds: play when a profile is opened (the tap counts as the user gesture) ---- */

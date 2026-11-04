@@ -120,5 +120,11 @@ const NET=(function(){
       setTimeout(()=>inp.focus(),50);
     });
   }
-  return {available,names,saveName,addWin,onLeaderboard,findMatch,channel,askName,MOCK};
+  /* ---------- profile likes: one per device ---------- */
+  function deviceId(){try{let d=localStorage.getItem('mld-dev');if(!d){d=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('mld-dev',d);}return d;}catch(e){return 'anon';}}
+  function onLikes(name,cb){const s=store();if(!s){cb(null);return ()=>{};}
+    return s.on('likes/'+keyOf(name)+'/n',v=>cb(v||0));}
+  function like(name){const s=store();if(!s)return Promise.resolve(false);const dev=deviceId();
+    return s.txn('likes/'+keyOf(name),cur=>{cur=cur||{n:0,by:{}};cur.by=cur.by||{};if(cur.by[dev])return undefined;cur.by[dev]=true;cur.n=(cur.n||0)+1;return cur;}).catch(()=>false);}
+  return {available,names,saveName,addWin,onLeaderboard,findMatch,channel,askName,MOCK,onLikes,like};
 })();
