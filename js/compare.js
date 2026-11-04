@@ -18,7 +18,7 @@
     return {n,p,h,
       goals:p.g,tournaments:p.t,gpt:p.t?p.g/p.t:0,rating:p.r||0,career:p.cs||0,rank:p.crk,
       titles,runners:p.ru,managers:p.mt,finals,finalWin:finals?titles/finals:null,
-      boots:h.GS||0,balls:h.GB||0,dor:h.bdo||0,
+      boots:h.GS||0,balls:h.GB||0,sboots:h.SGS||0,sballs:h.SGB||0,dor:h.bdo||0,
       teamGoals:team.reduce((s,r)=>s+(r[4]||0),0),teamRating:avg(team),teamTitles:h.T||0,
       soloGoals:solo.reduce((s,r)=>s+(r[4]||0),0),soloRating:avg(solo),
       bestSeasonGoals,bestRating,
@@ -28,7 +28,7 @@
   let maxCache=null;
   function leagueMax(){ // best value in the whole league for each metric, so the MLD Index is on a fair 0–100 scale
     if(maxCache)return maxCache;const all=pool().map(p=>statsOf(p.n));const m={};
-    ['goals','career','rating','titles','runners','managers','boots','balls','perfAvg','perfBest','tournaments'].forEach(k=>m[k]=Math.max(...all.map(s=>s[k]||0))||1);
+    ['goals','career','rating','titles','runners','managers','boots','balls','sboots','sballs','perfAvg','perfBest','tournaments'].forEach(k=>m[k]=Math.max(...all.map(s=>s[k]||0))||1);
     return maxCache=m;
   }
   /* MLD Index: one 0–100 number for "who was better for MLD" */
@@ -36,7 +36,7 @@
     ['rating','Average rating',8],['awards','Season awards',8],['runners','Finals reached (runner-up)',4],['tournaments','Experience',4],['dor','MLD D\'or',4]];
   function index(s){const m=leagueMax();let tot=0;const parts={};
     WEIGHTS.forEach(([k,,w])=>{let v;
-      if(k==='awards')v=Math.min(1,(s.boots+s.balls)/Math.max(1,(m.boots+m.balls)/1.5));
+      if(k==='awards')v=Math.min(1,(s.boots+s.balls+2*(s.sboots+s.sballs))/Math.max(1,(m.boots+m.balls+2*(m.sboots+m.sballs))/1.5));
       else if(k==='dor')v=s.dor?1:0;
       else v=Math.min(1,(s[k]||0)/m[k]);
       parts[k]=v*w;tot+=v*w;});
@@ -50,10 +50,12 @@
     ['Scoring','goals','Total goals',v=>v],
     ['Scoring','gpt','Goals per tournament',v=>v.toFixed(1)],
     ['Scoring','bestSeasonGoals','Most goals in one season',v=>v],
-    ['Scoring','boots','Golden Boots',v=>v],
+    ['Scoring','sboots','Season Golden Boots',v=>v],
+    ['Scoring','boots','Golden Boots (per tour)',v=>v],
     ['Rating','rating','Average rating',v=>fmt(v)],
     ['Rating','bestRating','Best single rating',v=>v],
-    ['Rating','balls','Golden Balls',v=>v],
+    ['Rating','sballs','Season Golden Balls',v=>v],
+    ['Rating','balls','Golden Balls (per tour)',v=>v],
     ['Trophies','titles','Titles won',v=>v],
     ['Trophies','finals','Finals reached',v=>v],
     ['Trophies','finalWin','Finals won %',v=>v==null?'–':Math.round(v*100)+'%',{skipNull:true}],
@@ -107,7 +109,7 @@
   }
   function radar(A,B){ // six skills, each as a share of the best in the league
     const m=leagueMax(),ax=[['Scoring',s=>s.goals/m.goals],['Rating',s=>s.rating/m.rating],['Titles',s=>s.titles/m.titles],
-      ['Awards',s=>Math.min(1,(s.boots+s.balls)/Math.max(1,(m.boots+m.balls)/1.5))],['Form',s=>s.perfAvg/m.perfAvg],['Experience',s=>s.tournaments/m.tournaments]];
+      ['Awards',s=>Math.min(1,(s.boots+s.balls+2*(s.sboots+s.sballs))/Math.max(1,(m.boots+m.balls+2*(m.sboots+m.sballs))/1.5))],['Form',s=>s.perfAvg/m.perfAvg],['Experience',s=>s.tournaments/m.tournaments]];
     const C=110,R=78,n=ax.length,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [C+Math.cos(a)*R*v,C+Math.sin(a)*R*v];};
     const poly=s=>ax.map(([,f],i)=>pt(i,Math.max(0.03,Math.min(1,f(s)||0))).map(v=>v.toFixed(1)).join(',')).join(' ');
     const rings=[.25,.5,.75,1].map(k=>`<polygon class="rg" points="${ax.map((_,i)=>pt(i,k).join(',')).join(' ')}"/>`).join('');

@@ -5,7 +5,8 @@ const STICKER=`<img class="sticker" alt="MLD D'or trophy" src="${TROPHY}">`;
 const PHOTO="images/mld-dor-midhun.jpg", FACE="images/players/Midhun.jpg";
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const TYPE={T:'Team Tour',D:'Solo · Dream Team',A:'Solo · Authentic',C:'Co-op Tour'};
+const TYPE={T:'Team Tour',D:'Solo · Dream Team',A:'Solo · Authentic',C:'Co-op Tour',S:'Season-wide · all tours'};
+const SEASON_AW=D.seasonAwards||[];
 const fmt=v=>v==null?'–':(Math.round(v*10)/10).toString();
 const byName=Object.fromEntries(D.players.map(p=>[p.n,p]));
 const GOAT=D.ballon.winner;
@@ -143,7 +144,8 @@ function tourView(ty,title,p){
 function awardsView(k,title,p,unit){
   const wins={};D.awards.forEach(a=>names(a[k]).forEach(n=>wins[n]=(wins[n]||0)+1));
   const multi=Object.entries(wins).filter(e=>e[1]>1).sort((a,b)=>b[1]-a[1]);
-  return {t:title,p,b:(multi.length?`<div class="winners">${multi.map(([n,c],i)=>`<button class="win${i?'':' first'}" data-p="${esc(n)}"><span>${c} times</span><b>${esc(n)}</b></button>`).join('')}</div>`:'')+
+  const sw=SEASON_AW.map(a=>`<div class="boot season"><div class="s">S${a[0]}</div><div class="who">${names(a[k]).map(pname).join(', ')}<small>Season-wide · best across all tours</small></div><div class="n">${a[k-1]}<small>${unit.toUpperCase()}</small></div></div>`).join('');
+  return {t:title,p,b:(sw?`<h2 class="sec" style="margin-top:0">Season-wide <small>WHOLE SEASON</small></h2><div class="rows">${sw}</div><h2 class="sec">Per tournament <small>EACH TOUR</small></h2>`:'')+(multi.length?`<div class="winners">${multi.map(([n,c],i)=>`<button class="win${i?'':' first'}" data-p="${esc(n)}"><span>${c} times</span><b>${esc(n)}</b></button>`).join('')}</div>`:'')+
     `<div class="rows">${[...D.awards].reverse().map(a=>`<div class="boot"><div class="s">S${a[0]}</div><div class="who">${names(a[k]).map(pname).join(', ')}<small>${TYPE[a[1]]}</small></div><div class="n">${a[k-1]}<small>${unit.toUpperCase()}</small></div></div>`).join('')}</div>`};
 }
 function perSeason(n){return Array.from({length:13},(_,i)=>{const rs=D.log.filter(r=>r[2]===n&&r[0]===i+1);return rs.length?rs.reduce((s,r)=>s+(r[4]||0),0):null;})}
@@ -297,6 +299,8 @@ const HON=[
   {k:'bdo',label:"MLD D'or",img:true},
   {k:'T',label:'Team Tour',sym:'#t-team',cls:'team'},
   {k:'M',label:'Team Tour',sym:'#t-team',cls:'team mgr',mgr:true},
+  {k:'SGB',label:'Golden Ball',sym:'#t-ball',cls:'season',season:true},
+  {k:'SGS',label:'Golden Boot',sym:'#t-boot',cls:'season',season:true},
   {k:'D',label:'Solo Dream Team',sym:'#t-dream'},
   {k:'A',label:'Solo Authentic',sym:'#t-auth'},
   {k:'C',label:'Co-op Tour',sym:'#t-coop'},
@@ -316,15 +320,16 @@ function honours(n){
   D.trophies.forEach(t=>{if(t[2]!==n)return;
     if(t[3]==='Player Trophy')add(t[1]);else if(t[3]==='Manager Trophy')add('M');else if(t[3]==='Runner-up')add('RU-'+t[1]);});
   D.awards.forEach(a=>{if(names(a[5]).includes(n))add('GB');if(names(a[3]).includes(n))add('GS');});
+  SEASON_AW.forEach(a=>{if(names(a[5]).includes(n))add('SGB');if(names(a[3]).includes(n))add('SGS');});
   SIDE.forEach(q=>{if(q.winner===n)add('SQ');});
   return honoursCache[n]=HON.filter(h=>c[h.k]).map(h=>({...h,n:c[h.k]}));
 }
 const icon=h=>h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg class="tico"><use href="${h.sym}"/></svg>`;
 function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return'';
-  return `<div class="mini">${hs.map(h=>`<span${h.mgr?' class="mgr"':''} title="${h.mgr?'Team Tour (as manager)':esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
+  return `<div class="mini">${hs.map(h=>`<span${h.mgr?' class="mgr"':h.season?' class="season"':''} title="${h.mgr?'Team Tour (as manager)':h.season?'Season-wide '+esc(h.label):esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.season?'<b class="asseason">SEASON</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
 function cabinet(n){const hs=honours(n);if(!hs.length)return '<p class="note">No trophies yet.</p>';
   return `<div class="cabinet">${hs.map((h,i)=>`<div class="cab${h.k==='bdo'?' first':''}${h.cls?' '+h.cls:''}"><div class="pl8">${h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%;width:54px;height:54px;object-fit:cover">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg><use href="${h.sym}"/></svg>`}</div>
-    ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}</small></div>`).join('')}</div>`;}
+    ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}${h.season?'<br><em class="asseason">(Season-wide)</em>':''}</small></div>`).join('')}</div>`;}
 
 /* ---- global search ---- */
 function renderGlobal(){
@@ -430,19 +435,20 @@ function perfSeason(n){
     const tr=D.trophies.filter(t=>t[2]===n&&t[0]===s);
     const aw=D.awards.filter(a=>a[0]===s);
     const gb=aw.filter(a=>names(a[5]).includes(n)).length, gs=aw.filter(a=>names(a[3]).includes(n)).length;
+    const sw=SEASON_AW.filter(a=>a[0]===s),sgb=sw.filter(a=>names(a[5]).includes(n)).length,sgs=sw.filter(a=>names(a[3]).includes(n)).length;
     if(!rs.length&&!tr.length)return null;
     const g=rs.reduce((a,r)=>a+(r[4]||0),0), rt=rs.reduce((a,r)=>a+(r[5]||0),0);
-    const bonus=tr.reduce((a,t)=>a+(BONUS[t[3]]||0),0)+10*gb+10*gs;
+    const bonus=tr.reduce((a,t)=>a+(BONUS[t[3]]||0),0)+10*gb+10*gs+15*sgb+15*sgs;
     const bits=[g+' goals','rating '+rt];
     tr.forEach(t=>bits.push(t[3]==='Player Trophy'?'champion':t[3]==='Manager Trophy'?'champion manager':t[3].toLowerCase()));
-    if(gb)bits.push('Golden Ball');if(gs)bits.push('Golden Boot');
+    if(gb)bits.push('Golden Ball');if(gs)bits.push('Golden Boot');if(sgb)bits.push('Season Golden Ball');if(sgs)bits.push('Season Golden Boot');
     return {v:Math.round(g+rt+bonus),tip:`S${s} · ${Math.round(g+rt+bonus)} pts · ${bits.join(', ')}`,cup:tr.some(t=>/Trophy/.test(t[3]))};
   });
 }
 function perfChart(n){
   const ps=perfSeason(n);
   return chart(ps.map(p=>p?p.v:null),'',ps.map((p,i)=>p?p.tip:`S${i+1} · did not play`),ps.map(p=>!!(p&&p.cup)))+
-   `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
+   `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, 15 per season-wide Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
 }
 
 renderHome();go(location.hash.slice(1));
