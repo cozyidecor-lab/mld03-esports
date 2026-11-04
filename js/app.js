@@ -286,7 +286,7 @@ window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==
 /* ---- photos (shared, saved into the page) ---- */
 const PHOTOS={}; /* uploaded photos are a claude.ai feature; on the website add files to images/players/ instead */
 const SELF="";
-const DEFAULT_FACE={Hudaifa:"images/players/Hudaifa.jpg",Cijin:"images/players/Cijin.jpg",Nezel:"images/players/Nezel.jpg",WaCky:"images/players/WaCky.jpg",Ashik:"images/players/Ashik.jpg",Vishnu:"images/players/Vishnu.jpg",Siyan:"images/players/Siyan.jpg",Salman:"images/players/Salman.jpg",Pranav:"images/players/Pranav.jpg",Nabeel:"images/players/Nabeel.jpg","Rashid":"images/players/Rashid.jpg","Ig Ezio":"images/players/Ig Ezio.jpg","Harris":"images/players/Harris.jpg","Millaj":"images/players/Millaj.jpg","Zainudheen":"images/players/Zainudheen.jpg","Zayidali Nahyan":"images/players/Zayidali Nahyan.jpg"};
+const DEFAULT_FACE={Hudaifa:"images/players/Hudaifa.jpg",Cijin:"images/players/Cijin.jpg",Nezel:"images/players/Nezel.jpg",WaCky:"images/players/WaCky.jpg",Ashik:"images/players/Ashik.jpg",Vishnu:"images/players/Vishnu.jpg",Siyan:"images/players/Siyan.jpg",Salman:"images/players/Salman.jpg",Pranav:"images/players/Pranav.jpg",Nabeel:"images/players/Nabeel.jpg","Rashid":"images/players/Rashid.jpg","Ig Ezio":"images/players/Ig Ezio.jpg","Harris":"images/players/Harris.jpg","Millaj":"images/players/Millaj.jpg","Zainudheen":"images/players/Zainudheen.jpg","Zayidali Nahyan":"images/players/Zayidali Nahyan.jpg","Arjun":"images/players/Arjun.jpg","Arun":"images/players/Arun.jpg","Shahid Mubarak":"images/players/Shahid Mubarak.jpg","Senpai":"images/players/Senpai.jpg"};
 const photoOf=n=>PHOTOS[n]?'/_blob/'+PHOTOS[n]:(n===GOAT?FACE:(DEFAULT_FACE[n]||null));
 const initials=n=>n.replace(/[^A-Za-z0-9 ]/g,'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
 function avatar(n,cls=''){const u=photoOf(n);
@@ -296,10 +296,10 @@ function avatar(n,cls=''){const u=photoOf(n);
 const HON=[
   {k:'bdo',label:"MLD D'or",img:true},
   {k:'T',label:'Team Tour',sym:'#t-team',cls:'team'},
+  {k:'M',label:'Team Tour',sym:'#t-team',cls:'team mgr',mgr:true},
   {k:'D',label:'Solo Dream Team',sym:'#t-dream'},
   {k:'A',label:'Solo Authentic',sym:'#t-auth'},
   {k:'C',label:'Co-op Tour',sym:'#t-coop'},
-  {k:'M',label:'Manager',sym:'#t-manager'},
   {k:'GB',label:'Golden Ball',sym:'#t-ball'},
   {k:'GS',label:'Golden Boot',sym:'#t-boot'},
   {k:'RU-T',label:'Runner-up · Team Tour',sym:'#t-runner'},
@@ -321,10 +321,10 @@ function honours(n){
 }
 const icon=h=>h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg class="tico"><use href="${h.sym}"/></svg>`;
 function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return'';
-  return `<div class="mini">${hs.map(h=>`<span title="${esc(h.label)}">${icon(h)}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
+  return `<div class="mini">${hs.map(h=>`<span${h.mgr?' class="mgr"':''} title="${h.mgr?'Team Tour (as manager)':esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
 function cabinet(n){const hs=honours(n);if(!hs.length)return '<p class="note">No trophies yet.</p>';
   return `<div class="cabinet">${hs.map((h,i)=>`<div class="cab${h.k==='bdo'?' first':''}${h.cls?' '+h.cls:''}"><div class="pl8">${h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%;width:54px;height:54px;object-fit:cover">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg><use href="${h.sym}"/></svg>`}</div>
-    ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}</small></div>`).join('')}</div>`;}
+    ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}</small></div>`).join('')}</div>`;}
 
 /* ---- global search ---- */
 function renderGlobal(){
