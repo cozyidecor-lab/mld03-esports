@@ -2,10 +2,12 @@
    JOIN_ORDER is the real joining order. Players not listed yet follow, ordered by the
    first season they played (and their order in that season's sheet). Add names to the list to fix the order. */
 (function(){
-  const JOIN_ORDER=['WaCky','Nezel'];
+  const JOIN_ORDER=['WaCky']; /* the founder */
+  const JOINED_IN={Nezel:1}; /* corrections: season a player joined MLD, when the sheet shows a later first tournament */
   const first={},firstIdx={};
   D.log.forEach((r,i)=>{if(!(r[2] in first)){first[r[2]]=r[0];firstIdx[r[2]]=i;}});
   D.trophies.forEach((t,i)=>{if(!(t[2] in first)){first[t[2]]=t[0];firstIdx[t[2]]=1e6+i;}});
+  Object.entries(JOINED_IN).forEach(([n,s])=>first[n]=s);
   const pos=n=>{const k=JOIN_ORDER.indexOf(n);return k>=0?k:1e3+(first[n]||99)*1e4;};
   const joined=[...D.players].filter(p=>!p.side).sort((a,b)=>pos(a.n)-pos(b.n)||a.n.localeCompare(b.n,undefined,{sensitivity:'base'}));
   joined.forEach((p,i)=>p._join=i+1);
@@ -28,7 +30,7 @@
     const lab=st.sort==='goals'?'goals':st.sort==='rating'?'score':st.sort==='seasons'?'played':st.sort==='trophies'?'titles':'joined';
     let lastS=null;
     const head=p=>{if(st.sort!=='join'||st.q.trim())return'';const s=JOIN_ORDER.includes(p.n)?'F':first[p.n];if(s===lastS)return'';lastS=s;
-      return `<div class="apseason">${s==='F'?'Founders':`Joined in Season ${s}`}<small>${s==='F'?JOIN_ORDER.length:L.filter(x=>!JOIN_ORDER.includes(x.n)&&first[x.n]===s).length} players</small></div>`;};
+      return `<div class="apseason">${s==='F'?'Founder':`Joined in Season ${s}`}<small>${s==='F'?'Started MLD':L.filter(x=>!JOIN_ORDER.includes(x.n)&&first[x.n]===s).length+' players'}</small></div>`;};
     return L.map(p=>head(p)+`<button class="row${p.n===GOAT?' goat':''}" data-p="${esc(p.n)}"><div class="nm">${avatar(p.n)}<div><b>${esc(p.n)}</b>
       <span>Joined S${first[p.n]||'?'} · ${p.t} tournament${p.t===1?'':'s'} · ${p.g} goals</span>${miniIcons(p.n)}</div></div>
       <div class="vl">${lead(p)}<small>${lab}</small></div></button>`).join('')||'<p class="note">No player with that name.</p>';

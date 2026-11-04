@@ -566,3 +566,17 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
 .aplist .row{grid-template-columns:1fr auto}
 .apseason{display:flex;justify-content:space-between;align-items:baseline;font:400 1.25rem var(--display);text-transform:uppercase;margin:14px 2px 2px}
 .apseason small{font:600 .72rem var(--label);letter-spacing:.12em;color:var(--muted)}
+
+/* founder tag: royal gold with a soft shine */
+.ftag{display:inline-flex;align-items:center;gap:4px;font:700 .66rem/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:#2a1a02;
+  padding:4px 9px;border-radius:99px;position:relative;overflow:hidden;white-space:nowrap;vertical-align:middle;
+  background:linear-gradient(135deg,#8a5a12 0%,#f7d774 28%,#fff1b8 46%,#e0a93a 64%,#9b6514 100%);
+  box-shadow:0 0 0 1px rgba(255,214,120,.55),0 0 10px rgba(240,180,74,.45);text-shadow:0 1px 0 rgba(255,240,190,.6)}
+.ftag::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.75) 48%,transparent 66%);transform:translateX(-120%);animation:fshine 3.2s ease-in-out infinite}
+@keyframes fshine{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.ftag.big{font-size:.8rem;padding:6px 12px;margin:2px 0 8px}
+.ftag.sm{font-size:.58rem;padding:3px 7px;margin-top:4px}
+.pod .ftag{margin:6px auto 0}
+@media (prefers-reduced-motion:reduce){.ftag::after{animation:none}}
+.mini span.ftag{background:linear-gradient(135deg,#8a5a12 0%,#f7d774 28%,#fff1b8 46%,#e0a93a 64%,#9b6514 100%);color:#2a1a02;
+  padding:3px 8px;font:700 .6rem/1 var(--label);letter-spacing:.14em;box-shadow:0 0 0 1px rgba(255,214,120,.55),0 0 8px rgba(240,180,74,.45)}

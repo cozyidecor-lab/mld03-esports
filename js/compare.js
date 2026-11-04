@@ -129,7 +129,7 @@
   /* ---------- page ---------- */
   function slot(i){const n=i===0?CMP.a:CMP.b;
     return `<button class="cslot${CMP.active===i?' active':''}${n?' full':''} s${i}" data-cslot="${i}">
-      ${n?`${avatar(n,'cav')}<b>${esc(n)}</b><small>Rank #${byName[n].crk} · ${byName[n].g} goals</small><span class="cx" data-cclear="${i}" aria-label="Remove">✕</span>`
+      ${n?`${avatar(n,'cav')}<b>${esc(n)}</b>${founderTag(n,'sm')}<small>Rank #${byName[n].crk} · ${byName[n].g} goals</small><span class="cx" data-cclear="${i}" aria-label="Remove">✕</span>`
         :`<span class="cplus">+</span><b>Player ${i+1}</b><small>Tap, then search below</small>`}</button>`;}
   function view(){
     setTimeout(bind,0);
@@ -176,7 +176,7 @@
     return `<div class="cres">
       <div class="cverdict ${win===1?'va':win===2?'vb':'vd'}">
         <span class="ctag">${win?'The better MLD player':'Too close to call'}</span>
-        ${W?`<div class="cwin">${avatar(W.n,'cwav')}<div><b>${esc(W.n)}</b><small>wins ${win===1?J.wa:J.wb} categories to ${win===1?J.wb:J.wa}</small></div></div>`:`<div class="cwin"><div><b>Dead even</b><small>${J.wa} – ${J.wb} in categories</small></div></div>`}
+        ${W?`<div class="cwin">${avatar(W.n,'cwav')}<div><b>${esc(W.n)}</b>${founderTag(W.n)}<small>wins ${win===1?J.wa:J.wb} categories to ${win===1?J.wb:J.wa}</small></div></div>`:`<div class="cwin"><div><b>Dead even</b><small>${J.wa} – ${J.wb} in categories</small></div></div>`}
         <div class="cidx"><div class="${win===1?'on':''}"><small>${esc(a)}</small><b>${IA.score}</b></div><span>MLD Index</span><div class="${win===2?'on':''}"><small>${esc(b)}</small><b>${IB.score}</b></div></div>
         <div class="cidxbar"><i class="a" style="width:${IA.score}%"></i></div><div class="cidxbar"><i class="b" style="width:${IB.score}%"></i></div>
       </div>

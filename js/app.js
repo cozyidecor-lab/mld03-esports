@@ -92,7 +92,7 @@ function leaderboard(list,valFn,label,subFn){
   const q=lb.q.trim().toLowerCase();
   const shown=ranked.filter(p=>!q||p.n.toLowerCase().includes(q));
   const pod=!q&&ranked.length>=3?`<div class="podium">${[1,0,2].map(i=>{const p=ranked[i];return `<button class="pod p${i+1}" data-p="${esc(p.n)}">
-      ${photoOf(p.n)?`<img class="av" alt="" src="${photoOf(p.n)}">`:''}<small>No. ${i+1}</small><div class="n">${valFn(p)}</div><b>${esc(p.n)}</b></button>`}).join('')}</div>`:'';
+      ${photoOf(p.n)?`<img class="av" alt="" src="${photoOf(p.n)}">`:''}<small>No. ${i+1}</small><div class="n">${valFn(p)}</div><b>${esc(p.n)}</b>${founderTag(p.n,'sm')}</button>`}).join('')}</div>`:'';
   const rows=shown.slice(0,lb.limit).map(p=>`<button class="row${p.n===GOAT?' goat':''}" data-p="${esc(p.n)}"><div class="rk">${p._rk}</div>
     <div class="nm">${avatar(p.n)}<div><b>${esc(p.n)}</b><span>${subFn(p)}</span>${miniIcons(p.n)}</div></div>
     <div class="vl">${valFn(p)}<small>${label}</small></div></button>`).join('');
@@ -275,7 +275,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><h3>${esc(n)}</h3>
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><h3>${esc(n)}</h3>${founderTag(n,'big')}
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
       <div class="tile"><b>${p.pt}</b><span>Trophies</span></div><div class="tile"><b>${p.ru}</b><span>Runner-up</span></div><div class="tile"><b>${p.mt}</b><span>As manager</span></div></div>
@@ -354,8 +354,10 @@ function honours(n){
   return honoursCache[n]=HON.filter(h=>c[h.k]).map(h=>({...h,n:c[h.k]}));
 }
 const icon=h=>h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg class="tico"><use href="${h.sym}"/></svg>`;
-function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return'';
-  return `<div class="mini">${hs.map(h=>`<span${h.mgr?' class="mgr"':h.season?' class="season"':''} title="${h.mgr?'Team Tour (as manager)':h.season?'Season-wide '+esc(h.label):esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.season?'<b class="asseason">SEASON</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
+const FOUNDER='WaCky';
+const founderTag=(n,cls='')=>n===FOUNDER?`<span class="ftag ${cls}" title="Founder of MLD">♛ Founder</span>`:'';
+function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return n===FOUNDER?`<div class="mini">${founderTag(n)}</div>`:'';
+  return `<div class="mini">${founderTag(n)}${hs.map(h=>`<span${h.mgr?' class="mgr"':h.season?' class="season"':''} title="${h.mgr?'Team Tour (as manager)':h.season?'Season-wide '+esc(h.label):esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.season?'<b class="asseason">SEASON</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
 function cabinet(n){const hs=honours(n);if(!hs.length)return '<p class="note">No trophies yet.</p>';
   return `<div class="cabinet">${hs.map((h,i)=>`<div class="cab${h.k==='bdo'?' first':''}${h.cls?' '+h.cls:''}"><div class="pl8">${h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%;width:54px;height:54px;object-fit:cover">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg><use href="${h.sym}"/></svg>`}</div>
     ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}${h.season?'<br><em class="asseason">(Season-wide)</em>':''}</small></div>`).join('')}</div>`;}
