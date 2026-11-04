@@ -580,3 +580,4 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
 @media (prefers-reduced-motion:reduce){.ftag::after{animation:none}}
 .mini span.ftag{background:linear-gradient(135deg,#8a5a12 0%,#f7d774 28%,#fff1b8 46%,#e0a93a 64%,#9b6514 100%);color:#2a1a02;
   padding:3px 8px;font:700 .6rem/1 var(--label);letter-spacing:.14em;box-shadow:0 0 0 1px rgba(255,214,120,.55),0 0 8px rgba(240,180,74,.45)}
+.lockic{font-size:.85em;margin-left:4px;filter:grayscale(.2)}

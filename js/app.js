@@ -64,11 +64,11 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Games',lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Games',locked:true,lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
-    return `<button class="ditem${id==='mld-dor'?' gold':''}" style="--d:${k++}" data-go="${id==='home'?'':id}" data-nav="${id}"><span class="dic">${navIcon(c)}</span><span class="dtx"><b>${c.t}</b><small>${esc(c.lead())}</small></span></button>`}).join('')}`).join('');
+    return `<button class="ditem${id==='mld-dor'?' gold':''}" style="--d:${k++}" data-go="${id==='home'?'':id}" data-nav="${id}"><span class="dic">${navIcon(c)}</span><span class="dtx"><b>${c.t}${c.locked&&GAMES_LOCKED&&!gamesUnlocked()?' <span class="lockic" aria-label="Locked">🔒</span>':''}</b><small>${c.locked&&GAMES_LOCKED&&!gamesUnlocked()?'Locked · admin PIN needed':esc(c.lead())}</small></span></button>`}).join('')}`).join('');
 }
 function markNav(){document.querySelectorAll('.ditem').forEach(b=>b.classList.toggle('on',(b.dataset.nav==='home'&&!cur)||b.dataset.nav===cur));}
 function openMenu(){const d=$('#drawer');markNav();$('#scrim').hidden=false;requestAnimationFrame(()=>{document.body.classList.add('menu-open');});
@@ -289,7 +289,27 @@ let sheetOpen=null;
 const closeSheet=()=>{$('#sheet').classList.remove('on');sheetOpen=null;stopIntro();};
 
 /* ---- routing ---- */
+/* ---- Games are locked behind an admin PIN while they are being finished ---- */
+const GAMES_LOCKED=true; /* set to false to open the games to everyone */
+const LOCKED_VIEWS=['games','play','turbo'];
+const PIN_HASH='05ab8109'; /* hash of the PIN, so the PIN itself is not written in the page */
+const pinHash=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h.toString(16).padStart(8,'0');};
+const gamesUnlocked=()=>{try{return sessionStorage.getItem('mld-games')==='1';}catch(e){return false;}};
+function askPin(then){
+  const w=document.createElement('div');w.className='nmodal';
+  w.innerHTML=`<div class="nbox" role="dialog" aria-modal="true" aria-labelledby="pinT"><b class="flbig" id="pinT">🔒 Games are locked</b>
+    <p class="note" style="margin:0">The mini games are still being finished. Enter the admin PIN to open them.</p>
+    <label class="search" for="pinIn" style="margin:0"><input id="pinIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN"></label>
+    <p class="note" id="pinMsg" style="margin:0;color:var(--red)" hidden>Wrong PIN. Try again.</p>
+    <div class="flrow"><button class="flbtn red" id="pinGo">Unlock</button><button class="flbtn" id="pinCancel">Cancel</button></div></div>`;
+  document.body.appendChild(w);const inp=w.querySelector('#pinIn');setTimeout(()=>inp.focus(),50);
+  const tryIt=()=>{if(pinHash(inp.value.trim())===PIN_HASH){try{sessionStorage.setItem('mld-games','1');}catch(e){}w.remove();renderHome();then();}
+    else{w.querySelector('#pinMsg').hidden=false;inp.value='';inp.focus();}};
+  w.querySelector('#pinGo').onclick=tryIt;w.querySelector('#pinCancel').onclick=()=>w.remove();
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')tryIt();if(e.key==='Escape')w.remove();});
+}
 function go(v){
+  if(GAMES_LOCKED&&LOCKED_VIEWS.includes(v)&&!gamesUnlocked()){{const t=v;askPin(()=>go(t));}if(!cur||LOCKED_VIEWS.includes(cur)){v='';}else return;}
   cur=VIEWS[v]||v==='play'||v==='turbo'?v:'';
   $('#v-home').classList.toggle('on',!cur);$('#v-stat').classList.toggle('on',!!cur&&cur!=='play'&&cur!=='turbo');$('#v-game').classList.toggle('on',cur==='play');$('#v-turbo').classList.toggle('on',cur==='turbo');
   if(cur==='play')FL.show();else FL.hide();
@@ -482,7 +502,7 @@ function perfChart(n){
    `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, 15 per season-wide Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
 }
 
-renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&VIEWS[h0])go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
+renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&(VIEWS[h0]||h0==='play'||h0==='turbo'))go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 
 /* ---- intro ---- */
