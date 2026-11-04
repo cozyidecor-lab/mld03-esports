@@ -282,6 +282,7 @@ function openPlayer(n){
     <h2 class="sec" style="margin-top:8px">Overall performance <small>BY SEASON</small></h2>${perfChart(n)}
     ${tro.length?`<h2 class="sec">Honours</h2><div class="chips">${tro.map(t=>`<span class="chip${/Trophy/.test(t[3])?' on':''}">S${t[0]} ${t[3]==='Player Trophy'?'Champion':t[3]==='Manager Trophy'?'Champion manager':t[3]} · ${TYPE[t[1]]}</span>`).join('')}</div>`:''}
     <h2 class="sec">Season log</h2>${logTable(rows)}`;
+  $('#sheetBody').classList.toggle('founder',n===FOUNDER);
   $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);
   if(AUDIO[n])$('#photoTools').insertAdjacentHTML('afterend',`<button class="chip on" data-replay="1" style="border:0;margin:0 0 8px">▶ Play ${esc(n)}'s sound again</button>`);
 }
@@ -460,6 +461,7 @@ function openSidePlayer(n){
     <div class="sub">Side quest player</div><h3>${esc(n)}</h3>${cabinet(n)}
     <p class="note">No main MLD tournament stats recorded for ${esc(n)} yet.</p>
     <h2 class="sec">Side quests</h2><div class="rows">${qs.map(q=>`<button class="boot" data-go="side-quests" style="width:100%;text-align:left;color:inherit"><div class="s" style="font-size:.9rem">${esc(q.game)}</div><div class="who">${esc(q.name)}<small>Won ${q.wins} quick tournaments in ${esc(q.length)} · ${esc(q.prize)}</small></div><div class="n">1st</div></button>`).join('')}</div>`;
+  $('#sheetBody').classList.remove('founder');
   $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);
 }
 
