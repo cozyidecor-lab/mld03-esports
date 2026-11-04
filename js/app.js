@@ -440,7 +440,7 @@ function openSidePlayer(n){
 }
 
 /* ---- player sounds: play when a profile is opened (the tap counts as the user gesture) ---- */
-const AUDIO={Vishnu:"audio/Vishnu.m4a",Nezel:"audio/Nezel.m4a",Cijin:"audio/Cijin.m4a",Harris:"audio/Harris.m4a",Midhun:"audio/Midhun.m4a",Pranav:"audio/Pranav.m4a"};
+const AUDIO={Vishnu:"audio/Vishnu.m4a",Nezel:"audio/Nezel.m4a",Cijin:"audio/Cijin.m4a",Harris:"audio/Harris.m4a",Midhun:"audio/Midhun.m4a",Pranav:"audio/Pranav.m4a",Siyan:"audio/Siyan.m4a"};
 let introAudio=null;
 function stopIntro(){if(introAudio){introAudio.pause();introAudio.currentTime=0;}}
 function playIntro(n){stopIntro();if(!AUDIO[n])return;
