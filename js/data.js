@@ -25,5 +25,15 @@ window.MLD_DATA.dorNominees={total:30,list:[
   {rank:17,name:"Sreedev",points:38.69,img:"images/mld-dor/17-Sreedev.jpg"},
   {rank:18,name:"Rashid",points:37.24,img:"images/mld-dor/18-Rashid.jpg"},
   {rank:19,name:"Shijas",points:36.35,img:"images/mld-dor/19-Shijas.jpg"},
-  {rank:20,name:"Pugazh",points:36.23,img:"images/mld-dor/20-Pugazh.jpg"}
+  {rank:20,name:"Pugazh",points:36.23,img:"images/mld-dor/20-Pugazh.jpg"},
+  {rank:21,name:"Akash",points:33.75,img:"images/mld-dor/21-Akash.jpg"},
+  {rank:22,name:"Fijo",points:32.62,img:"images/mld-dor/22-Fijo.jpg"},
+  {rank:23,name:"Joyal",points:31.66,img:"images/mld-dor/23-Joyal.jpg"},
+  {rank:24,name:"Arjun",points:31.08,img:"images/mld-dor/24-Arjun.jpg"},
+  {rank:25,name:"Arun",points:31.02,img:"images/mld-dor/25-Arun.jpg"},
+  {rank:26,name:"Nabeel",points:30.69,img:"images/mld-dor/26-Nabeel.jpg"},
+  {rank:27,name:"Bilal",points:29.76,img:"images/mld-dor/27-Bilal.jpg"},
+  {rank:28,name:"Adil",points:28.11,img:"images/mld-dor/28-Adil.jpg"},
+  {rank:29,name:"Jomon",points:27.87,img:"images/mld-dor/29-Jomon.jpg"},
+  {rank:30,name:"Black Devil",points:27.18,img:"images/mld-dor/30-Black Devil.jpg"}
 ]};
