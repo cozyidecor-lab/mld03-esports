@@ -3,3 +3,12 @@ window.MLD_DATA={"players":[{"n":"Aadhi10","g":22,"t":2,"r":7.5,"rt":7.5,"rd":nu
 /* Season-wide awards (from Season 13, when a season has several tours). [season, "S", goals, Golden Boot, rating, Golden Ball]
    Goals and rating are the player's totals across every tour that season. */
 window.MLD_DATA.seasonAwards=[[13,"S",66,"Ashik",49,"Ashik"]];
+/* 1st MLD D'or (Seasons 1–12, Team Tour): 30 nominees in total. Ranked by MLD D'or points (performance 80% + jury vote 20%).
+   Add the rest here as they are released: {rank, name (as in the stats), alias (optional), points, img}. */
+window.MLD_DATA.dorNominees={total:30,list:[
+  {rank:1,name:"Midhun",points:94.16,img:"images/mld-dor/1-Midhun.jpg"},
+  {rank:2,name:"Cijin",points:92.23,img:"images/mld-dor/2-Cijin.jpg"},
+  {rank:3,name:"Millaj",points:81.69,img:"images/mld-dor/3-Millaj.jpg"},
+  {rank:4,name:"Vishnu",alias:"Derry",points:65.57,img:"images/mld-dor/4-Vishnu.jpg"},
+  {rank:5,name:"Nezel",points:65.52,img:"images/mld-dor/5-Nezel.jpg"}
+]};

@@ -187,7 +187,9 @@ function ballonView(){
   const gb=D.awards.filter(a=>names(a[5]).includes(GOAT)).map(a=>'S'+a[0]);
   const goalsRank=sortBy(D.players,'g').findIndex(p=>p.n===GOAT)+1;
   return {t:"MLD <em>D'or</em>",p:`${D.ballon.label}. Awarded once so far, and ${GOAT} is the only player to win it.`,
-   b:`<div class="bdo-page"><div class="bigphoto"><img alt="${esc(GOAT)} holding the MLD D'or" src="${PHOTO}"><span class="tag">★ 1st MLD D'or · ${esc(GOAT)}</span></div>
+   b:`${nomineesBlock()}
+   <h2 class="sec">The winner <small>MIDHUN</small></h2>
+   <div class="bdo-page"><div class="bigphoto"><img alt="${esc(GOAT)} holding the MLD D'or" src="${PHOTO}"><span class="tag">★ 1st MLD D'or · ${esc(GOAT)}</span></div>
    <div style="display:flex;flex-direction:column;gap:14px">
      <div class="kv"><div class="tile gold"><b>#1</b><span>Career rating</span></div><div class="tile red"><b>${m.g}</b><span>Goals · #${goalsRank}</span></div><div class="tile"><b>${m.t}</b><span>Tournaments</span></div>
        <div class="tile"><b>${fmt(m.r)}</b><span>Avg rating</span></div><div class="tile"><b>${m.pt}</b><span>Trophies</span></div><div class="tile"><b>${gb.length}</b><span>Golden Balls</span></div></div>
@@ -200,6 +202,30 @@ function ballonView(){
    </div></div>
    <h2 class="sec">Season log <small>${rows.length} ENTRIES</small></h2>${logTable(rows)}`};
 }
+
+/* ---- 1st MLD D'or nominees: winner on top, then the rest by rank ---- */
+const ord=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
+function nomineesBlock(){
+  const N=D.dorNominees;if(!N||!N.list.length)return'';
+  const L=[...N.list].sort((a,b)=>a.rank-b.rank),w=L[0],rest=L.slice(1);
+  const card=(x,big)=>`<button class="nom${big?' win':''} r${x.rank}" data-poster="${esc(x.img)}" data-pname="${esc(x.name)}" aria-label="${esc(ord(x.rank))}: ${esc(x.alias?x.alias+' ('+x.name+')':x.name)}, ${x.points} MLD D'or points. Tap to enlarge.">
+      <img src="${esc(x.img)}" alt="${esc(x.name)} MLD D'or poster" loading="lazy">
+      <span class="nomrank">${big?'★ Winner':ord(x.rank)}</span>
+      <span class="nomfoot"><b>${esc(x.alias||x.name)}</b>${x.alias?`<small>${esc(x.name)}</small>`:''}<em>${x.points.toFixed(2)}<i>pts</i></em></span></button>`;
+  return `<h2 class="sec" style="margin-top:0">The nominees <small>1ST MLD D'OR</small></h2>
+    <p class="note" style="margin:-4px 0 12px">${N.total} players were nominated. Ranked by MLD D'or points: performance score 80% + jury vote 20%. Tap a poster to see it full size.</p>
+    <div class="noms">${card(w,true)}<div class="nomgrid">${rest.map(x=>card(x,false)).join('')}</div></div>
+    ${N.list.length<N.total?`<p class="note nommore">Top ${N.list.length} of ${N.total} shown. The rest of the nominees are coming soon.</p>`:''}`;
+}
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-poster]');if(!c)return;
+  const v=document.createElement('div');v.className='pview';
+  v.innerHTML=`<div class="pvbox"><img src="${esc(c.dataset.poster)}" alt=""><div class="flrow"><button class="flbtn red" data-pvprof="1">View ${esc(c.dataset.pname)}'s stats</button><button class="flbtn" data-pvclose="1">Close</button></div></div>`;
+  document.body.appendChild(v);
+  v.addEventListener('click',ev=>{if(ev.target===v||ev.target.closest('[data-pvclose]'))v.remove();
+    else if(ev.target.closest('[data-pvprof]')){v.remove();openPlayer(c.dataset.pname);}});
+  const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
+});
 const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</th><th>Event</th><th>Team</th><th class="num">Goals</th><th class="num">Rating</th></tr></thead><tbody>
   ${rows.map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
 
