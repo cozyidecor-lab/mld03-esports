@@ -561,3 +561,6 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
 .nomgrid.wide{grid-template-columns:repeat(2,1fr)}
 @media (min-width:820px){.nomgrid.wide{grid-template-columns:repeat(3,1fr)}}
 .nomgrid.wide .nom img{aspect-ratio:3/4}
+
+/* all players */
+.aplist .row{grid-template-columns:1fr auto}
