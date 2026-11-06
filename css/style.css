@@ -806,3 +806,25 @@ body.fl-full .sitefoot{display:none}
 .upiid{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.88rem;color:var(--muted)}
 .upiid b{color:var(--ink);font-weight:700;overflow-wrap:anywhere}
 .upiid button{flex:none;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;padding:6px 14px;font:700 .8rem var(--label);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---- player form indicator ---- */
+.formchip{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;font:700 .66rem/1 var(--label);letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:99px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
+.mini span.formchip{padding:4px 8px}
+.formchip.f-prime{border-color:rgba(255,120,60,.55)}
+.formchip.f-rising{border-color:rgba(80,200,120,.5)}
+.formchip.f-declining,.formchip.f-poor{border-color:rgba(227,25,31,.45)}
+.formchip.f-none,.formchip.f-inactive{color:var(--muted)}
+.formchip:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.formchip.sm{display:inline-flex;margin:3px 0 2px;align-self:flex-start}
+.proftags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 8px}
+.proftags .ftag.big{margin:0}
+.proftags .formchip{font-size:.74rem;padding:6px 11px}
+.formtip{position:fixed;z-index:90;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.6);
+  font-size:.86rem;line-height:1.45;animation:gfade .18s ease both}
+.formtip b{font:700 .95rem var(--label);text-transform:uppercase;letter-spacing:.04em}
+.formtip p{margin:4px 0 8px;color:#cfcfd3}
+.formtip ul{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:4px}
+.formtip li{display:flex;flex-direction:column;background:var(--panel);border-radius:10px;padding:6px 9px}
+.formtip li span:first-child{font:700 .72rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.formtip small{color:var(--muted);font-size:.72rem}

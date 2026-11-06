@@ -276,7 +276,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div>${founderTag(n,'big')}
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div><div class="proftags">${fChip(n)}${founderTag(n,'big')}</div>
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
       <div class="tile"><b>${p.pt}</b><span>Trophies</span></div><div class="tile"><b>${p.ru}</b><span>Runner-up</span></div><div class="tile"><b>${p.mt}</b><span>As manager</span></div></div>
@@ -397,8 +397,9 @@ function honours(n){
 const icon=h=>h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg class="tico"><use href="${h.sym}"/></svg>`;
 const FOUNDER='WaCky';
 const founderTag=(n,cls='')=>n===FOUNDER?`<span class="ftag ${cls}" title="Founder of MLD">♛ Founder</span>`:'';
-function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return n===FOUNDER?`<div class="mini">${founderTag(n)}</div>`:'';
-  return `<div class="mini">${founderTag(n)}${hs.map(h=>`<span${h.mgr?' class="mgr"':h.season?' class="season"':''} title="${h.mgr?'Team Tour (as manager)':h.season?'Season-wide '+esc(h.label):esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.season?'<b class="asseason">SEASON</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
+const fChip=n=>typeof formChip==='function'?formChip(n):'';
+function miniIcons(n){const hs=honours(n).filter(h=>!h.k.startsWith('RU'));if(!hs.length)return `<div class="mini">${fChip(n)}${founderTag(n)}</div>`;
+  return `<div class="mini">${fChip(n)}${founderTag(n)}${hs.map(h=>`<span${h.mgr?' class="mgr"':h.season?' class="season"':''} title="${h.mgr?'Team Tour (as manager)':h.season?'Season-wide '+esc(h.label):esc(h.label)}">${icon(h)}${h.mgr?'<b class="asmgr">MGR</b>':''}${h.season?'<b class="asseason">SEASON</b>':''}${h.n>1?'×'+h.n:''}</span>`).join('')}</div>`;}
 function cabinet(n){const hs=honours(n);if(!hs.length)return '<p class="note">No trophies yet.</p>';
   return `<div class="cabinet">${hs.map((h,i)=>`<div class="cab${h.k==='bdo'?' first':''}${h.cls?' '+h.cls:''}"><div class="pl8">${h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%;width:54px;height:54px;object-fit:cover">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg><use href="${h.sym}"/></svg>`}</div>
     ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}${h.season?'<br><em class="asseason">(Season-wide)</em>':''}</small></div>`).join('')}</div>`;}

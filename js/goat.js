@@ -49,7 +49,7 @@
     return L.slice(0,G.limit).map((p,i)=>{const open=G.open===p.n;
       return `<div class="grow r${p.crk<=3?p.crk:''}${open?' open':''}" style="--i:${Math.min(i,14)}">
         <button class="ghead" data-gopen="${esc(p.n)}" aria-expanded="${open}"><span class="grk">${p.crk<=3?['🥇','🥈','🥉'][p.crk-1]:'#'+p.crk}</span>
-        <span class="gnm">${avatar(p.n)}<span><b>${esc(p.n)}</b><small>${p.g} goals · ${p.pt} title${p.pt===1?'':'s'} · ${p.t} tournaments</small></span></span>
+        <span class="gnm">${avatar(p.n)}<span><b>${esc(p.n)}</b>${typeof formChip==='function'?formChip(p.n,'sm'):''}<small>${p.g} goals · ${p.pt} title${p.pt===1?'':'s'} · ${p.t} tournaments</small></span></span>
         <span class="gmi">${p.mi.toFixed(1)}<small>MLD Index</small></span></button>
         ${open?details(p):''}</div>`;}).join('')+(L.length>G.limit?'<button class="more" data-gmore="1">Show more</button>':'');
   }
