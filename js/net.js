@@ -20,6 +20,7 @@ const NET=(function(){
         txn:(p,fn)=>r(p).transaction(fn).then(res=>res.committed),
         onDiscRemove:p=>r(p).onDisconnect().remove(),
         onDiscSet:(p,v)=>r(p).onDisconnect().set(v),
+        connected:cb=>{const ref=db.ref('.info/connected');const h=s=>cb(s.val()===true);ref.on('value',h);return ()=>ref.off('value',h);},
         key:()=>db.ref().push().key,
       };
     }catch(e){console.warn('Firebase failed to start',e);return null;}
@@ -34,7 +35,7 @@ const NET=(function(){
     const setAt=(d,p,v)=>{const s=seg(p);let o=d;for(let i=0;i<s.length-1;i++){if(typeof o[s[i]]!=='object'||o[s[i]]===null)o[s[i]]={};o=o[s[i]];}
       if(v===null||v===undefined)delete o[s[s.length-1]];else o[s[s.length-1]]=JSON.parse(JSON.stringify(v));};
     function notify(){const d=load();subs.forEach(s=>{const v=getAt(d,s.p);const j=JSON.stringify(v);if(j!==s.last){s.last=j;s.cb(v==null?null:JSON.parse(j));}});}
-    bc.onmessage=notify;
+    bc.onmessage=notify;setInterval(notify,400); /* test stand-in only: storage can lag behind the message */
     addEventListener('pagehide',()=>{const d=load();disc.forEach(([p,v])=>setAt(d,p,v));localStorage.setItem(K,JSON.stringify(d));bc.postMessage(1);});
     let n=0;
     return {
@@ -46,6 +47,7 @@ const NET=(function(){
       txn:async(p,fn)=>{const d=load();const cur=getAt(d,p);const nv=fn(cur==null?null:JSON.parse(JSON.stringify(cur)));if(nv===undefined)return false;setAt(d,p,nv);save(d);return true;},
       onDiscRemove:p=>{disc.push([p,null]);},
       onDiscSet:(p,v)=>{disc.push([p,v]);},
+      connected:cb=>{setTimeout(()=>cb(true),0);return ()=>{};},
       key:()=>Date.now().toString(36).padStart(9,'0')+(n++).toString(36).padStart(3,'0')+Math.random().toString(36).slice(2,7),
     };
   }
@@ -84,7 +86,7 @@ const NET=(function(){
         const [gid,g]=waiting[1];claiming=true;
         s.txn(`lobby/${game}/${gid}`,cur=>{if(!cur||cur.m)return undefined;cur.m=myId;cur.on=name;return cur;}).then(ok=>{
           claiming=false;if(!ok||done)return;done=true;clearInterval(beat);off();
-          s.set(`matches/${game}/${myId}`,{a:name,b:g.name,t:Date.now()}).then(()=>{s.remove(lp);onMatch({mid:myId,me:0,opp:g.name});});
+          s.update(`matches/${game}/${myId}`,{a:name,b:g.name,t:Date.now()}).then(()=>{s.remove(lp);onMatch({mid:myId,me:0,opp:g.name});});
         }).catch(()=>{claiming=false;});
       }
     });
@@ -93,12 +95,13 @@ const NET=(function(){
   /* ---------- a match: each side writes its own node and listens to the other ---------- */
   function channel(game,mid,me){
     const s=store(),base=`matches/${game}/${mid}`,mine=`${base}/p${me}`,opp=`${base}/p${1-me}`;const offs=[];
-    s.update(mine,{on:true,left:null});s.onDiscSet(mine+'/left',true);
+    s.update(mine,{on:true,left:null}).catch(()=>{});
+    offs.push(s.connected(c=>{if(c){s.onDiscSet(mine+'/on',false);s.update(mine,{on:true}).catch(()=>{});}}));
     return {
       send:patch=>s.update(mine,patch).catch(()=>{}),
       onOpp:cb=>{offs.push(s.on(opp,v=>cb(v||{})));},
-      close:()=>{offs.forEach(f=>f());s.update(mine,{left:true}).catch(()=>{});
-        if(me===0)setTimeout(()=>s.remove(base).catch(()=>{}),15000);},
+      close:()=>{offs.forEach(f=>f());s.update(mine,{left:true,on:false}).catch(()=>{});
+        if(me===0)setTimeout(()=>s.remove(base).catch(()=>{}),60000);},
     };
   }
 

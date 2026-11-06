@@ -91,8 +91,7 @@ const FL=(function(){
   }
   function loop(){
     if(S.anim){let g=0;for(let k=0;k<5&&!g;k++){g=step(S.board);if(!moving(S.board))break;}
-      if(g){S.pendingGoal=g;S.board.forEach(o=>{o.vx=0;o.vy=0;});celebrate(g===1?0:1,g);if(S.mode==='online'&&S.shooter!==S.me){S.score[g===1?0:1]++;S.busy=true;ui();}}
-      if(g||!moving(S.board)){S.board.forEach(o=>{o.vx=0;o.vy=0;});S.anim=false;settled();}}
+      if(g||!moving(S.board)){S.board.forEach(o=>{o.vx=0;o.vy=0;});S.anim=false;finishShot();}}
     if(fx.length){fx.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.045;p.vx*=0.99;p.a+=p.va;p.life-=0.012;});fx=fx.filter(p=>p.life>0);}
     if(S.phase==='play')updTimer();
     draw();raf=requestAnimationFrame(loop);
@@ -101,33 +100,57 @@ const FL=(function(){
   /* ---------- turn flow ---------- */
   const isMyTurn=()=>S.mode==='local'||S.turn===S.me;
   function startMatch(){
-    S.recorded=false;S.board=setup(S.forms[0],S.forms[1]);S.score=[0,0];S.turn=0;S.shotN=0;S.lastShotSeen=0;S.lastSnapSeen=0;S.awaitingSnap=0;S.result=null;
+    S.recorded=false;S.board=setup(S.forms[0],S.forms[1]);S.score=[0,0];S.turn=0;S.shotN=0;S.lastShotSeen=0;S.result=null;
+    S.cur=null;S.queue=[];S.finalKnown=false;S.oppOffSince=0;S.noWin=false;S.left=false;S.anim=false;
     S.busy=false;S.passWait=false;S.viewTeam=0;fx=[];viewFlip=S.mode==='online'&&S.me===1;const pv=el('flPass');if(pv)pv.hidden=true;
     S.phase='play';S.turnStart=Date.now();ui();window.scrollTo(0,0);audio();
   }
   function kickoffReset(conceded){S.board=setup(S.forms[0],S.forms[1]);S.turn=conceded;}
-  function shoot(d,vx,vy){
-    S.board[d].vx=vx;S.board[d].vy=vy;S.anim=true;S.aim=null;S.pendingGoal=0;
+  /* ---------- shots: the result is worked out instantly when the shot is taken ----------
+     Both phones receive the shot together with its result, play the animation, then apply the
+     result. Nothing waits on the shooter's screen staying on, so a phone that locks or switches
+     apps can no longer freeze the game. */
+  function simulate(d,vx,vy){
+    const b=S.board.map(o=>Object.assign({},o));let g=0;
+    if(d>=0){b[d].vx=vx;b[d].vy=vy;for(let i=0;i<60000;i++){g=step(b);if(g||!moving(b))break;}}
+    return {pos:snapPos(b),goal:g};
   }
-  function settled(){
-    // the shooter (or the local device) decides the outcome and, online, publishes the result
-    const authoritative=S.mode==='local'||S.shooter===S.me;
-    if(!authoritative){ if(S.awaitingSnap&&S.snapCache&&S.snapCache.n===S.awaitingSnap)adoptSnap(S.snapCache); return; }
-    resolveTurn(S.pendingGoal);
+  function makeResult(d,vx,vy){
+    const sim=simulate(d,vx,vy);const score=S.score.slice();let res=null,turn=1-S.turn;
+    if(sim.goal){const team=sim.goal===1?0:1;score[team]++;if(score[team]>=WIN)res=team;turn=sim.goal===1?1:0;}
+    return {pos:sim.pos,goal:sim.goal,score,turn,res};
   }
-  function resolveTurn(goal){
-    if(goal){
-      const team=goal===1?0:1;S.score[team]++;if(S.score[team]>=WIN)S.result=team;
-      S.busy=true;ui();
-      // let the goal sink in, then reset for the kick-off
-      setTimeout(()=>{S.busy=false;if(S.result==null)kickoffReset(goal===1?1:0);S.turnStart=Date.now();
-        if(S.mode==='online')sendSnap(goal);
-        if(S.result!=null)endMatch();else afterTurn();},2600);
-      return;
-    }
-    S.turn=1-S.turn;S.turnStart=Date.now();
-    if(S.mode==='online')sendSnap(0);
-    afterTurn();
+  function takeShot(d,vx,vy){ // by the player whose turn it is (d = -1: the turn timed out)
+    S.shotN=Math.max(S.shotN,S.lastShotSeen)+1;
+    const sh={n:S.shotN,d,vx,vy,r:makeResult(d,vx,vy)};
+    if(S.mode==='online'){S.lastShotSeen=sh.n;pres({shot:sh,aim:null});}
+    playShot(sh);
+  }
+  function playShot(sh){
+    S.cur=sh;S.aim=null;S.oppAim=null;if(sh.r.res!=null)S.finalKnown=true;
+    if(sh.d>=0&&S.board[sh.d]&&!document.hidden){
+      S.board.forEach(o=>{o.vx=0;o.vy=0;});S.board[sh.d].vx=sh.vx;S.board[sh.d].vy=sh.vy;S.anim=true;
+      setTimeout(()=>{if(S.cur===sh)finishShot();},15000); // safety net if the animation is interrupted
+    } else finishShot();
+    ui();
+  }
+  function finishShot(){
+    const sh=S.cur;if(!sh)return;S.cur=null;S.anim=false;const r=sh.r;
+    applyPos(S.board,r.pos);S.score=r.score.slice();S.result=r.res==null?null:r.res;
+    S.lastShotSeen=Math.max(S.lastShotSeen,sh.n);S.shotN=Math.max(S.shotN,sh.n);
+    if(r.goal){celebrate(r.goal===1?0:1,r.goal);S.busy=true;ui();
+      setTimeout(()=>{S.busy=false;
+        if(S.result==null){S.board=setup(S.forms[0],S.forms[1]);S.turn=r.turn;S.turnStart=Date.now();afterTurn();nextQueued();}
+        else endMatch();},2600);
+      return;}
+    S.turn=r.turn;S.turnStart=Date.now();
+    if(S.result!=null){endMatch();return;}
+    afterTurn();nextQueued();
+  }
+  function nextQueued(){if(S.queue&&S.queue.length&&!S.cur&&!S.busy&&S.phase==='play')playShot(S.queue.shift());}
+  function forfeit(){
+    if(S.finalKnown||(S.phase!=='play'&&S.phase!=='form'))return;
+    S.noWin=S.phase==='form';S.result=S.me;S.left=true;endMatch();
   }
   function afterTurn(){ui();if(S.mode==='local'&&S.turn!==S.viewTeam)passPhone();}
   /* ---------- pass-and-play: hand the phone over, board turns to face the new player ---------- */
@@ -169,19 +192,23 @@ const FL=(function(){
       o.connect(lp).connect(og).connect(a.destination);o.start(t+s);o.stop(t+s+l+.02);});});
   }
   function endMatch(){S.phase='over';
-    if(S.mode==='online'){ if(S.result===S.me&&!S.recorded){S.recorded=true;NET.addWin('flick',S.myName);}
-      const c=ch;ch=null;if(c)setTimeout(()=>c.close(),3000); }
+    if(S.mode==='online'){ if(S.result===S.me&&!S.recorded&&!S.noWin){S.recorded=true;NET.addWin('flick',S.myName);}
+      const c=ch;ch=null;if(c)setTimeout(()=>c.close(),8000); }
     ui();}
   function updTimer(){const t=el('flTimer');if(!t)return;if(S.busy||S.passWait){S.turnStart=Date.now();}const left=Math.max(0,TURN_MS-(Date.now()-S.turnStart));
     t.style.width=(left/TURN_MS*100)+'%';
-    if(left===0&&!S.anim&&isMyTurn()&&(S.mode==='local'||S.turn===S.me)&&S.phase==='play'){S.shooter=S.mode==='local'?S.turn:S.me;S.shotN++;resolveTurn(0);}}
+    if(S.phase!=='play')return;
+    if(left===0&&!S.anim&&!S.cur&&!S.busy&&!S.passWait&&isMyTurn())takeShot(-1,0,0);
+    // online: if the other phone has gone quiet for a long time, the match is theirs to lose
+    if(S.mode==='online'&&!isMyTurn()&&!S.cur&&!S.busy&&Date.now()-S.turnStart>TURN_MS+30000)forfeit();
+    if(S.mode==='online'&&S.oppOffSince&&Date.now()-S.oppOffSince>30000)forfeit();}
 
   /* ---------- input: pull back and release ---------- */
   function ptr(e){const r=cv.getBoundingClientRect();let x=(e.clientX-r.left)/scale,y=(e.clientY-r.top)/scale-6;if(viewFlip){x=W-x;y=H-y;}return [x,y];}
   let drag=null;
   function down(e){
     if(S.phase!=='play'||S.anim||S.busy||S.passWait||!isMyTurn())return;audio();
-    if(S.mode==='online'&&S.awaitingSnap)return;
+    if(S.cur||(S.queue&&S.queue.length))return;
     const [x,y]=ptr(e);let best=-1,bd=1e9;
     S.board.forEach((o,i)=>{if(o.t!==S.turn)return;const d=(o.x-x)**2+(o.y-y)**2;if(d<bd&&d<(o.r*2.2)**2){bd=d;best=i;}});
     if(best<0)return;drag={d:best};cv.setPointerCapture(e.pointerId);e.preventDefault();move(e);
@@ -192,40 +219,34 @@ const FL=(function(){
   function up(){if(!drag)return;const a=S.aim;drag=null;S.aim=null;if(S.mode==='online')pres({aim:null});
     if(!a||a.p<0.08)return;
     const vx=Math.round(a.dx*a.p*VMAX*1000)/1000,vy=Math.round(a.dy*a.p*VMAX*1000)/1000;
-    S.shooter=S.mode==='local'?S.turn:S.me;S.shotN++;
-    if(S.mode==='online')pres({shot:{n:S.shotN,d:a.d,vx,vy}});
-    shoot(a.d,vx,vy);ui();}
+    takeShot(a.d,vx,vy);}
 
   /* ---------- online: matchmaking + sync over room presence ---------- */
   let ch=null,cancelFind=null;
   function pres(p){if(ch)ch.send(p);}
-  function sendSnap(goal){pres({snap:{n:S.shotN,pos:snapPos(S.board),score:S.score,turn:S.turn,res:S.result,goal:goal||0}});
-    applyPos(S.board,snapPos(S.board));}
-  function adoptSnap(sn){S.busy=false;applyPos(S.board,sn.pos);const prev=S.score.slice();S.score=sn.score.slice();S.turn=sn.turn;S.result=sn.res;
-    S.lastSnapSeen=sn.n;S.shotN=sn.n;S.awaitingSnap=0;S.turnStart=Date.now();
-    if(sn.goal){const team=sn.goal===1?0:1;if(S.score[team]>prev[team])celebrate(team,sn.goal);}
-    if(S.result!=null)endMatch();else ui();}
   function onOpp(op){
     if(S.mode!=='online')return;
     if(op.name)S.oppName=op.name;
-    if(op.left){ if(S.phase==='form'||S.phase==='play'){S.result=S.me;S.left=true;endMatch();} return; }
+    if(op.left){forfeit();return;}
+    S.oppOffSince=op.on===false?(S.oppOffSince||Date.now()):0;
     if(S.phase==='form'){S.forms[1-S.me]=op.ready?op.fm:null;ui();
       if(S.forms[0]&&S.forms[1])startMatch();return;}
     if(S.phase==='play'){
-      S.oppAim=op.aim&&S.turn!==S.me?op.aim:null;
-      if(op.shot&&op.shot.n>S.lastShotSeen&&S.turn!==S.me){S.lastShotSeen=op.shot.n;S.shooter=1-S.me;S.awaitingSnap=op.shot.n;S.oppAim=null;
-        const d=op.shot.d;if(S.board[d]&&S.board[d].t===S.turn)shoot(d,op.shot.vx,op.shot.vy);}
-      if(op.snap&&op.snap.n>S.lastSnapSeen){S.snapCache=op.snap;
-        if(!S.anim||S.awaitingSnap!==op.snap.n){S.anim=false;adoptSnap(op.snap);}}
+      S.oppAim=op.aim&&S.turn!==S.me&&!S.cur?op.aim:null;
+      const sh=op.shot;
+      if(sh&&sh.r&&sh.r.pos&&sh.n>S.lastShotSeen){S.lastShotSeen=sh.n;
+        if(S.cur||S.busy)S.queue.push(sh);else playShot(sh);}
     }
   }
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.cur&&S.anim)finishShot();});
+  window.addEventListener('pagehide',()=>{if(S.mode==='online'&&ch&&(S.phase==='play'||S.phase==='form'))ch.send({left:true});});
   function goOnline(){
     if(!NET.available()){S.phase='menu';ui();return;}
     NET.askName('MLD Flick').then(name=>{
       if(!name)return;S.myName=name;S.mode='online';S.left=false;S.oppName='';S.phase='search';ui();
       cancelFind=NET.findMatch('flick',name,m=>{cancelFind=null;S.me=m.me;S.mid=m.mid;S.oppName=m.opp;
         ch=NET.channel('flick',m.mid,m.me);ch.send({name,fm:null,ready:false,shot:null,snap:null,aim:null});ch.onOpp(onOpp);
-        S.forms=[null,null];S.lastShotSeen=0;S.lastSnapSeen=0;S.phase='form';ui();});
+        S.forms=[null,null];S.lastShotSeen=0;S.finalKnown=false;S.noWin=false;S.oppOffSince=0;S.phase='form';ui();});
     });
   }
   function leaveOnline(){if(cancelFind){cancelFind();cancelFind=null;}if(ch){ch.close();ch=null;}}
@@ -256,7 +277,7 @@ const FL=(function(){
         ${S.mode==='online'?`<p class="note">You vs <b>${(S.oppName||'Opponent').replace(/</g,'&lt;')}</b>. ${mine?'Locked in. ':''}${oppReady?'They are ready.':'They are still choosing.'}</p>`:''}</div>`;
       if(mine)box.querySelectorAll('.flform').forEach(b=>b.classList.toggle('on',b.dataset.fm===mine));
     } else if(S.phase==='play'){
-      const my=isMyTurn()&&!S.anim&&!(S.mode==='online'&&S.awaitingSnap);
+      const my=isMyTurn()&&!S.anim&&!S.cur;
       const mine=S.mode==='online'&&my&&!S.busy;
       box.innerHTML=`<div class="flturn ${S.turn===0?'red':'white'}${mine?' mine':''}">${S.busy?'⚽ Goal! Kick-off in a moment…':S.anim?'…':S.mode==='local'?`${nm(S.turn)} to play`:my?'🟢 Your turn · pull back a disc':`${(S.oppName||'Opponent').replace(/</g,'&lt;')} is aiming…`}</div>`;
     } else if(S.phase==='over'){
