@@ -12,8 +12,9 @@
    - Inactive: no tournament in the latest two completed seasons. Fewer than three tournaments:
      Not enough data. Career honours (champion, veteran…) are kept out of this on purpose. */
 (function(){
-  /* order tours were played inside a season; edit if a season ran in a different order */
-  const TOUR_ORDER={default:['T','D','A'],13:['A','D','T']};
+  /* every season runs in this order: Solo Authentic, Co-op, Solo Dream Team, then Team Tour last.
+     Co-op has no individual stats, so it is skipped for form. */
+  const TOUR_ORDER={default:['A','D','T']};
   const NAMES={T:'Team Tour',D:'Solo Dream Team',A:'Solo Authentic'};
   const STATUS={
     prime:{e:'🔥',t:'Prime'},rising:{e:'📈',t:'Rising'},stable:{e:'⚖️',t:'Stable'},
