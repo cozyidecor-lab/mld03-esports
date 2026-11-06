@@ -613,3 +613,29 @@ body.menu-open #dnav>*{opacity:1;transform:none;transition:opacity .35s ease,tra
 .sheet.founder .likebtn.on{border-color:rgba(240,180,74,.6);background:rgba(240,180,74,.14)}
 .sheet.founder .likebtn.on svg{fill:#e8b84a;stroke:#e8b84a}
 @media (prefers-reduced-motion:reduce){.likebtn.pop svg{animation:none}}
+
+/* ---- home: live matchmaking banner ---- */
+#liveMatch:empty{display:none}
+#liveMatch{margin:0 0 14px}
+.livematch{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;
+  border:1px solid rgba(227,25,31,.6);background:linear-gradient(120deg,rgba(227,25,31,.22),var(--panel) 70%);animation:lmin .5s ease both}
+@keyframes lmin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.lmdot{width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(227,25,31,.6);animation:pulse 1.6s ease-out infinite}
+.lmtxt{min-width:0;display:flex;flex-direction:column;gap:2px}
+.lmtxt small{font:700 .7rem var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+.lmtxt b{font:700 1.05rem/1.2 var(--label);text-transform:uppercase;letter-spacing:.02em;overflow-wrap:anywhere}
+.lmtxt span{font-size:.82rem;color:var(--muted)}
+.lmjoin{width:auto;padding:12px 16px;font-size:.95rem}
+@media (max-width:420px){.livematch{grid-template-columns:auto 1fr}.lmjoin{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){.livematch,.lmdot{animation:none}}
+/* ---- MLD Flick: full screen while a match is on ---- */
+.flfulltop{display:none}
+body.fl-full{overflow:hidden}
+body.fl-full .top,body.fl-full #v-game .vhead,body.fl-full #v-game .hero{display:none}
+body.fl-full #v-game.on{position:fixed;inset:0;z-index:45;background:var(--bg);overflow:auto;
+  padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+body.fl-full #v-game .flgame{margin:0 auto;gap:8px}
+body.fl-full .flfulltop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+body.fl-full .flfulltop b{font:400 1.4rem var(--display);text-transform:uppercase}
+body.fl-full .flfulltop em{font-style:normal;color:var(--red)}
+body.fl-full .flexit{width:38px;height:38px}

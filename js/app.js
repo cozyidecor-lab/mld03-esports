@@ -523,6 +523,18 @@ function perfChart(n){
    `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, 15 per season-wide Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
 }
 
+/* ---- home banner: someone is waiting for an MLD Flick match ---- */
+NET.onLobby('flick',list=>{
+  const box=document.getElementById('liveMatch');if(!box)return;
+  if(!list.length||(typeof FL!=='undefined'&&FL.S.phase==='search')){box.innerHTML='';return;}
+  const who=esc(list[0].name),more=list.length-1;
+  box.innerHTML=`<div class="livematch"><span class="lmdot"></span><div class="lmtxt"><small>Live now · MLD Flick</small>
+    <b>${who}${more?` and ${more} other${more>1?'s':''}`:''} ${more?'are':'is'} looking for a match</b><span>Join now and play them online.</span></div>
+    <button class="flbtn red lmjoin" data-joinflick="1">Join match</button></div>`;
+});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-joinflick]'))return;
+  const start=()=>{go('play');setTimeout(()=>FL.joinOnline(),60);};
+  if(GAMES_LOCKED&&!gamesUnlocked())askPin(start);else start();});
 renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&(VIEWS[h0]||h0==='play'||h0==='turbo'))go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 

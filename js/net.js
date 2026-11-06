@@ -65,23 +65,30 @@ const NET=(function(){
     return s.on('leaderboard/'+game,v=>cb(Object.values(v||{}).filter(x=>x&&x.name).sort((a,b)=>b.wins-a.wins||a.name.localeCompare(b.name))));}
 
   /* ---------- matchmaking: oldest waiting player claims the next one ---------- */
+  const LOBBY_FRESH=75000; /* a waiting player refreshes their entry every 25 s */
+  /* who is waiting for a match right now (for the home page banner) */
+  function onLobby(game,cb){const s=store();if(!s){cb([]);return ()=>{};}
+    let last=null;const off=s.on('lobby/'+game,v=>{last=v;emit();});
+    const emit=()=>cb(Object.values(last||{}).filter(x=>x&&x.name&&!x.m&&Date.now()-(x.t||0)<LOBBY_FRESH).sort((a,b)=>a.t-b.t));
+    const tick=setInterval(emit,15000);return ()=>{off();clearInterval(tick);};}
   function findMatch(game,name,onMatch){
     const s=store();if(!s)return ()=>{};
     const myId=s.key(),lp=`lobby/${game}/${myId}`;let done=false,claiming=false;
     s.set(lp,{name,t:Date.now()});s.onDiscRemove(lp);
+    const beat=setInterval(()=>{if(!done)s.update(lp,{t:Date.now()}).catch(()=>{});},25000);
     const off=s.on('lobby/'+game,lobby=>{
       if(done)return;lobby=lobby||{};const mine=lobby[myId];
-      if(mine&&mine.m){done=true;off();s.remove(lp);onMatch({mid:mine.m,me:1,opp:mine.on||'Opponent'});return;}
-      const waiting=Object.entries(lobby).filter(([k,v])=>v&&!v.m&&Date.now()-(v.t||0)<10*60000).sort((a,b)=>a[0]<b[0]?-1:1);
+      if(mine&&mine.m){done=true;clearInterval(beat);off();s.remove(lp);onMatch({mid:mine.m,me:1,opp:mine.on||'Opponent'});return;}
+      const waiting=Object.entries(lobby).filter(([k,v])=>v&&v.name&&!v.m&&Date.now()-(v.t||0)<LOBBY_FRESH).sort((a,b)=>a[0]<b[0]?-1:1);
       if(!claiming&&waiting.length>=2&&waiting[0][0]===myId){
         const [gid,g]=waiting[1];claiming=true;
         s.txn(`lobby/${game}/${gid}`,cur=>{if(!cur||cur.m)return undefined;cur.m=myId;cur.on=name;return cur;}).then(ok=>{
-          claiming=false;if(!ok||done)return;done=true;off();
+          claiming=false;if(!ok||done)return;done=true;clearInterval(beat);off();
           s.set(`matches/${game}/${myId}`,{a:name,b:g.name,t:Date.now()}).then(()=>{s.remove(lp);onMatch({mid:myId,me:0,opp:g.name});});
         }).catch(()=>{claiming=false;});
       }
     });
-    return ()=>{if(done)return;done=true;off();s.remove(lp);};
+    return ()=>{if(done)return;done=true;clearInterval(beat);off();s.remove(lp);};
   }
   /* ---------- a match: each side writes its own node and listens to the other ---------- */
   function channel(game,mid,me){
@@ -126,5 +133,5 @@ const NET=(function(){
     return s.on('likes/'+keyOf(name)+'/n',v=>cb(v||0));}
   function like(name){const s=store();if(!s)return Promise.resolve(false);const dev=deviceId();
     return s.txn('likes/'+keyOf(name),cur=>{cur=cur||{n:0,by:{}};cur.by=cur.by||{};if(cur.by[dev])return undefined;cur.by[dev]=true;cur.n=(cur.n||0)+1;return cur;}).catch(()=>false);}
-  return {available,names,saveName,addWin,onLeaderboard,findMatch,channel,askName,MOCK,onLikes,like};
+  return {available,names,saveName,addWin,onLeaderboard,findMatch,channel,askName,MOCK,onLikes,like,onLobby};
 })();

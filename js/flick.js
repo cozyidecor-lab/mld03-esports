@@ -49,7 +49,7 @@ const FL=(function(){
   const el=id=>document.getElementById(id);
 
   /* ---------- rendering ---------- */
-  function size(){const wrap=el('flWrap');if(!wrap||!cv)return;const w=Math.max(220,Math.min(wrap.clientWidth,460,(window.innerHeight-190)*W/(H+12)));dpr=window.devicePixelRatio||1;
+  function size(){const wrap=el('flWrap');if(!wrap||!cv)return;const w=Math.max(220,Math.min(wrap.clientWidth,460,(window.innerHeight-(document.body.classList.contains('fl-full')?130:190))*W/(H+12)));dpr=window.devicePixelRatio||1;
     cv.style.width=w+'px';cv.style.height=(w*(H+12)/W)+'px';cv.width=Math.round(w*dpr);cv.height=Math.round(w*(H+12)/W*dpr);scale=w/W;}
   function toPx(x,y){return [x*scale*dpr,(y+6)*scale*dpr];}
   function draw(){
@@ -187,7 +187,8 @@ const FL=(function(){
     const box=el('flPanel');if(!box)return;
     const sc=el('flScore');const stage=el('flStage');
     const nm=t=>S.mode==='local'?(t===0?'Red':'White'):(t===S.me?'You':(S.oppName||'Opponent'));
-    stage.hidden=!(S.phase==='play'||S.phase==='over');const vg=el('v-game');if(vg)vg.classList.toggle('playing',!stage.hidden);
+    stage.hidden=!(S.phase==='play'||S.phase==='over');
+    document.body.classList.toggle('fl-full',!stage.hidden&&active);const vg=el('v-game');if(vg)vg.classList.toggle('playing',!stage.hidden);
     if(S.phase==='menu'){
       const on=NET.available();
       box.innerHTML=`<div class="flcard"><p>Pull back one of your discs, aim and let go to hit the ball. Teams take turns. First to <b>${WIN} goals</b> wins.</p>
@@ -215,13 +216,20 @@ const FL=(function(){
     if(sc)sc.innerHTML=(S.phase==='play'||S.phase==='over')?`<span class="red">${S.mode==='local'?'Red':S.me===0?'You':(S.oppName||'Opp').replace(/</g,'&lt;')}</span><b>${S.score[0]} – ${S.score[1]}</b><span class="white">${S.mode==='local'?'White':S.me===1?'You':(S.oppName||'Opp').replace(/</g,'&lt;')}</span>`:'';
     size();draw();
   }
+  /* ---------- full screen while a match is on ---------- */
+  function goFull(){const d=document.documentElement;
+    try{if(!document.fullscreenElement){if(d.requestFullscreen)d.requestFullscreen({navigationUI:'hide'}).catch(()=>{});else if(d.webkitRequestFullscreen)d.webkitRequestFullscreen();}}catch(e){}}
+  function exitFull(){document.body.classList.remove('fl-full');
+    try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
   function act(a){
+    if(a==='local'||a==='online')goFull();
+    if(a==='cancel'||a==='menu')exitFull();
     if(a==='local'){leaveOnline();S.mode='local';S.forms=[null,null];S.localPick=0;S.left=false;S.phase='form';ui();}
     else if(a==='online'){leaveOnline();goOnline();}
     else if(a==='cancel'||a==='menu'){leaveOnline();S.phase='menu';S.mode=null;ui();}
   }
   function pickForm(k){
-    if(S.phase!=='form')return;
+    if(S.phase!=='form')return;goFull();
     if(S.mode==='local'){S.forms[S.localPick]=k;if(S.localPick===0){S.localPick=1;ui();}else startMatch();return;}
     S.forms[S.me]=k;pres({fm:k,ready:true});ui();if(S.forms[0]&&S.forms[1])startMatch();
   }
@@ -231,7 +239,8 @@ const FL=(function(){
     window.addEventListener('resize',()=>{size();draw();});
     document.addEventListener('click',e=>{const a=e.target.closest('[data-fl]');if(a)act(a.dataset.fl);const f=e.target.closest('[data-fm]');if(f)pickForm(f.dataset.fm);});
   }
-  function show(){mount();if(!raf)raf=requestAnimationFrame(loop);if(S.phase==='menu'||!S.mode)S.phase=S.phase==='menu'?'menu':S.phase;ui();}
-  function hide(){if(raf){cancelAnimationFrame(raf);raf=0;}if(S.phase==='search'||S.phase==='form'||(S.mode==='online'&&S.phase==='play'))act('cancel');}
-  return {show,hide,S,step,setup};
+  function show(){active=true;mount();if(!raf)raf=requestAnimationFrame(loop);if(S.phase==='menu'||!S.mode)S.phase=S.phase==='menu'?'menu':S.phase;ui();}
+  function hide(){active=false;exitFull();if(raf){cancelAnimationFrame(raf);raf=0;}if(S.phase==='search'||S.phase==='form'||(S.mode==='online'&&S.phase==='play'))act('cancel');}
+  let active=false;
+  return {show,hide,S,step,setup,joinOnline:()=>act('online')};
 })();
