@@ -42,6 +42,14 @@
       parts[k]=v*w;tot+=v*w;});
     return {score:Math.round(tot*10)/10,parts};}
 
+  /* ---------- All-time rank = rank by MLD Index, for every player, everywhere on the site ---------- */
+  (function rankAll(){
+    const ranked=pool().map(p=>{const s=statsOf(p.n),ix=index(s);p.mi=ix.score;p.miParts=ix.parts;return p;})
+      .sort((a,b)=>b.mi-a.mi||b.g-a.g||a.n.localeCompare(b.n));
+    ranked.forEach((p,i)=>p.crk=i+1);
+  })();
+  window.MLDI={statsOf,index,WEIGHTS,ranked:()=>pool().slice().sort((a,b)=>a.crk-b.crk)};
+
   /* ---------- categories (higher is better unless low:true) ---------- */
   const CATS=[
     ['Career','career','Career rating score',v=>fmt(v)],

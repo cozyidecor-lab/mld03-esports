@@ -37,12 +37,12 @@ function tourStats(ty){
 const CATS=[
   {id:'mld-dor',t:"MLD D'or",ic:'ball',tone:'gold',lead:()=>`${GOAT} · the only winner`},
   {id:'scorers',t:'Top Scorers',ic:'#t-boot',tone:'red',lead:()=>{const p=leader('g');return `${p.n} · ${p.g} goals`}},
-  {id:'rating',t:'Career Rating',ic:'#t-ball',tone:'paper',lead:()=>{const p=leader('cs');return `${p.n} · ${fmt(p.cs)}`}},
+  {id:'rating',t:'Top Ratings',ic:'#t-ball',tone:'paper',lead:()=>{const p=leader('cs');return `${p.n} · ${fmt(p.cs)}`}},
   {id:'trophies',t:'Player Trophies',ic:'cup',tone:'',lead:()=>{const p=leader('pt');return `${p.n} · ${p.pt} titles`}},
-  {id:'team',t:'Team Tour',ic:'#t-team',tone:'',lead:()=>'13 seasons · goals, rating, titles'},
-  {id:'dream',t:'Solo Dream Team',ic:'#t-dream',tone:'',lead:()=>'Season 13 · winner Rashid'},
-  {id:'auth',t:'Solo Authentic',ic:'#t-auth',tone:'',lead:()=>'Season 13 · winner Ashik'},
-  {id:'coop',t:'Co-op Tour',ic:'#t-coop',tone:'',lead:()=>'2v2 · Siyan & Harris'},
+  {id:'team',t:'Team Tour',ic:'#t-team',tone:'',lead:()=>'13 seasons · champions & squads'},
+  {id:'dream',t:'Solo Dream Team',ic:'#t-dream',tone:'',lead:()=>'Season archive · S13 winner Rashid'},
+  {id:'auth',t:'Solo Authentic',ic:'#t-auth',tone:'',lead:()=>'Season archive · S13 winner Ashik'},
+  {id:'coop',t:'Co-op Tour',ic:'#t-coop',tone:'',lead:()=>'Season archive · S13 Siyan & Harris'},
   {id:'goldenboot',t:'Golden Boot',ic:'#t-boot',tone:'',lead:()=>'Top scorer each season'},
   {id:'goldenball',t:'Golden Ball',ic:'#t-ball',tone:'',lead:()=>'Best rating each season'},
   {id:'managers',t:'Manager Trophies',ic:'clip',tone:'',lead:()=>'Pranav · WaCky'},
@@ -50,12 +50,13 @@ const CATS=[
 ];
 function leader(k){return [...D.players].sort((a,b)=>(b[k]??-1)-(a[k]??-1)||b.g-a.g)[0]}
 
-const GROUPS=[['',['home','compare']],['Hall of fame',['mld-dor']],['All-time',['scorers','rating','trophies','runners','managers']],
+const GROUPS=[['',['home','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
   ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['side-quests','games']],['Directory',['all-players']]];
 function navIcon(c){
   if(c.id==='home')return `<img alt="" src="${EMBLEM}" style="width:40px;height:40px;object-fit:cover;object-position:50% 45%">`;
   if(c.id==='mld-dor')return `<img alt="" src="${TROPHY}">`;
   if(c.id==='all-players')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0112 0M15 20a4 4 0 016 0"/></svg>`;
+  if(c.id==='goat')return `<span class="goatic">🐐</span>`;
   if(c.id==='compare')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></svg>`;
   if(c.id==='games')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="17.5" cy="13.5" r="1"/></svg>`;
   if(c.id==='turbo')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>`;
@@ -64,7 +65,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Games',locked:true,lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Games',locked:true,lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
@@ -108,7 +109,7 @@ let cur='', sub={team:'g',dream:'r',auth:'r'};
 const VIEWS={
   scorers:()=>({t:'Top <em>Scorers</em>',p:'Total goals across every MLD tournament with individual stats.',
     b:leaderboard(sortBy(D.players,'g'),p=>p.g,'goals',p=>`${s(p.t,'tournament')} · ${(p.g/p.t).toFixed(1)} per tournament`)}),
-  rating:()=>({t:'Career <em>Rating</em>',p:'Average rating × ln(1 + tournaments played). Rewards players who keep performing over many tournaments.',
+  rating:()=>({t:'Top <em>Ratings</em>',p:'Ranked by player rating only: average rating × ln(1 + tournaments played), so a long run of good ratings counts for more than one hot tournament. This is separate from all-time rank, which uses the MLD Index (see MLD GOAT).',
     b:leaderboard(sortBy(D.players,'cs'),p=>fmt(p.cs),'score',p=>`Avg rating ${fmt(p.r)} · ${s(p.t,'tournament')}`)}),
   trophies:()=>({t:'Player <em>Trophies</em>',p:'Championships won as a player, across all tournament types.',
     b:leaderboard([...D.players].filter(p=>p.pt>0).sort((a,b)=>b.pt-a.pt||b.ru-a.ru||b.g-a.g),p=>p.pt,'titles',p=>`${s(p.ru,'runner-up finish')} · ${p.g} goals`)}),
@@ -192,7 +193,7 @@ function ballonView(){
    <h2 class="sec">The winner <small>MIDHUN</small></h2>
    <div class="bdo-page"><div class="bigphoto"><img alt="${esc(GOAT)} holding the MLD D'or" src="${PHOTO}"><span class="tag">★ 1st MLD D'or · ${esc(GOAT)}</span></div>
    <div style="display:flex;flex-direction:column;gap:14px">
-     <div class="kv"><div class="tile gold"><b>#1</b><span>Career rating</span></div><div class="tile red"><b>${m.g}</b><span>Goals · #${goalsRank}</span></div><div class="tile"><b>${m.t}</b><span>Tournaments</span></div>
+     <div class="kv"><div class="tile gold"><b>#${m.crk}</b><span>All-time rank</span></div><div class="tile red"><b>${m.g}</b><span>Goals · #${goalsRank}</span></div><div class="tile"><b>${m.t}</b><span>Tournaments</span></div>
        <div class="tile"><b>${fmt(m.r)}</b><span>Avg rating</span></div><div class="tile"><b>${m.pt}</b><span>Trophies</span></div><div class="tile"><b>${gb.length}</b><span>Golden Balls</span></div></div>
      <div class="how"><b style="font:400 1.3rem var(--display);text-transform:uppercase">How it was decided</b>
        <div class="split"><i></i><i></i></div><div class="lg"><span>Performance score 80%</span><span>Jury vote 20%</span></div>
@@ -212,7 +213,7 @@ function nomineesBlock(){
   const card=(x,big)=>`<button class="nom${big?' win':''} r${x.rank}" data-poster="${esc(x.img)}" data-pname="${esc(x.name)}" aria-label="${esc(ord(x.rank))}: ${esc(x.alias?x.alias+' ('+x.name+')':x.name)}, ${x.points} MLD D'or points. Tap to enlarge.">
       <img src="${esc(x.img)}" alt="${esc(x.name)} MLD D'or poster" loading="lazy">
       <span class="nomrank">${big?'★ Winner':ord(x.rank)}</span>
-      <span class="nomfoot"><b>${esc(x.alias||x.name)}</b>${x.alias?`<small>${esc(x.name)}</small>`:''}<em>${x.points.toFixed(2)}<i>pts</i></em></span></button>`;
+      <span class="nomfoot"><b>${esc(x.alias||x.name)}</b>${x.alias?`<small>${esc(x.name)}</small>`:''}${x.nominatedAs?`<small>nominated as ${esc(x.nominatedAs)}</small>`:''}<em>${x.points.toFixed(2)}<i>pts</i></em></span></button>`;
   return `<h2 class="sec" style="margin-top:0">The nominees <small>1ST MLD D'OR</small></h2>
     <p class="note" style="margin:-4px 0 12px">${N.total} players were nominated. Ranked by MLD D'or points: performance score 80% + jury vote 20%. Tap a poster to see it full size.</p>
     <div class="noms">${card(w,true)}<div class="nomgrid">${rest.map(x=>card(x,false)).join('')}</div></div>
@@ -223,7 +224,7 @@ function nomineesBlock(){
 document.addEventListener('click',e=>{
   const c=e.target.closest('[data-poster]');if(!c)return;
   const v=document.createElement('div');v.className='pview';
-  v.innerHTML=`<div class="pvbox"><img src="${esc(c.dataset.poster)}" alt=""><div class="flrow"><button class="flbtn red" data-pvprof="1">View ${esc(c.dataset.pname)}'s stats</button><button class="flbtn" data-pvclose="1">Close</button></div></div>`;
+  v.innerHTML=`<div class="pvbox"><img src="${esc(c.dataset.poster)}" alt=""><div class="flrow">${c.dataset.pname?`<button class="flbtn red" data-pvprof="1">View ${esc(c.dataset.pname)}'s stats</button>`:''}<button class="flbtn" data-pvclose="1">Close</button></div></div>`;
   document.body.appendChild(v);
   v.addEventListener('click',ev=>{if(ev.target===v||ev.target.closest('[data-pvclose]'))v.remove();
     else if(ev.target.closest('[data-pvprof]')){v.remove();openPlayer(c.dataset.pname);}});
@@ -535,6 +536,17 @@ NET.onLobby('flick',list=>{
 document.addEventListener('click',e=>{if(!e.target.closest('[data-joinflick]'))return;
   const start=()=>{go('play');setTimeout(()=>FL.joinOnline(),60);};
   if(GAMES_LOCKED&&!gamesUnlocked())askPin(start);else start();});
+/* ---- Donate: the admin's real UPI QR code, shown on request ---- */
+document.addEventListener('click',e=>{if(!e.target.closest('[data-donate]'))return;
+  const v=document.createElement('div');v.className='pview donate';
+  v.innerHTML=`<div class="pvbox dbox"><b class="flbig">Thank you ❤️</b><p class="note" style="margin:0">Scan with any UPI app (GPay, PhonePe, Paytm…) and enter any amount you like. It is completely optional.</p>
+    <button class="dqr" data-qrbig="1" aria-label="Show the QR code larger"><img src="images/donate-upi-qr.jpg" alt="UPI payment QR code for the MLD admin"></button>
+    <p class="note" style="margin:0;text-align:center">Tap the code to make it bigger.</p><div class="flrow"><button class="flbtn" data-pvclose="1">Close</button></div></div>`;
+  document.body.appendChild(v);
+  v.addEventListener('click',ev=>{if(ev.target===v||ev.target.closest('[data-pvclose]'))v.remove();
+    else if(ev.target.closest('[data-qrbig]'))v.classList.toggle('big');});
+  const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
+});
 renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&(VIEWS[h0]||h0==='play'||h0==='turbo'))go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 
