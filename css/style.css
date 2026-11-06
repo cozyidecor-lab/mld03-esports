@@ -802,3 +802,7 @@ body.fl-full .flexit{width:38px;height:38px}
 .pview.donate.big .dbox{width:min(96vw,720px)}
 .pview.donate.big .dqr{padding:4px}
 body.fl-full .sitefoot{display:none}
+.upibtn{display:block;text-align:center;text-decoration:none}
+.upiid{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.88rem;color:var(--muted)}
+.upiid b{color:var(--ink);font-weight:700;overflow-wrap:anywhere}
+.upiid button{flex:none;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;padding:6px 14px;font:700 .8rem var(--label);letter-spacing:.06em;text-transform:uppercase}

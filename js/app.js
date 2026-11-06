@@ -537,11 +537,21 @@ document.addEventListener('click',e=>{if(!e.target.closest('[data-joinflick]'))r
   const start=()=>{go('play');setTimeout(()=>FL.joinOnline(),60);};
   if(GAMES_LOCKED&&!gamesUnlocked())askPin(start);else start();});
 /* ---- Donate: the admin's real UPI QR code, shown on request ---- */
+/* same link the QR code holds (read from it); no amount, so the giver chooses */
+const UPI_ID='yadhurajck5@oksbi';
+const UPI_LINK='upi://pay?pa=yadhurajck5@oksbi&pn=Yadhu%20raj&aid=uGICAgICTncKsQA&cu=INR';
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copyupi]');if(!b)return;
+  const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1800);};
+  if(navigator.clipboard)navigator.clipboard.writeText(UPI_ID).then(done).catch(()=>{});
+  else{const t=document.createElement('textarea');t.value=UPI_ID;document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(err){}t.remove();}});
 document.addEventListener('click',e=>{if(!e.target.closest('[data-donate]'))return;
   const v=document.createElement('div');v.className='pview donate';
   v.innerHTML=`<div class="pvbox dbox"><b class="flbig">Thank you ❤️</b><p class="note" style="margin:0">Scan with any UPI app (GPay, PhonePe, Paytm…) and enter any amount you like. It is completely optional.</p>
     <button class="dqr" data-qrbig="1" aria-label="Show the QR code larger"><img src="images/donate-upi-qr.jpg" alt="UPI payment QR code for the MLD admin"></button>
-    <p class="note" style="margin:0;text-align:center">Tap the code to make it bigger.</p><div class="flrow"><button class="flbtn" data-pvclose="1">Close</button></div></div>`;
+    <p class="note" style="margin:0;text-align:center">Tap the code to make it bigger.</p>
+    <a class="flbtn red upibtn" href="${UPI_LINK}">Pay with a UPI app</a>
+    <div class="upiid"><span>UPI ID <b>${UPI_ID}</b></span><button data-copyupi="1">Copy</button></div>
+    <div class="flrow"><button class="flbtn" data-pvclose="1">Close</button></div></div>`;
   document.body.appendChild(v);
   v.addEventListener('click',ev=>{if(ev.target===v||ev.target.closest('[data-pvclose]'))v.remove();
     else if(ev.target.closest('[data-qrbig]'))v.classList.toggle('big');});
