@@ -84,17 +84,13 @@
       </div>
     </div>
     <h2 class="sec reveal" style="--d:4">Season 14 tournaments <small>4 THIS SEASON</small></h2>
-    <div class="s14 reveal" style="--d:5">
-      <div class="t14 on"><svg><use href="#t-auth"/></svg><b>Solo Authentic</b><span class="pill red"><span class="live-dot"></span>Ongoing</span></div>
-      <div class="t14"><svg><use href="#t-coop"/></svg><b>Co-op</b><span class="pill">Coming up</span></div>
-      <div class="t14"><svg><use href="#t-dream"/></svg><b>Solo Dream Team</b><span class="pill">Coming up</span></div>
-      <div class="t14"><svg><use href="#t-team"/></svg><b>Team Tour</b><span class="pill">Coming up</span></div>
-    </div>
+    <div id="s14box" class="reveal" style="--d:5"></div>
     <div class="rules reveal" style="--d:6"><div><b>All goals count</b><span>toward all-time stats</span></div><div><b>Performance counts</b><span>toward MLD D'or points</span></div></div>
     <div id="didYouKnow" class="reveal" style="--d:7"></div>
     <h2 class="sec reveal" style="--d:7">Find a player</h2>
-    <label class="search gsearch reveal" style="--d:7" for="gq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <div class="srow reveal" style="--d:7"><label class="search gsearch" for="gq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input id="gq" placeholder="Search any MLD player" autocomplete="off"></label>
+      <button class="dicebtn" data-random="1" aria-label="Open a random player" title="Random player"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
     <div class="rows" id="gres"></div>
     <button class="menu-hint reveal" style="--d:8" data-open-menu="1"><span class="mi"><span></span><span></span><span></span></span><div><b>All stats & records</b><small>MLD D'or, top scorers, ratings, trophies and more</small></div><i aria-hidden="true">→</i></button>
   </section>
@@ -149,6 +145,7 @@
 <script src="js/card.js"></script>
 <script src="js/mates.js"></script>
 <script src="js/pwa.js"></script>
+<script src="js/home.js"></script>
 <script src="js/otf.js"></script>
 <script src="js/online.js"></script>
 </body>

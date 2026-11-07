@@ -256,7 +256,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span class="nlbtns"><button class="linkbtn" data-copylink="${esc(n)}" aria-label="Copy link to ${esc(n)}'s profile" title="Copy profile link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1.2-1.2"/></svg></button><span id="likeBox"></span></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
     <button class="pcbtn" data-pcard="${esc(n)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg>Download player card</button>
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
@@ -266,6 +266,7 @@ function openPlayer(n){
     ${typeof matesHTML==='function'?matesHTML(n):''}
     <h2 class="sec">Season log</h2>${logTable(rows)}`;
   $('#sheetBody').classList.toggle('founder',n===FOUNDER);
+  $('#sheetBody').classList.toggle('stier',n!==FOUNDER&&typeof tierOf==='function'&&tierOf(n)==='S');
   $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);mountLike(n);
   if(AUDIO[n])$('#photoTools').insertAdjacentHTML('afterend',`<button class="chip on" data-replay="1" style="border:0;margin:0 0 8px">▶ Play ${esc(n)}'s sound again</button>`);
 }
