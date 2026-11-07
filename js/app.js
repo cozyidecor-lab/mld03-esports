@@ -50,8 +50,8 @@ const CATS=[
 ];
 function leader(k){return [...D.players].sort((a,b)=>(b[k]??-1)-(a[k]??-1)||b.g-a.g)[0]}
 
-const GROUPS=[['',['home','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
-  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['fun-facts','side-quests','games']],['Directory',['all-players']]];
+const GROUPS=[['',['home','all-players','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
+  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['fun-facts','side-quests','games']]];
 function navIcon(c){
   if(c.id==='home')return `<img alt="" src="${EMBLEM}" style="width:40px;height:40px;object-fit:cover;object-position:50% 45%">`;
   if(c.id==='mld-dor')return `<img alt="" src="${TROPHY}">`;
@@ -64,7 +64,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];

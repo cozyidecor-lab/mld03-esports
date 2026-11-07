@@ -14,7 +14,7 @@ The owner is not technical: explain in simple words, never delete existing stats
   Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
 - `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos).
 - `js/form.js`: form indicators, computed automatically from `log`.
-- `js/players.js`: All MLD Players (founder WaCky; `JOINED_IN` corrections).
+- `js/players.js`: MLD Database page (menu: between Home and Compare; joined order by default; founder WaCky; `JOINED_IN` corrections).
 - `js/funfacts.js`: Fun Facts page (menu → Extras) + "Did you know?" card on Home. Every fact (records, roasts,
   loyalty, weird) is computed from `data.js`, so new tournaments update it automatically; no manual edits needed.
   Icon: `images/fun-facts.jpg`. Roasts stay about football stats only.

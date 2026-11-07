@@ -37,7 +37,7 @@
   }
   function view(){
     setTimeout(bind,0);
-    return {t:'All MLD <em>Players</em>',p:`Every one of the ${joined.length} players who has played in MLD, from the first to join to the newest.`,
+    return {t:'MLD <em>Database</em>',p:`Every one of the ${joined.length} players who has played in MLD, from the first to join to the newest.`,
       b:`<label class="search" for="apQ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input id="apQ" placeholder="Search ${joined.length} players" autocomplete="off" value="${esc(st.q)}"></label>
         <div class="pills" id="apSort">${SORTS.map(([k,l])=>`<button class="pill${k===st.sort?' on':''}" data-aps="${k}">${l}</button>`).join('')}</div>
