@@ -217,10 +217,71 @@
           ${margins.length?` Biggest edges: ${margins.map(x=>`${x.r.label} (${win===1||(!win&&x.r.w===1)?x.r.fa:x.r.fb} vs ${win===1||(!win&&x.r.w===1)?x.r.fb:x.r.fa})`).join(', ')}.`:''}
           ${W&&Lo&&(win===1?J.wb:J.wa)>0?` ${esc(Lo.n)} still wins ${win===1?J.wb:J.wa} categories.`:''}</p>
         <p class="note">The MLD Index (0–100) weighs career rating ${WEIGHTS[0][2]}%, titles ${WEIGHTS[2][2]}%, goals ${WEIGHTS[1][2]}%, season performance ${WEIGHTS[3][2]}%, average rating, awards, finals, experience and the MLD D'or, each measured against the best in MLD history.</p>
-        <button class="flbtn" data-cswap="1">Swap sides</button>
+        <div class="flrow"><button class="flbtn red" data-cshare="1">Share card</button><button class="flbtn" data-cswap="1">Swap sides</button></div>
       </div>
     </div>`;
   }
+  /* ---------- share card: a branded 1080×1350 image of the head-to-head ---------- */
+  const loadImg=src=>new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src;});
+  async function shareCard(a,b){
+    const A=statsOf(a),B=statsOf(b),IA=index(A),IB=index(B),J=judge(A,B);
+    const win=IA.score===IB.score?(J.wa===J.wb?0:J.wa>J.wb?1:2):IA.score>IB.score?1:2;
+    try{await Promise.all(['400 80px Anton','700 40px "Barlow Condensed"','500 30px Barlow'].map(f=>document.fonts.load(f)));}catch(e){}
+    const [pa,pb,logo]=await Promise.all([loadImg(photoOf(a)),loadImg(photoOf(b)),loadImg('images/emblem.jpg')]);
+    const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    const RED='#e3191f',GOLD='#f0c35a',INK='#f5f5f4',MUT='#9a9aa0';
+    const D_='Anton, Impact, sans-serif',L_='"Barlow Condensed", "Arial Narrow", sans-serif',B_='Barlow, system-ui, sans-serif';
+    // background
+    x.fillStyle='#0a0a0b';x.fillRect(0,0,W,H);
+    let g=x.createRadialGradient(270,380,20,270,380,640);g.addColorStop(0,'rgba(227,25,31,.35)');g.addColorStop(1,'rgba(227,25,31,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    g=x.createRadialGradient(810,380,20,810,380,640);g.addColorStop(0,'rgba(242,242,240,.16)');g.addColorStop(1,'rgba(242,242,240,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    // header
+    if(logo){x.save();x.beginPath();x.arc(96,96,44,0,7);x.clip();x.drawImage(logo,52,52,88,88);x.restore();}
+    x.fillStyle=INK;x.font=`700 34px ${L_}`;x.textBaseline='alphabetic';x.fillText('MLD 03 ESPORTS',160,90);
+    x.fillStyle=MUT;x.font=`600 24px ${L_}`;x.fillText('HEAD TO HEAD',160,122);
+    x.textAlign='right';x.fillStyle=MUT;x.font=`600 24px ${L_}`;x.fillText('mld03-esports.store',W-52,104);x.textAlign='left';
+    // players
+    const side=(p,img,n,cx,col,won)=>{
+      const r=150,cy=380;x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.closePath();x.fillStyle='#1f1f22';x.fill();x.clip();
+      if(img){const s=Math.max(2*r/img.width,2*r/img.height);x.drawImage(img,cx-img.width*s/2,cy-img.height*s/2,img.width*s,img.height*s);}
+      else{x.fillStyle=MUT;x.font=`400 110px ${D_}`;x.textAlign='center';x.fillText(initials(n),cx,cy+40);x.textAlign='left';}
+      x.restore();x.lineWidth=10;x.strokeStyle=won?GOLD:col;x.beginPath();x.arc(cx,cy,r+6,0,7);x.stroke();
+      if(won){x.fillStyle=GOLD;x.font=`700 30px ${L_}`;x.textAlign='center';x.fillText('★ WINNER',cx,cy-r-30);x.textAlign='left';}
+      x.textAlign='center';x.fillStyle=INK;let fs=78;x.font=`400 ${fs}px ${D_}`;const name=n.toUpperCase();
+      while(x.measureText(name).width>440&&fs>40){fs-=4;x.font=`400 ${fs}px ${D_}`;}x.fillText(name,cx,cy+r+100);
+      x.fillStyle=MUT;x.font=`600 28px ${L_}`;x.fillText(`ALL-TIME RANK #${p.p.crk}`,cx,cy+r+142);x.textAlign='left';};
+    side(A,pa,a,270,RED,win===1);side(B,pb,b,810,'#f2f2f0',win===2);
+    x.fillStyle='#000';x.beginPath();x.arc(540,380,52,0,7);x.fill();x.strokeStyle='#2a2a2e';x.lineWidth=3;x.stroke();
+    x.fillStyle=INK;x.font=`700 40px ${L_}`;x.textAlign='center';x.fillText('VS',540,394);x.textAlign='left';
+    // MLD Index
+    const iy=760;x.fillStyle=MUT;x.font=`700 26px ${L_}`;x.textAlign='center';x.fillText('MLD INDEX',540,iy-38);
+    x.font=`400 96px ${D_}`;x.fillStyle=win===1?GOLD:INK;x.fillText(IA.score.toFixed(1),270,iy+30);x.fillStyle=win===2?GOLD:INK;x.fillText(IB.score.toFixed(1),810,iy+30);
+    const bar=(y,v,col,right)=>{x.fillStyle='#1f1f22';x.fillRect(60,y,960,14);x.fillStyle=col;const w=960*Math.min(1,v/100);x.fillRect(right?1020-w:60,y,w,14);};
+    bar(iy+60,IA.score,RED,false);bar(iy+86,IB.score,'#f2f2f0',true);
+    // key stats
+    const rows=[['Goals',A.goals,B.goals],['Titles',A.titles,B.titles],['Avg rating',fmt(A.rating),fmt(B.rating)],['Tournaments',A.tournaments,B.tournaments]];
+    let y=950;rows.forEach(([l,va,vb])=>{const na=parseFloat(va),nb=parseFloat(vb);
+      x.fillStyle='rgba(255,255,255,.04)';x.fillRect(60,y-46,960,66);
+      x.font=`400 46px ${D_}`;x.textAlign='left';x.fillStyle=na>nb?INK:MUT;x.fillText(String(va),90,y);
+      x.textAlign='right';x.fillStyle=nb>na?INK:MUT;x.fillText(String(vb),990,y);
+      x.textAlign='center';x.fillStyle=MUT;x.font=`700 28px ${L_}`;x.fillText(l.toUpperCase(),540,y-6);y+=82;});
+    // verdict
+    x.textAlign='center';
+    const verdict=win?`${(win===1?a:b).toUpperCase()} WINS ${win===1?J.wa:J.wb}–${win===1?J.wb:J.wa} IN CATEGORIES`:`DEAD EVEN · ${J.wa}–${J.wb} IN CATEGORIES`;
+    x.fillStyle=win?GOLD:INK;let vf=44;x.font=`400 ${vf}px ${D_}`;while(x.measureText(verdict).width>960&&vf>28){vf-=2;x.font=`400 ${vf}px ${D_}`;}
+    x.fillText(verdict,540,1300);x.textAlign='left';
+    x.fillStyle=RED;x.fillRect(0,H-12,W,12);
+    // share, or save as a file
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    const fname=`MLD-${a}-vs-${b}.png`.replace(/[^A-Za-z0-9.-]+/g,'-');const file=new File([blob],fname,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:`${a} vs ${b} · MLD 03`,text:`${a} vs ${b} on MLD 03 Esports · mld03-esports.store`});return 'shared';}catch(e){if(e&&e.name==='AbortError')return 'cancelled';}}
+    const u=URL.createObjectURL(blob),l=document.createElement('a');l.href=u;l.download=fname;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return 'saved';
+  }
+  document.addEventListener('click',async e=>{const btn=e.target.closest('[data-cshare]');if(!btn||!CMP.a||!CMP.b)return;
+    const t=btn.textContent;btn.textContent='Making card…';btn.disabled=true;
+    try{const r=await shareCard(CMP.a,CMP.b);btn.textContent=r==='saved'?'Saved to your phone ✓':r==='shared'?'Shared ✓':t;}catch(err){btn.textContent='Could not make the card';}
+    setTimeout(()=>{btn.textContent=t;btn.disabled=false;},2200);});
+  window.MLDshareCard=shareCard;
   document.addEventListener('click',e=>{if(e.target.closest('[data-cswap]')){[CMP.a,CMP.b]=[CMP.b,CMP.a];rerender('cmpOut');}});
   VIEWS.compare=view;
   window.CMP=CMP;
