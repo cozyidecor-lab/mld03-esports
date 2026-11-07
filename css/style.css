@@ -989,3 +989,29 @@ body.otf-open .top,body.otf-open .app,body.otf-open .goatsound{visibility:hidden
 .pcbox img{width:100%;height:auto;max-height:calc(100dvh - 170px);object-fit:contain;border-radius:14px}
 .pcbtns{display:flex;gap:10px}.pcbtns .flbtn{flex:1}
 .pcclose{border:0;background:transparent;color:var(--muted);font:700 .85rem var(--label);letter-spacing:.1em;text-transform:uppercase;padding:6px;cursor:pointer}
+
+/* ---- install as app ---- */
+.insbtn{display:flex;align-items:center;gap:12px;margin:6px 0 4px;padding:10px 12px;border-radius:16px;border:1px solid rgba(227,25,31,.45);background:linear-gradient(135deg,rgba(227,25,31,.18),var(--panel) 70%);color:var(--ink);text-align:left;cursor:pointer;flex:none}
+.insbtn[hidden]{display:none}
+.insbtn img{width:40px;height:40px;border-radius:11px}
+.insbtn b{display:block;font:700 .95rem var(--label);letter-spacing:.06em;text-transform:uppercase}
+.insbtn small{color:var(--muted);font-size:.8rem}
+.insbox{width:min(360px,100%);background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.insbox img{width:72px;height:72px;border-radius:18px}
+.insbox>b{font:400 1.5rem var(--display);text-transform:uppercase}
+.insbox ol{text-align:left;margin:0;padding-left:20px;line-height:1.7;color:#dcdce0}
+.insbox ol svg{width:18px;height:18px;vertical-align:-3px;color:#4ea3ff}
+.insic{font-weight:700;color:var(--ink)}
+.insbox .flbtn{width:100%}
+/* ---- teammates on profiles ---- */
+.mbest{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;margin:0 0 10px;border-radius:18px;border:1px solid rgba(240,180,74,.4);background:linear-gradient(135deg,rgba(240,180,74,.14),var(--panel) 70%)}
+.mbl{width:100%;font:700 .72rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:#f0c35a}
+.mbest .av0{width:44px;height:44px}.mplus{font:700 1.2rem var(--label);color:var(--muted)}
+.mbt{display:flex;flex-direction:column;min-width:0;margin-left:4px}.mbt b{font:700 1rem var(--label);text-transform:uppercase;letter-spacing:.04em}.mbt small{color:var(--muted);font-size:.82rem}
+.mates{display:flex;flex-direction:column;gap:8px}
+.mate{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:16px;background:var(--panel);border:1px solid var(--line);color:inherit;text-align:left;cursor:pointer}
+.mate .av0{width:40px;height:40px}
+.mtx{min-width:0;display:flex;flex-direction:column}.mtx b{font:700 1rem var(--label);text-transform:uppercase;letter-spacing:.04em}
+.mtx small{color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mnum{display:flex;flex-direction:column;align-items:flex-end}.mnum b{font:400 1.5rem/1 var(--display)}
+.mnum small{font:700 .64rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.mnum i{font-style:normal;font-size:.75rem;color:#f0c35a;margin-top:2px}

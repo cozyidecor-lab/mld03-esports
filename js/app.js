@@ -263,6 +263,7 @@ function openPlayer(n){
       <div class="tile"><b>${p.pt}</b><span>Trophies</span></div><div class="tile"><b>${p.ru}</b><span>Runner-up</span></div><div class="tile"><b>${p.mt}</b><span>As manager</span></div></div>
     <h2 class="sec" style="margin-top:8px">Overall performance <small>BY SEASON</small></h2>${perfChart(n)}
     ${tro.length?`<h2 class="sec">Honours</h2><div class="chips">${tro.map(t=>`<span class="chip${/Trophy/.test(t[3])?' on':''}">S${t[0]} ${t[3]==='Player Trophy'?'Champion':t[3]==='Manager Trophy'?'Champion manager':t[3]} · ${TYPE[t[1]]}</span>`).join('')}</div>`:''}
+    ${typeof matesHTML==='function'?matesHTML(n):''}
     <h2 class="sec">Season log</h2>${logTable(rows)}`;
   $('#sheetBody').classList.toggle('founder',n===FOUNDER);
   $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);mountLike(n);

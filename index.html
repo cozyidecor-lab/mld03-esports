@@ -10,7 +10,12 @@
 <meta property="og:description" content="All-time stats, trophies and the MLD D'or.">
 <meta property="og:image" content="images/logo.jpg">
 <link rel="icon" href="images/emblem.jpg">
-<link rel="apple-touch-icon" href="images/emblem.jpg">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MLD 03">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
@@ -126,6 +131,7 @@
   <div class="dhead"><button class="brand" data-go="" aria-label="MLD 03 home"><img alt="" src="images/emblem.jpg"><span>MLD 03<small>ESPORTS</small></span></button>
     <button class="ibtn" id="menuClose" aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <nav id="dnav"></nav>
+  <button id="installApp" class="insbtn" hidden><img alt="" src="images/app-icon-192.png"><span><b>Install the MLD app</b><small>Opens full screen from your home screen</small></span></button>
 </aside>
 <div id="sheet" role="dialog" aria-modal="true" aria-label="Player profile"><div class="sheet" id="sheetBody"></div></div>
 <script src="js/vendor/firebase-app-compat.js"></script>
@@ -141,6 +147,8 @@
 <script src="js/players.js"></script>
 <script src="js/funfacts.js"></script>
 <script src="js/card.js"></script>
+<script src="js/mates.js"></script>
+<script src="js/pwa.js"></script>
 <script src="js/otf.js"></script>
 <script src="js/online.js"></script>
 </body>
