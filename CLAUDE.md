@@ -18,6 +18,8 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/funfacts.js`: Fun Facts page (menu → Extras) + "Did you know?" card on Home. Every fact (records, roasts,
   loyalty, weird) is computed from `data.js`, so new tournaments update it automatically; no manual edits needed.
   Icon: `images/fun-facts.jpg`. Roasts stay about football stats only.
+- `js/card.js`: downloadable MLD player card (button on every profile). Canvas 1080×1350, colour = tier,
+  big number = MLD Index; all from data, nothing to update by hand.
 - `js/otf.js`: the only mini game, One Touch Football (online 2-player). Invitations `otf/invites`, matches
   `otf/matches` in Firebase; inviter's phone runs physics, kick-off and clock use the Firebase server time,
   score is +1 transactions. `js/net.js`: shared Firebase connection (likes + game). Rules: `firebase-rules.json`
