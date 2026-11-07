@@ -1,29 +1,35 @@
 /* ================= Home extras: Season progress, random player, profile links =================
    SEASON NOW: update `stage` as the season moves on (that is the only thing to change).
    stage = index in that tour's `stages` list (0 = first stage), 'done' when finished, null when not started.
+   Each stage has a weight = its share of the tournament's matches (the league phase is most of a UCL-style tour).
    Tours always run in this order: Authentic → Co-op → Dream Team → Team Tour. */
 (function(){
+  const UCL=[['League phase',.45],['Knockout play-offs',.15],['Round of 16',.15],['Quarter-finals',.12],['Semi-finals',.08],['Final',.05]];
   const SEASON_NOW={s:14,tours:[
-    {k:'A',name:'Solo Authentic',sym:'#t-auth',stages:['Group stage','Quarter-finals','Semi-finals','Final'],stage:1},
-    {k:'C',name:'Co-op',sym:'#t-coop',stages:['Group stage','Knockouts','Final'],stage:null},
-    {k:'D',name:'Solo Dream Team',sym:'#t-dream',stages:['Group stage','Knockouts','Final'],stage:null},
-    {k:'T',name:'Team Tour',sym:'#t-team',stages:['League','Knockouts','Final'],stage:null}]};
+    {k:'A',name:'Solo Authentic',sym:'#t-auth',stages:UCL,stage:2},
+    {k:'C',name:'Co-op',sym:'#t-coop',stages:[['Group stage',.6],['Knockouts',.3],['Final',.1]],stage:null},
+    {k:'D',name:'Solo Dream Team',sym:'#t-dream',stages:[['Group stage',.6],['Knockouts',.3],['Final',.1]],stage:null},
+    {k:'T',name:'Team Tour',sym:'#t-team',stages:[['League',.6],['Knockouts',.3],['Final',.1]],stage:null}]};
 
   /* ---------- Season progress ---------- */
-  function frac(t){if(t.stage==='done')return 1;if(t.stage==null)return 0;return (t.stage+.5)/t.stages.length;}
+  // finished stages count fully, the stage being played counts half
+  function frac(t){if(t.stage==='done')return 1;if(t.stage==null)return 0;let f=0;t.stages.forEach(([,w],i)=>{if(i<t.stage)f+=w;else if(i===t.stage)f+=w/2;});return f;}
   function renderSeason(){
-    const box=document.getElementById('s14box');if(!box)return;
-    const T=SEASON_NOW.tours,pct=Math.round(T.reduce((s,t)=>s+frac(t),0)/T.length*100);
-    const now=T.find(t=>t.stage!=null&&t.stage!=='done'),done=T.filter(t=>t.stage==='done').length;
+    const T=SEASON_NOW.tours,now=T.find(t=>t.stage!=null&&t.stage!=='done'),done=T.filter(t=>t.stage==='done').length;
     const status=t=>t.stage==='done'?'<span class="pill">Finished</span>':t.stage==null?'<span class="pill">Coming up</span>'
-      :`<span class="pill red"><span class="live-dot"></span>${esc(t.stages[t.stage])}</span>`;
-    box.innerHTML=`<div class="sprog" role="img" aria-label="Season ${SEASON_NOW.s} is ${pct}% complete">
-        <div class="sptop"><span><b>${pct}%</b> of Season ${SEASON_NOW.s} complete</span><small>${done} of ${T.length} tournaments finished</small></div>
-        <div class="spbar">${T.map(t=>`<i class="${t.stage==='done'?'done':t.stage!=null?'live':''}"><s style="width:${Math.round(frac(t)*100)}%"></s></i>`).join('')}</div>
+      :`<span class="pill red"><span class="live-dot"></span>${esc(t.stages[t.stage][0])}</span>`;
+    const top=document.getElementById('s14prog');
+    if(top){const cur=now||T.filter(t=>t.stage==='done').pop()||T[0],pct=Math.round(frac(cur)*100),n=T.indexOf(cur)+1;
+      top.innerHTML=`<div class="sprog" role="group" aria-label="${esc(cur.name)} is ${pct}% done">
+        <div class="sptop"><span>${now?'<span class="live-dot"></span>':''}<b>${pct}%</b> ${esc(cur.name)} done</span><small>Season ${SEASON_NOW.s} · tournament ${n} of ${T.length}</small></div>
+        <div class="spsteps">${cur.stages.map(([nm],i)=>{const st=cur.stage==='done'||i<cur.stage?'done':i===cur.stage?'live':'';
+          return `<span class="${st}"><i>${st==='done'?'✓':''}</i><small>${esc(nm.replace('Knockout play-offs','Play-offs').replace('League phase','League').replace('Quarter-finals','Quarters').replace('Semi-finals','Semis'))}</small></span>`;}).join('')}</div>
+        <div class="spbar" title="Season ${SEASON_NOW.s}: ${done} of ${T.length} tournaments finished">${T.map(t=>`<i class="${t.stage==='done'?'done':t.stage!=null?'live':''}"><s style="width:${Math.round(frac(t)*100)}%"></s></i>`).join('')}</div>
         <div class="splab">${T.map(t=>`<span>${esc(t.name.replace('Solo ',''))}</span>`).join('')}</div>
-        ${now?`<div class="spnow"><span class="live-dot"></span>Now: <b>${esc(now.name)}</b> · ${esc(now.stages[now.stage])}</div>`:''}
-      </div>
-      <div class="s14">${T.map(t=>`<div class="t14${t===now?' on':''}"><svg><use href="${t.sym}"/></svg><b>${esc(t.name)}</b>${status(t)}</div>`).join('')}</div>`;
+        ${now?`<div class="spnow">Now playing: <b>${esc(now.stages[now.stage][0])}</b></div>`:''}
+      </div>`;}
+    const box=document.getElementById('s14box');
+    if(box)box.innerHTML=`<div class="s14">${T.map(t=>`<div class="t14${t===now?' on':''}"><svg><use href="${t.sym}"/></svg><b>${esc(t.name)}</b>${status(t)}</div>`).join('')}</div>`;
   }
   renderSeason();
 

@@ -20,7 +20,8 @@ The owner is not technical: explain in simple words, never delete existing stats
   Icon: `images/fun-facts.jpg`. Roasts stay about football stats only.
 - `js/card.js`: downloadable MLD player card (button on every profile). Canvas 1080×1350, colour = tier,
   big number = MLD Index; all from data, nothing to update by hand.
-- `js/home.js`: Season progress on Home (edit `SEASON_NOW` tour `stage`: index, 'done' or null), 🎲 random
+- `js/home.js`: Season progress at the TOP of Home (edit `SEASON_NOW` tour `stage`: index, 'done' or null; Authentic uses
+  UCL stages League → Play-offs → R16 → QF → SF → Final with match-share weights), 🎲 random
   player button, copy-profile-link (links look like `/?p=Name`), toast. S-tier profiles get `.sheet.stier` gold styling.
 - `js/mates.js`: Teammates section on profiles (Team Tour teammates, titles together, best partnership).
 - App install: `manifest.webmanifest`, `sw.js` (network-first, offline fallback), `js/pwa.js` (menu install button),

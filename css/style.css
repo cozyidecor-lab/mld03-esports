@@ -1143,3 +1143,19 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fkgame{background:radial-gradient(120% 70% at 50% 40%,#1f5e2a,#0d2b14)}
 .fkforms{grid-template-columns:repeat(3,minmax(0,1fr))}
 .fkform1 svg{max-width:96px}
+
+/* season progress at the top of Home: stage stepper */
+#s14prog{margin:6px 0 14px}
+.sptop span .live-dot{margin-right:6px;vertical-align:middle}
+.spsteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;margin:12px 0 4px;position:relative}
+.spsteps span{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;min-width:0}
+.spsteps span::before{content:"";position:absolute;top:10px;left:-50%;right:50%;height:3px;background:var(--panel-2);z-index:0}
+.spsteps span:first-child::before{display:none}
+.spsteps span.done::before,.spsteps span.live::before{background:var(--red)}
+.spsteps i{position:relative;z-index:1;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 .7rem var(--label);font-style:normal;background:var(--panel-2);border:2px solid var(--line);color:#fff}
+.spsteps .done i{background:var(--red);border-color:var(--red)}
+.spsteps .live i{background:#fff;border-color:var(--red);box-shadow:0 0 0 4px rgba(227,25,31,.3);animation:pulse 1.6s ease-in-out infinite}
+.spsteps small{font:700 .62rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.15}
+.spsteps .live small{color:var(--ink)}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(227,25,31,.12)}}
+@media (prefers-reduced-motion:reduce){.spsteps .live i{animation:none}}
