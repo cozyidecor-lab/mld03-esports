@@ -17,7 +17,7 @@
   const TOUR_ORDER={default:['A','D','T']};
   const NAMES={T:'Team Tour',D:'Solo Dream Team',A:'Solo Authentic'};
   const STATUS={
-    prime:{e:'🔥',t:'Prime'},rising:{e:'📈',t:'Rising'},stable:{e:'⚖️',t:'Stable'},
+    prime:{e:'🔥',t:'Top Form'},rising:{e:'📈',t:'Rising'},stable:{e:'⚖️',t:'Stable'},
     declining:{e:'📉',t:'Declining'},poor:{e:'⚠️',t:'Poor Form'},inactive:{e:'💤',t:'Inactive'},none:{e:'·',t:'Not enough data'}};
 
   /* ---- every tournament, oldest first, with each player's place in its field ---- */
