@@ -59,7 +59,7 @@ function navIcon(c){
   if(c.id==='goat')return `<span class="goatic">🐐</span>`;
   if(c.id==='compare')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></svg>`;
   if(c.id==='games')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="17.5" cy="13.5" r="1"/></svg>`;
-  if(c.id==='fun-facts')return `<img alt="" src="images/fun-facts.svg" style="width:40px;height:40px;object-fit:cover">`;
+  if(c.id==='fun-facts')return `<img alt="" src="images/fun-facts.jpg" style="width:40px;height:40px;object-fit:cover">`;
   if(c.id==='side-quests')return `<img alt="" src="${MANDI_IC}" style="border-radius:50%">`;
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }

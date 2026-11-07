@@ -130,7 +130,7 @@
   /* ---- "Did you know?" card on the home page: a different fact each visit ---- */
   function homeCard(){const box=document.getElementById('didYouKnow');if(!box||!facts.length)return;
     const pool=facts.filter(f=>f.who&&f.who.length);const f=pool[Math.floor(Math.random()*pool.length)];
-    box.innerHTML=`<button class="ffhome" data-go="fun-facts"><span class="ffhic"><img alt="" src="images/fun-facts.svg"></span>
+    box.innerHTML=`<button class="ffhome" data-go="fun-facts"><span class="ffhic"><img alt="" src="images/fun-facts.jpg"></span>
       <span class="ffhtx"><small>Did you know? ${f.e}</small><b>${esc(f.h)}</b><span>${esc(f.t)}</span><i>More fun facts →</i></span></button>`;}
   homeCard();
 })();
