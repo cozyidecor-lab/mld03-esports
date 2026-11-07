@@ -25,10 +25,15 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/mates.js`: Teammates section on profiles (Team Tour teammates, titles together, best partnership).
 - App install: `manifest.webmanifest`, `sw.js` (network-first, offline fallback), `js/pwa.js` (menu install button),
   icons `images/app-icon-*.png`, `images/apple-touch-icon.png`.
-- `js/otf.js`: the only mini game, One Touch Football (online 2-player). Invitations `otf/invites`, matches
-  `otf/matches` in Firebase; inviter's phone runs physics, kick-off and clock use the Firebase server time,
-  score is +1 transactions. `js/net.js`: shared Firebase connection (likes + game). Rules: `firebase-rules.json`
-  (owner pastes them in the Firebase console). Old games (Flick, Turbo) and the PIN lock were removed.
+- `js/flick-engine.js` + `js/flick.js`: the only mini game, MLD Football Flick (turn-based, carrom-style).
+  Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
+  positions → identical result on every phone. Firebase paths under `ff/`: `players` (profile, PIN hash, w/l/m/cur/best),
+  `names` (unique names), `invites` (30 s, transaction join), `rooms` (private codes), `matches` (one transaction per
+  turn: checks turn number + side + positions, stores flick + before/after state), `mping` (presence), `results`
+  (public results for weekly/monthly boards). Clock/turn timers use Firebase server time. CSS classes use the `fk`
+  prefix (Fun Facts owns `ff*` classes). `js/net.js`: shared Firebase connection (likes + game).
+  Rules: `firebase-rules.json` (owner pastes them in the Firebase console). Old games (One Touch Football, Flick,
+  Turbo) and the PIN lock were removed.
 
 ## Adding a finished tournament (the usual job)
 1. ADD rows; never remove old ones. Append `log` rows for every player, add `trophies` (Player Trophy /

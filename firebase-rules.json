@@ -7,39 +7,56 @@
         ".validate": "newData.child('n').isNumber() && ((!data.exists() && newData.child('n').val() == 1) || (data.exists() && newData.child('n').val() == data.child('n').val() + 1))"
       }
     },
-    "otf": {
-      "invites": {
+    "ff": {
+      "players": {
         ".read": true,
-        ".indexOn": [
-          "t"
-        ],
         "$id": {
           ".write": true,
-          ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length <= 20 && (newData.child('status').val() == 'open' || newData.child('status').val() == 'taken'))",
-          "status": {
-            ".validate": "!data.exists() || (data.val() == 'open' && newData.val() == 'taken' && data.parent().child('t').val() + 30000 > now) || newData.val() == data.val()"
-          },
-          "guest": {
-            ".validate": "!data.exists() || newData.val() == data.val()"
-          }
+          ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 16 && newData.child('pin').isString() && (!data.exists() || (newData.child('pin').val() == data.child('pin').val() && newData.child('name').val() == data.child('name').val()))",
+          "w": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
+          "l": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
+          "m": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"}
         }
+      },
+      "names": {
+        ".read": true,
+        "$k": {
+          ".write": "!data.exists()",
+          ".validate": "newData.isString()"
+        }
+      },
+      "invites": {
+        ".read": true,
+        ".indexOn": ["ts"],
+        "$id": {
+          ".write": true,
+          ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length <= 16 && (newData.child('status').val() == 'open' || newData.child('status').val() == 'taken'))",
+          "status": {
+            ".validate": "!data.exists() || newData.val() == data.val() || (data.val() == 'open' && newData.val() == 'taken' && data.parent().child('ts').val() + 30000 > now)"
+          },
+          "guest": {".validate": "!data.exists() || newData.val() == data.val()"},
+          "mid": {".validate": "!data.exists() || newData.val() == data.val()"}
+        }
+      },
+      "rooms": {
+        ".read": true,
+        "$c": {".write": true}
       },
       "matches": {
         "$m": {
           ".read": true,
           ".write": true,
-          "start": {
-            ".validate": "!data.exists() && newData.val() <= now"
-          },
-          "result": {
-            ".validate": "!data.exists()"
-          },
-          "score": {
-            "$p": {
-              ".validate": "newData.isNumber() && !data.parent().parent().child('result').exists() && ((!data.exists() && newData.val() == 0) || newData.val() == (data.exists() ? data.val() : 0) + 1)"
-            }
-          }
+          "turn": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
+          "rec": {".validate": "!data.exists() || newData.val() == data.val()"}
         }
+      },
+      "mping": {
+        "$m": {".read": true, ".write": true}
+      },
+      "results": {
+        ".read": true,
+        ".indexOn": ["ts"],
+        "$r": {".write": "!data.exists()"}
       }
     },
     "presence": {

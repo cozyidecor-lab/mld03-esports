@@ -1,4 +1,4 @@
-/* ================= MLD online: shared Firebase connection (likes, One Touch Football) =================
+/* ================= MLD online: shared Firebase connection (likes, MLD Football Flick) =================
    Uses the Firebase Realtime Database in js/firebase-config.js.
    Open the site with ?mock=1 to use an in-browser stand-in (two tabs can play each other) for testing. */
 const NET=(function(){
@@ -60,7 +60,7 @@ const NET=(function(){
     return s.on('likes/'+keyOf(name)+'/n',v=>cb(v||0));}
   function like(name){const s=store();if(!s)return Promise.resolve(false);const dev=deviceId();
     return s.txn('likes/'+keyOf(name),cur=>{cur=cur||{n:0,by:{}};cur.by=cur.by||{};if(cur.by[dev])return undefined;cur.by[dev]=true;cur.n=(cur.n||0)+1;return cur;}).catch(()=>false);}
-  /* the Firebase database itself, for the One Touch Football game (js/otf.js) */
+  /* the Firebase database itself, for MLD Football Flick (js/flick.js) */
   function db(){if(MOCK||!store())return null;try{return firebase.app().database();}catch(e){return null;}}
   return {available,keyOf,cleanName,MOCK,onLikes,like,db};
 })();

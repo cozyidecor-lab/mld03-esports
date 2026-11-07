@@ -64,7 +64,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
@@ -233,12 +233,14 @@ const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</
   ${rows.map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
 
 
-/* ---- mini games: One Touch Football (js/otf.js) ---- */
+/* ---- mini games: MLD Football Flick (js/flick.js + js/flick-engine.js) ---- */
 function gamesView(){
-  return {t:'Mini <em>Games</em>',p:'A quick game to play with the squad.',
-    b:`<div class="games"><div class="gcard otfcard"><span class="otfthumb" aria-hidden="true"><svg viewBox="0 0 120 80"><rect width="120" height="80" rx="10" fill="#1f7440"/><path d="M4 40H116M60 4V76" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><circle cx="60" cy="40" r="13" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><rect x="4" y="27" width="10" height="26" fill="none" stroke="#fff" stroke-width="2"/><rect x="106" y="27" width="10" height="26" fill="none" stroke="#fff" stroke-width="2"/><circle cx="74" cy="34" r="6" fill="#fff"/><path d="M74 28l3 3-1 4h-4l-1-4z" fill="#111"/></svg></span>
-      <span><b>One Touch Football</b><small>One touch. One shot. Score to win.</small><span class="tags"><span class="pill">Online · 2 players</span><span class="pill">60 seconds</span></span>
-      <button class="flbtn red otfplay" data-otf="open">Play now</button></span></div></div>`};
+  const d=(x,y,red,gk)=>`<circle cx="${x}" cy="${y}" r="5.5" fill="${red?'#e3191f':'#fff'}" stroke="${red?'#fff':'#e3191f'}" stroke-width="1.6"/>${gk?`<text x="${x}" y="${y+1.8}" font-size="4.5" text-anchor="middle" fill="${red?'#fff':'#e3191f'}" font-weight="700">GK</text>`:''}`;
+  return {t:'Mini <em>Games</em>',p:'A quick game to play with the squad, or against the computer.',
+    b:`<div class="games"><div class="gcard fkcard"><span class="fkthumb" aria-hidden="true"><svg viewBox="0 0 120 80"><rect width="120" height="80" rx="10" fill="#c40e14"/><rect x="8" y="8" width="104" height="64" rx="3" fill="#fff"/><path d="M8 40H112" stroke="#f3b6b8"/><circle cx="60" cy="40" r="10" fill="none" stroke="#f3b6b8"/><rect x="48" y="4" width="24" height="4" fill="#fff" stroke="#e3191f"/><rect x="48" y="72" width="24" height="4" fill="#fff" stroke="#e3191f"/>
+      ${d(60,66,1,1)}${d(38,50,1)}${d(60,48,1)}${d(82,50,1)}${d(60,14,0,1)}${d(40,28,0)}${d(80,28,0)}${d(60,31,0)}<circle cx="60" cy="40" r="3.3" fill="#111"/><path d="M60 48L56 44" stroke="#111" stroke-width="1" stroke-dasharray="1.5 1.5"/></svg></span>
+      <span><b>MLD Football Flick</b><small>Flick your players, hit the ball, score. Carrom-style football, one flick each.</small><span class="tags"><span class="pill">Online · 2 players</span><span class="pill">vs Computer</span><span class="pill">Private room</span><span class="pill">2 minutes</span></span>
+      <button class="flbtn red fkplay" data-ff="open">Play now</button></span></div></div>`};
 }
 
 function renderStat(){
