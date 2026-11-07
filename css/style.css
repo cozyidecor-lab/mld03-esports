@@ -1116,8 +1116,7 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fkover.menu{pointer-events:auto;background:rgba(0,0,0,.55)}
 .fksetm{display:flex;flex-direction:column;gap:8px;width:min(320px,90%);background:#a80b10;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:14px}
 .fksetm>b{font:400 1.4rem var(--display);-webkit-text-stroke:0;color:#fff;text-shadow:none;text-transform:uppercase}
-.fkrot{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:#111;color:#fff;border-radius:99px;padding:7px 8px 7px 14px;font-size:.8rem;display:flex;gap:8px;align-items:center;white-space:nowrap;z-index:3}
-.fkrot[hidden]{display:none}.fkrot button{border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer}
+.fkfx{position:absolute;inset:0;pointer-events:none;z-index:3}
 /* invitation popup (shows on every page of the site) */
 #ffPops{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:95;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 24px))}
 .fkpop{position:relative;overflow:hidden;background:#fff;color:#111;border-radius:20px;padding:14px 14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);animation:fkpopin .35s cubic-bezier(.2,1.4,.5,1) both}
@@ -1140,3 +1139,7 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
   .fkform{gap:8px}.fkform1{padding:6px}.fkform1 svg{max-height:26vh;width:auto}.fkform1 small{display:none}.fkform1 b{font-size:1.2rem}
   .fkbtn.big{padding:12px}.fktop{margin-bottom:4px}.fkhero h2{font-size:2.3rem}
 }
+/* game: upright (reel-style) layout, pitch fills the screen */
+.fkgame{background:radial-gradient(120% 70% at 50% 40%,#1f5e2a,#0d2b14)}
+.fkforms{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fkform1 svg{max-width:96px}

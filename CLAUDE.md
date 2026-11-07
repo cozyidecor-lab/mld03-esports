@@ -26,6 +26,7 @@ The owner is not technical: explain in simple words, never delete existing stats
 - App install: `manifest.webmanifest`, `sw.js` (network-first, offline fallback), `js/pwa.js` (menu install button),
   icons `images/app-icon-*.png`, `images/apple-touch-icon.png`.
 - `js/flick-engine.js` + `js/flick.js`: the only mini game, MLD Football Flick (turn-based, carrom-style).
+  Played upright (no rotation); pitch 640×1180 grass with a thin red/white edge; goal = confetti poppers + cheer.
   Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
   positions → identical result on every phone. Firebase paths under `ff/`: `players` (profile, PIN hash, w/l/m/cur/best),
   `names` (unique names), `invites` (30 s, transaction join), `rooms` (private codes), `matches` (one transaction per

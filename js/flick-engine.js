@@ -3,23 +3,23 @@
    (no sin/cos), with a fixed time step, so the same flick from the same positions gives exactly the
    same result on every phone. That is how both players end up with identical positions.
 
-   Pitch: 1100 × 700 units (formation x positions are written for a 1000-wide pitch and stretched). Team A defends the BOTTOM goal (y = 700) and attacks the top.
+   Pitch: 640 × 1180 units, upright like a phone screen (goals at the top and bottom). Team A defends the BOTTOM goal (y = 700) and attacks the top.
    Team B defends the TOP goal (y = 0). Bodies: 0 = ball, 1–4 = team A (1 = keeper), 5–8 = team B (5 = keeper).
    A state is a flat array [x0,y0, x1,y1, …] of the 9 bodies at rest. */
 const FFE=(function(){
-  const W=1100,H=700,R=27,BR=17,GOAL=230,G0=(W-GOAL)/2,G1=(W+GOAL)/2,POST=7,MAXV=26,MAXSTEPS=1500;
+  const W=640,H=1180,R=27,BR=17,GOAL=200,G0=(W-GOAL)/2,G1=(W+GOAL)/2,POST=7,MAXV=26,MAXSTEPS=1500;
   const MASS_D=2.2,MASS_B=1,E_BODY=.9,E_WALL=.72;
   const FORMS={
-    '3-1':{label:'3-1',desc:'Three attackers, one keeper',pos:[[500,652],[265,455],[500,428],[735,455]]},
-    '2-2':{label:'2-2',desc:'Two attackers, a defender and a keeper',pos:[[500,652],[500,565],[335,445],[665,445]]},
-    '1-3':{label:'1-3',desc:'One striker, two defenders and a keeper',pos:[[500,652],[295,565],[705,565],[500,440]]}};
+    '3-1':{label:'3-1',desc:'Three attackers, one keeper',pos:[[320,1125],[150,765],[320,735],[490,765]]},
+    '2-2':{label:'2-2',desc:'Two attackers, a defender and a keeper',pos:[[320,1125],[320,975],[205,755],[435,755]]},
+    '1-3':{label:'1-3',desc:'One striker, two defenders and a keeper',pos:[[320,1125],[165,955],[475,955],[320,745]]}};
   const TEAM={a:[1,2,3,4],b:[5,6,7,8]};
   const other=s=>s==='a'?'b':'a';
   const rnd=v=>Math.round(v*10)/10;
 
   function kickoff(fa,fb){
-    const X=x=>W/2+(x-500)*W/1000,s=[W/2,H/2];(FORMS[fa]||FORMS['3-1']).pos.forEach(([x,y])=>s.push(X(x),y));
-    (FORMS[fb]||FORMS['3-1']).pos.forEach(([x,y])=>s.push(W-X(x),H-y));return s;}
+    const s=[W/2,H/2];(FORMS[fa]||FORMS['3-1']).pos.forEach(([x,y])=>s.push(x,y));
+    (FORMS[fb]||FORMS['3-1']).pos.forEach(([x,y])=>s.push(W-x,H-y));return s;}
 
   /* is this flick allowed? (own disc, sensible numbers, not faster than the maximum) */
   function validShot(shot,side){
@@ -109,7 +109,7 @@ const FFE=(function(){
       const fx=r.final[0],fy=r.final[1];let v=0;
       v+=(side==='a'?(H-fy):fy)/H*120;                         // ball further up the pitch
       v-=Math.abs(fx-W/2)/W*25;                               // and central
-      const ownDist=Math.abs(fy-own);if(ownDist<200&&fx>G0-80&&fx<G1+80)v-=(200-ownDist)*.6; // danger near our goal
+      const ownDist=Math.abs(fy-own);if(ownDist<260&&fx>G0-80&&fx<G1+80)v-=(260-ownDist)*.5; // danger near our goal
       // our keeper should stay home
       const kx=r.final[2*keeper],ky=r.final[2*keeper+1],kd=Math.sqrt((kx-W/2)**2+(ky-(own-sign*50))**2);if(kd>160)v-=(kd-160)*.15;
       // is an opponent disc lined up right behind the ball for an easy shot at our goal?
