@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#ff4a3d"/><stop offset=".55" stop-color="#c3121a"/><stop offset="1" stop-color="#5c0509"/></radialGradient>
+    <radialGradient id="ball" cx="40%" cy="32%" r="70%"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#ececec"/><stop offset="1" stop-color="#bdbdbd"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9b6514"/><stop offset=".45" stop-color="#f7d774"/><stop offset="1" stop-color="#e0a93a"/></linearGradient>
+  </defs>
+  <rect width="120" height="120" fill="url(#bg)"/>
+  <g opacity=".22" fill="#fff"><circle cx="18" cy="22" r="2.2"/><circle cx="102" cy="18" r="1.6"/><circle cx="96" cy="98" r="2"/><circle cx="14" cy="94" r="1.4"/></g>
+  <!-- the ball, laughing -->
+  <circle cx="60" cy="68" r="38" fill="url(#ball)" stroke="#2a0a0b" stroke-width="2.5"/>
+  <path d="M60 33l8 5.8-3 9.2h-10l-3-9.2z" fill="#1c1c1f"/>
+  <path d="M25 58l8.6-2.6 5 7-3.6 9.6-9-.6M95 58l-8.6-2.6-5 7 3.6 9.6 9-.6" fill="#1c1c1f" opacity=".85"/>
+  <!-- squeezed laughing eyes -->
+  <path d="M41 62q7-8 14 0M65 62q7-8 14 0" fill="none" stroke="#1c1c1f" stroke-width="4" stroke-linecap="round"/>
+  <!-- tears -->
+  <path d="M38 66q-6 8-2 12 5 2 6-4z" fill="#5ec8ff" stroke="#1b6fa8" stroke-width="1.2"/>
+  <path d="M82 66q6 8 2 12-5 2-6-4z" fill="#5ec8ff" stroke="#1b6fa8" stroke-width="1.2"/>
+  <!-- big open mouth -->
+  <path d="M42 74q18 2 36 0q-3 19-18 19t-18-19z" fill="#3a0d10" stroke="#1c1c1f" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M44.5 75.5q15.5 1.5 31 0l-.8 4q-14.7 1.4-29.4 0z" fill="#fff"/>
+  <path d="M51 88q9-6 18 0q-4 4-9 4t-9-4z" fill="#ff5a6a"/>
+  <!-- gold crown of shame -->
+  <path d="M42 16l7 8 11-12 11 12 7-8-3 17H45z" fill="url(#gold)" stroke="#5c3a06" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>
