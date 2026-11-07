@@ -11,11 +11,10 @@ The owner is not technical: explain in simple words, never delete existing stats
   `ballon`, `dorNominees`. Types: `T` Team Tour, `A` Solo Authentic, `D` Solo Dream Team, `C` Co-op.
 - `js/app.js`: pages, menu, profiles, trophies, photos (`DEFAULT_FACE`), sounds (`AUDIO`).
 - `js/compare.js`: MLD Index (sets every player's all-time rank `crk`), Compare page.
+  Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
 - `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos).
-- `js/form.js`: player tiers S/A/B/C/D with ↑/↓ trend (active players ranked by their last 3 tournaments), computed
-  automatically from `log`.
-- `js/players.js`: MLD Database page (menu, above Compare): tier view first, then Joined order; founder WaCky;
-  `JOINED_IN` corrections; the scroll glow (gold S → red A → purple B, fading).
+- `js/form.js`: form indicators, computed automatically from `log`.
+- `js/players.js`: All MLD Players (founder WaCky; `JOINED_IN` corrections).
 - `js/otf.js`: the only mini game, One Touch Football (online 2-player). Invitations `otf/invites`, matches
   `otf/matches` in Firebase; inviter's phone runs physics, kick-off and clock use the Firebase server time,
   score is +1 transactions. `js/net.js`: shared Firebase connection (likes + game). Rules: `firebase-rules.json`

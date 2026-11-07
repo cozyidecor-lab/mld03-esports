@@ -50,8 +50,8 @@ const CATS=[
 ];
 function leader(k){return [...D.players].sort((a,b)=>(b[k]??-1)-(a[k]??-1)||b.g-a.g)[0]}
 
-const GROUPS=[['',['home','all-players','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
-  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['side-quests','games']]];
+const GROUPS=[['',['home','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
+  ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['side-quests','games']],['Directory',['all-players']]];
 function navIcon(c){
   if(c.id==='home')return `<img alt="" src="${EMBLEM}" style="width:40px;height:40px;object-fit:cover;object-position:50% 45%">`;
   if(c.id==='mld-dor')return `<img alt="" src="${TROPHY}">`;
@@ -63,7 +63,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
@@ -255,7 +255,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div><div class="proftags">${fChip(n)}${founderTag(n,'big')}</div>
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
       <div class="tile"><b>${p.pt}</b><span>Trophies</span></div><div class="tile"><b>${p.ru}</b><span>Runner-up</span></div><div class="tile"><b>${p.mt}</b><span>As manager</span></div></div>

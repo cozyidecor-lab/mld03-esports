@@ -49,6 +49,11 @@
     ranked.forEach((p,i)=>p.crk=i+1);
   })();
   window.MLDI={statsOf,index,WEIGHTS,ranked:()=>pool().slice().sort((a,b)=>a.crk-b.crk)};
+  /* ---------- Tier: from the all-time MLD Index (career, not recent form). Shown on the player's profile. ---------- */
+  const TIERS=[['S',60],['A',45],['B',30],['C',15],['D',0]]; // MLD Index needed for each tier
+  window.tierOf=n=>{const p=byName[n];if(!p||p.mi==null)return null;return TIERS.find(([,min])=>p.mi>=min)[0];};
+  window.tierChip=n=>{const t=tierOf(n);if(!t)return'';const p=byName[n];
+    return `<span class="tierchip t-${t.toLowerCase()}" title="All-time tier, from the MLD Index (${p.mi.toFixed(1)})"><b>${t}</b> tier</span>`;};
 
   /* ---------- categories (higher is better unless low:true) ---------- */
   const CATS=[
