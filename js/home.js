@@ -19,14 +19,12 @@
     const status=t=>t.stage==='done'?'<span class="pill">Finished</span>':t.stage==null?'<span class="pill">Coming up</span>'
       :`<span class="pill red"><span class="live-dot"></span>${esc(t.stages[t.stage][0])}</span>`;
     const top=document.getElementById('s14prog');
-    if(top){const cur=now||T.filter(t=>t.stage==='done').pop()||T[0],pct=Math.round(frac(cur)*100),n=T.indexOf(cur)+1;
-      top.innerHTML=`<div class="sprog" role="group" aria-label="${esc(cur.name)} is ${pct}% done">
-        <div class="sptop"><span>${now?'<span class="live-dot"></span>':''}<b>${pct}%</b> ${esc(cur.name)} done</span><small>Season ${SEASON_NOW.s} · tournament ${n} of ${T.length}</small></div>
-        <div class="spsteps">${cur.stages.map(([nm],i)=>{const st=cur.stage==='done'||i<cur.stage?'done':i===cur.stage?'live':'';
-          return `<span class="${st}"><i>${st==='done'?'✓':''}</i><small>${esc(nm.replace('Knockout play-offs','Play-offs').replace('League phase','League').replace('Quarter-finals','Quarters').replace('Semi-finals','Semis'))}</small></span>`;}).join('')}</div>
-        <div class="spbar" title="Season ${SEASON_NOW.s}: ${done} of ${T.length} tournaments finished">${T.map(t=>`<i class="${t.stage==='done'?'done':t.stage!=null?'live':''}"><s style="width:${Math.round(frac(t)*100)}%"></s></i>`).join('')}</div>
-        <div class="splab">${T.map(t=>`<span>${esc(t.name.replace('Solo ',''))}</span>`).join('')}</div>
-        ${now?`<div class="spnow">Now playing: <b>${esc(now.stages[now.stage][0])}</b></div>`:''}
+    if(top){const pct=Math.round(T.reduce((a,t)=>a+frac(t),0)/T.length*100);
+      top.innerHTML=`<div class="sprog" role="group" aria-label="Season ${SEASON_NOW.s} is ${pct}% complete">
+        <div class="sptop"><span><b>${pct}%</b> of Season ${SEASON_NOW.s} complete</span><small>${done} of ${T.length} tournaments finished</small></div>
+        <div class="spbar">${T.map(t=>`<i class="${t.stage==='done'?'done':t.stage!=null?'live':''}"><s style="width:${Math.round(frac(t)*100)}%"></s></i>`).join('')}</div>
+        <div class="splab">${T.map(t=>`<span class="${t.stage!=null?'on':''}">${esc(t.name.replace('Solo ',''))}${t.stage!=null?` <em>${Math.round(frac(t)*100)}%</em>`:''}</span>`).join('')}</div>
+        ${now?`<div class="spnow"><span class="live-dot"></span>Now: <b>${esc(now.name)}</b> · ${esc(now.stages[now.stage][0])}</div>`:''}
       </div>`;}
     const box=document.getElementById('s14box');
     if(box)box.innerHTML=`<div class="s14">${T.map(t=>`<div class="t14${t===now?' on':''}"><svg><use href="${t.sym}"/></svg><b>${esc(t.name)}</b>${status(t)}</div>`).join('')}</div>`;
