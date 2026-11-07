@@ -41,6 +41,13 @@
           }
         }
       }
+    },
+    "presence": {
+      ".read": true,
+      "$id": {
+        ".write": true,
+        ".validate": "!newData.exists() || newData.child('t').isNumber()"
+      }
     }
   }
 }
