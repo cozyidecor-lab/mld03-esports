@@ -807,19 +807,9 @@ body.fl-full .sitefoot{display:none}
 .upiid b{color:var(--ink);font-weight:700;overflow-wrap:anywhere}
 .upiid button{flex:none;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;padding:6px 14px;font:700 .8rem var(--label);letter-spacing:.06em;text-transform:uppercase}
 
-/* ---- player form indicator ---- */
-.formchip{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;font:700 .66rem/1 var(--label);letter-spacing:.06em;text-transform:uppercase;
-  padding:4px 8px;border-radius:99px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
-.mini span.formchip{padding:4px 8px}
-.formchip.f-prime{border-color:rgba(255,120,60,.55)}
-.formchip.f-rising{border-color:rgba(80,200,120,.5)}
-.formchip.f-declining,.formchip.f-poor{border-color:rgba(227,25,31,.45)}
-.formchip.f-none,.formchip.f-inactive{color:var(--muted)}
-.formchip:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-.formchip.sm{display:inline-flex;margin:3px 0 2px;align-self:flex-start}
+/* ---- tier chip tooltip ---- */
 .proftags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 8px}
 .proftags .ftag.big{margin:0}
-.proftags .formchip{font-size:.74rem;padding:6px 11px}
 .formtip{position:fixed;z-index:90;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.6);
   font-size:.86rem;line-height:1.45;animation:gfade .18s ease both}
 .formtip b{font:700 .95rem var(--label);text-transform:uppercase;letter-spacing:.04em}
@@ -928,3 +918,49 @@ body.otf-open .top,body.otf-open .app,body.otf-open .goatsound{visibility:hidden
 @keyframes onpulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}70%,100%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
 @keyframes onbump{50%{color:#22c55e}}
 @media (prefers-reduced-motion:reduce){.online i,.online.bump b{animation:none}}
+
+/* ================= Tiers ================= */
+:root{--tS:#f0c050;--tA:#e3191f;--tB:#9a5cf0;--tC:#3c82f0;--tD:#8c8c96}
+.tierchip{display:inline-flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;font:700 .7rem/1 var(--label);letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:99px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
+.tierchip b{font:400 .95rem/1 var(--display);letter-spacing:0}
+.tierchip i{font-style:normal;font-size:.8rem;font-weight:700}
+.tierchip.t-s{color:#2a1a02;border-color:#e0a93a;background:linear-gradient(135deg,#9b6514,#f7d774 45%,#e0a93a);box-shadow:0 0 10px rgba(240,180,74,.45)}
+.tierchip.t-a{color:#fff;border-color:var(--tA);background:rgba(227,25,31,.85)}
+.tierchip.t-b{color:#fff;border-color:var(--tB);background:rgba(154,92,240,.8)}
+.tierchip.t-c{color:#fff;border-color:var(--tC);background:rgba(60,130,240,.75)}
+.tierchip.t-d{color:#e5e5e8;border-color:#55555c;background:#3a3a40}
+.mini span.tierchip{padding:4px 8px}
+.tierchip.sm{margin:3px 0 2px;align-self:flex-start}
+.proftags .tierchip{font-size:.8rem;padding:6px 11px}
+.proftags .tierchip b{font-size:1.15rem}
+.formtip>b .tierchip{vertical-align:middle;margin-right:4px}
+/* database page, tier view */
+#tierGlow{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease;
+  background:radial-gradient(120% 55% at 50% 0%,rgba(var(--gc,0,0,0),var(--ga,0)),transparent 70%),
+             radial-gradient(90% 50% at 50% 110%,rgba(var(--gc,0,0,0),calc(var(--ga,0) * .6)),transparent 70%)}
+#tierGlow::after{content:"";position:absolute;inset:-20%;opacity:calc(var(--ga,0) * 1.4);
+  background:linear-gradient(115deg,transparent 40%,rgba(255,240,200,.16) 50%,transparent 60%);background-size:250% 100%;animation:tshine 5s ease-in-out infinite}
+@keyframes tshine{0%{background-position:120% 0}60%,100%{background-position:-60% 0}}
+.app{position:relative;z-index:1}
+.aptier{display:flex;justify-content:space-between;align-items:baseline;margin:22px 2px 4px;font:400 1.5rem var(--display);text-transform:uppercase}
+.aptier small{font:600 .72rem var(--label);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.aptier.th-s span{background:linear-gradient(135deg,#9b6514,#f7d774 40%,#fff1b8 55%,#e0a93a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px rgba(240,180,74,.4))}
+.aptier.th-a span{color:var(--tA)}.aptier.th-b span{color:var(--tB)}.aptier.th-c span{color:var(--tC)}.aptier.th-d span{color:var(--tD)}
+.aptier.th-none span,.aptier.th-inactive span{color:var(--muted)}
+.row.tr-s{border-color:rgba(240,180,74,.7);background:linear-gradient(110deg,rgba(240,180,74,.22),rgba(22,22,24,.92) 65%);box-shadow:0 8px 30px -16px rgba(240,180,74,.7)}
+.row.tr-s .nm>div>b{color:#f7d774}
+.row.tr-a{border-color:rgba(227,25,31,.5);background:linear-gradient(110deg,rgba(227,25,31,.14),rgba(22,22,24,.92) 65%)}
+.row.tr-b{border-color:rgba(154,92,240,.4);background:linear-gradient(110deg,rgba(154,92,240,.11),rgba(22,22,24,.92) 65%)}
+.row.tr-c{border-color:rgba(60,130,240,.3)}
+.row.tr-none,.row.tr-inactive{opacity:.75}
+.tbig{font:400 1.7rem/1 var(--display);display:inline-flex;align-items:baseline;gap:2px}
+.tbig i{font-style:normal;font-size:.9rem;font-family:var(--label);font-weight:700}
+.tbig.t-s{background:linear-gradient(135deg,#b07a1c,#f7d774 45%,#e0a93a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tbig.t-s i{color:#f7d774}
+.tbig.t-a{color:var(--tA)}.tbig.t-b{color:var(--tB)}.tbig.t-c{color:var(--tC)}.tbig.t-d{color:var(--tD)}
+@media (prefers-reduced-motion:reduce){#tierGlow::after{animation:none}}
+.row .tierchip b,.row .tierchip i,.formtip .tierchip b{color:inherit;font:400 .95rem/1 var(--display);letter-spacing:0}
+.row .tierchip i{font:700 .8rem/1 var(--label)}
+.tierchip:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.row .mini span.tierchip.t-s{color:#2a1a02}.row .mini span.tierchip.t-a,.row .mini span.tierchip.t-b,.row .mini span.tierchip.t-c{color:#fff}.row .mini span.tierchip.t-d{color:#e5e5e8}

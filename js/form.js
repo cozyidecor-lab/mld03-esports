@@ -1,4 +1,4 @@
-/* ================= Player form (for auction managers) =================
+/* ================= Player tiers (S/A/B/C/D, from recent form) =================
    Worked out automatically from the season log every time the page loads, so adding a new
    tournament's stats updates everyone's form with no other edits.
 
@@ -16,9 +16,7 @@
      Co-op has no individual stats, so it is skipped for form. */
   const TOUR_ORDER={default:['A','D','T']};
   const NAMES={T:'Team Tour',D:'Solo Dream Team',A:'Solo Authentic'};
-  const STATUS={
-    prime:{e:'🔥',t:'Prime'},rising:{e:'📈',t:'Rising'},stable:{e:'⚖️',t:'Stable'},
-    declining:{e:'📉',t:'Declining'},poor:{e:'⚠️',t:'Poor Form'},inactive:{e:'💤',t:'Inactive'},none:{e:'·',t:'Not enough data'}};
+  const TIERS=[['S',.08],['A',.17],['B',.25],['C',.25],['D',1]]; // share of active, ranked players in each tier
 
   /* ---- every tournament, oldest first, with each player's place in its field ---- */
   const order=(s,ty)=>{const o=TOUR_ORDER[s]||TOUR_ORDER.default;const i=o.indexOf(ty);return s*10+(i<0?9:i);};
@@ -39,30 +37,35 @@
   Object.values(perf).forEach(a=>a.sort((x,y)=>x.o-y.o));
 
   /* ---- the six statuses ---- */
+  /* ---- tiers: rank every active player by recent level, then cut into S/A/B/C/D ---- */
+  const level=a=>{const w=a.slice(-3);return w.reduce((s,p)=>s+p.v,0)/w.length;};
+  const ranked=Object.keys(perf).filter(n=>{const a=perf[n];return a.length>=2&&a[a.length-1].s>=latestSeason-1;})
+    .map(n=>({n,lv:level(perf[n])})).sort((a,b)=>b.lv-a.lv);
+  const tierOfRank={};let at=0;
+  TIERS.forEach(([t,share],i)=>{const cnt=i===TIERS.length-1?ranked.length-at:Math.max(1,Math.round(ranked.length*share));
+    ranked.slice(at,at+cnt).forEach((r,k)=>tierOfRank[r.n]={t,pos:at+k+1});at+=cnt;});
+  const TNAME={S:'S tier',A:'A tier',B:'B tier',C:'C tier',D:'D tier'};
   const cache={};
   function formOf(n){
     if(cache[n])return cache[n];
     const all=perf[n]||[],last=all.length?all[all.length-1]:null;
-    let k,why;
-    if(!last||last.s<latestSeason-1){k='inactive';why=last?`Last played in Season ${last.s} (${NAMES[last.ty]}). No tournaments in Season ${latestSeason-1} or ${latestSeason}.`:'No tournament stats recorded.';}
-    else if(all.length<3){k='none';why=`Only ${all.length} tournament${all.length===1?'':'s'} with stats so far. Form needs the latest three.`;}
+    let k,t,why,arrow='';
+    if(!last||last.s<latestSeason-1){k='inactive';t='Inactive';why=last?`Last played in Season ${last.s} (${NAMES[last.ty]}). Tiers only rank players from Season ${latestSeason-1} or ${latestSeason}.`:'No tournament stats recorded.';}
+    else if(all.length<2){k='none';t='Unranked';why='Only 1 tournament with stats so far. A tier needs at least two.';}
     else{
-      const [a,b,c]=all.slice(-3),level=(a.v+b.v+c.v)/3,trend=c.v-a.v;
-      if(level>=.72&&c.v>=.6)k='prime';
-      else if(trend>=.2&&c.v>=.4)k='rising';
-      else if(level<.35)k='poor';
-      else if(trend<=-.2)k='declining';
-      else k='stable';
-      const words={prime:'Near the top of the field in all three, and still there in the latest.',rising:'Finishing higher in the field each time.',
-        stable:'Finishing around the same place in the field each time.',declining:'Finishing lower in the field than before.',
-        poor:'Near the bottom of the field across all three.'}[k];
-      why=words;
+      const r=tierOfRank[n],w=all.slice(-3),trend=w[w.length-1].v-w[0].v;
+      k=r.t.toLowerCase();t=TNAME[r.t];
+      if(w.length>=2&&trend>=.2)arrow='↑';else if(w.length>=2&&trend<=-.2)arrow='↓';
+      why=`#${r.pos} of ${ranked.length} active players, by where they finished in their last ${w.length} tournaments.`+
+        (arrow==='↑'?' Trending up: finishing higher than before.':arrow==='↓'?' Trending down: finishing lower than before.':' Steady: finishing around the same place.');
     }
-    return cache[n]={k,...STATUS[k],why,recent:all.slice(-3).reverse()};
+    return cache[n]={k,t,e:k.length===1?r_(k):'',arrow,why,recent:all.slice(-3).reverse(),tier:k.length===1?k.toUpperCase():null};
   }
-  window.formOf=formOf;
+  const r_=k=>k.toUpperCase();
+  window.formOf=formOf;window.tierOf=formOf;window.tierRanked=()=>ranked.map(r=>r.n);
   window.formChip=(n,cls='')=>{if(!byName[n]||byName[n].side)return'';const f=formOf(n);
-    return `<span class="formchip f-${f.k} ${cls}" role="button" tabindex="0" data-form="${esc(n)}" aria-label="Form: ${f.t}. Tap for why.">${f.e} ${f.t}</span>`;};
+    const label=f.tier?`<b>${f.tier}</b>${f.arrow?`<i>${f.arrow}</i>`:''}`:`<span>${f.t}</span>`;
+    return `<span class="tierchip t-${f.k} ${cls}" role="button" tabindex="0" data-form="${esc(n)}" aria-label="${f.t}${f.arrow==='↑'?', trending up':f.arrow==='↓'?', trending down':''}. Tap for why.">${label}</span>`;};
 
   /* ---- tap a chip: short explanation ---- */
   let tip=null;
@@ -71,7 +74,7 @@
     close();const n=chip.dataset.form,f=formOf(n);
     tip=document.createElement('div');tip.className='formtip';tip.setAttribute('role','dialog');
     const ord=x=>x+(x%100>=11&&x%100<=13?'th':['th','st','nd','rd'][x%10]||'th');
-    tip.innerHTML=`<b>${f.e} ${f.t}</b><p>${esc(f.why)}</p>${f.recent.length&&f.k!=='inactive'?`<ul>${f.recent.map(p=>`<li><span>S${p.s} ${NAMES[p.ty]}</span><span>${p.g??'–'} goals · rating ${p.rt??'–'} · ${ord(p.place)} of ${p.field}</span></li>`).join('')}</ul><small>Latest first. Place = position in that tournament's field by goals and rating.</small>`:''}`;
+    tip.innerHTML=`<b>${f.tier?`<span class="tierchip t-${f.k}"><b>${f.tier}</b>${f.arrow?`<i>${f.arrow}</i>`:''}</span> `:''}${f.t}</b><p>${esc(f.why)}</p>${f.recent.length&&f.k!=='inactive'?`<ul>${f.recent.map(p=>`<li><span>S${p.s} ${NAMES[p.ty]}</span><span>${p.g??'–'} goals · rating ${p.rt??'–'} · ${ord(p.place)} of ${p.field}</span></li>`).join('')}</ul><small>Latest first. Place = position in that tournament's field by goals and rating.</small>`:''}`;
     document.body.appendChild(tip);
     const r=chip.getBoundingClientRect(),w=Math.min(320,innerWidth-24);tip.style.width=w+'px';
     let x=Math.min(Math.max(12,r.left+r.width/2-w/2),innerWidth-w-12),y=r.bottom+8;
