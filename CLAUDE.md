@@ -14,8 +14,10 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos).
 - `js/form.js`: form indicators, computed automatically from `log`.
 - `js/players.js`: All MLD Players (founder WaCky; `JOINED_IN` corrections).
-- `js/flick.js`, `js/turbo.js`, `js/net.js`: mini games (locked behind an admin PIN; ask the owner). Firebase settings in `js/firebase-config.js`.
-- Unfinished online-Flick fix is on branch `online-fix` (not merged).
+- `js/otf.js`: the only mini game, One Touch Football (online 2-player). Invitations `otf/invites`, matches
+  `otf/matches` in Firebase; inviter's phone runs physics, kick-off and clock use the Firebase server time,
+  score is +1 transactions. `js/net.js`: shared Firebase connection (likes + game). Rules: `firebase-rules.json`
+  (owner pastes them in the Firebase console). Old games (Flick, Turbo) and the PIN lock were removed.
 
 ## Adding a finished tournament (the usual job)
 1. ADD rows; never remove old ones. Append `log` rows for every player, add `trophies` (Player Trophy /

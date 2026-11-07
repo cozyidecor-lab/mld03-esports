@@ -1,42 +1,45 @@
 {
   "rules": {
-    "players": {
-      ".read": true,
-      "$k": {
-        ".write": true,
-        ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 20"
-      }
-    },
-    "leaderboard": {
-      ".read": true,
-      "$game": {
-        "$k": {
-          ".write": true,
-          ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('wins').isNumber() && ((!data.exists() && newData.child('wins').val() == 1) || (data.exists() && newData.child('wins').val() == data.child('wins').val() + 1))"
-        }
-      }
-    },
-    "lobby": {
-      "$game": {
-        ".read": true,
-        "$id": {
-          ".write": true
-        }
-      }
-    },
-    "matches": {
-      "$game": {
-        "$m": {
-          ".read": true,
-          ".write": true
-        }
-      }
-    },
     "likes": {
       ".read": true,
       "$k": {
         ".write": true,
         ".validate": "newData.child('n').isNumber() && ((!data.exists() && newData.child('n').val() == 1) || (data.exists() && newData.child('n').val() == data.child('n').val() + 1))"
+      }
+    },
+    "otf": {
+      "invites": {
+        ".read": true,
+        ".indexOn": [
+          "t"
+        ],
+        "$id": {
+          ".write": true,
+          ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length <= 20 && (newData.child('status').val() == 'open' || newData.child('status').val() == 'taken'))",
+          "status": {
+            ".validate": "!data.exists() || (data.val() == 'open' && newData.val() == 'taken' && data.parent().child('t').val() + 30000 > now) || newData.val() == data.val()"
+          },
+          "guest": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          }
+        }
+      },
+      "matches": {
+        "$m": {
+          ".read": true,
+          ".write": true,
+          "start": {
+            ".validate": "!data.exists() && newData.val() <= now"
+          },
+          "result": {
+            ".validate": "!data.exists()"
+          },
+          "score": {
+            "$p": {
+              ".validate": "newData.isNumber() && !data.parent().parent().child('result').exists() && ((!data.exists() && newData.val() == 0) || newData.val() == (data.exists() ? data.val() : 0) + 1)"
+            }
+          }
+        }
       }
     }
   }

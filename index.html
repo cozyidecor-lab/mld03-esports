@@ -69,7 +69,6 @@
 
   <section class="view" id="v-home">
     <div class="hero reveal" style="--d:1"><div class="ex"><span class="live-dot"></span>Now in MLD</div><h1>Season <em>14</em></h1><p>Four tournaments, a bigger season.</p></div>
-    <div id="liveMatch" class="reveal" style="--d:2"></div>
     <div class="now-grid">
       <figure class="poster reveal" style="--d:2"><img alt="MLD Season 14 inauguration poster: four tournaments, a bigger season" src="images/now/season-14.jpg">
         <figcaption><span class="pill red">Started</span> Season 14 inauguration</figcaption></figure>
@@ -93,23 +92,6 @@
     <button class="menu-hint reveal" style="--d:8" data-open-menu="1"><span class="mi"><span></span><span></span><span></span></span><div><b>All stats & records</b><small>MLD D'or, top scorers, ratings, trophies and more</small></div><i aria-hidden="true">→</i></button>
   </section>
 
-  <section class="view" id="v-game">
-    <div class="vhead reveal" style="--d:0"><button class="ibtn" data-go="games" aria-label="Back to games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button></div>
-    <div class="hero reveal" style="--d:1;margin-top:16px"><div class="ex">Play</div><h1>MLD <em>Flick</em></h1></div>
-    <div class="flgame reveal" style="--d:2">
-      <div id="flStage" hidden><div class="flfulltop"><b>MLD <em>Flick</em></b><button class="ibtn flexit" data-fl="menu" aria-label="Leave the match">✕</button></div><div class="flscore" id="flScore"></div><div class="fltimer"><i id="flTimer"></i></div>
-        <div id="flWrap"><canvas id="flCanvas" aria-label="Pitch. Drag back from one of your discs and release to shoot."></canvas><div id="flFlash"></div></div></div>
-      <div id="flPanel"></div>
-    </div>
-  </section>
-  <section class="view" id="v-turbo">
-    <div class="vhead reveal" style="--d:0"><button class="ibtn" data-go="games" aria-label="Back to games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button></div>
-    <div class="hero reveal" style="--d:1;margin-top:16px"><div class="ex">Play</div><h1>MLD <em>Turbo</em></h1></div>
-    <div class="tbgame reveal" style="--d:2">
-      <div id="tbStage" hidden><div class="flscore tbscore" id="tbScore"></div><div id="tbWrap"><canvas id="tbCanvas" aria-label="Arena"></canvas></div></div>
-      <div id="tbPanel"></div>
-    </div>
-  </section>
   <section class="view" id="v-stat">
     <div class="vhead reveal" style="--d:0">
       <button class="ibtn" data-go="" aria-label="Back to home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -149,13 +131,12 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/net.js"></script>
 <script src="js/data.js"></script>
-<script src="js/flick.js"></script>
-<script src="js/turbo.js"></script>
 <script src="js/app.js"></script>
 <script src="js/form.js"></script>
 <script src="js/compare.js"></script>
 <script src="js/goat.js"></script>
 <script src="js/tours.js"></script>
 <script src="js/players.js"></script>
+<script src="js/otf.js"></script>
 </body>
 </html>

@@ -828,3 +828,92 @@ body.fl-full .sitefoot{display:none}
 .formtip li{display:flex;flex-direction:column;background:var(--panel);border-radius:10px;padding:6px 9px}
 .formtip li span:first-child{font:700 .72rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .formtip small{color:var(--muted);font-size:.72rem}
+
+/* ================= One Touch Football ================= */
+.otfcard{flex-direction:column;align-items:stretch;gap:12px}
+.otfcard>span:last-child{display:flex;flex-direction:column;gap:4px}
+.otfthumb svg{display:block;width:100%;height:auto;border-radius:14px}
+.otfplay{margin-top:10px}
+body.otf-open{overflow:hidden}
+body.otf-open .top,body.otf-open .app,body.otf-open .goatsound{visibility:hidden}
+#otf{position:fixed;left:0;right:0;top:0;height:100%;z-index:85;background:radial-gradient(120% 70% at 50% 0%,#14301f,#0a0a0b 70%);color:var(--ink);overflow:hidden}
+.otfbox{height:100%;display:flex;flex-direction:column;
+  padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));overflow:auto}
+.otftop{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:8px;margin-bottom:10px;flex:none}
+.otftop b{text-align:center;font:400 1.15rem var(--display);text-transform:uppercase;letter-spacing:.04em}
+.otfmark{text-align:center;font-size:1.2rem}
+.otfic{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font-size:1.05rem;display:grid;place-items:center}
+.otfbtn{display:block;width:100%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:16px;padding:14px 18px;font:700 1.02rem var(--label);letter-spacing:.06em;text-transform:uppercase}
+.otfbtn.red{background:var(--red);border-color:var(--red);color:#fff}
+.otfbtn.big{padding:18px;font-size:1.15rem;box-shadow:0 10px 30px -10px rgba(227,25,31,.7)}
+.otflink{background:none;border:0;color:var(--muted);text-decoration:underline;font:600 .9rem var(--body);padding:6px}
+.otfnote{color:var(--muted);font-size:.88rem;line-height:1.5;margin:0}
+.otfmsg{color:#ffb4b4;font-size:.9rem;margin:0}
+/* name: near the top, so the keyboard never covers it */
+.otfname{display:flex;flex-direction:column;gap:12px;max-width:420px;width:100%;margin:6vh auto 0}
+.otfname label{font:400 1.7rem var(--display);letter-spacing:.04em}
+.otfname input{font:600 1.15rem var(--body);padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);outline:none;scroll-margin:80px}
+.otfname input:focus{border-color:var(--red)}
+.otfhow,.otflobby,.otfwait,.otfres{display:flex;flex-direction:column;gap:14px;max-width:440px;width:100%;margin:auto;text-align:center}
+.otfhow h2{font:400 clamp(2.4rem,11vw,3.4rem)/.95 var(--display);text-transform:uppercase;margin:0}
+.otfhow h2 em{font-style:normal;color:var(--red)}
+.otftag{font:600 1.05rem var(--body);margin:0;color:#e9f5ec}
+.otfctl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:c}
+.otfctl li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:11px 14px;text-align:left;counter-increment:c}
+.otfctl li::before{content:counter(c);width:26px;height:26px;border-radius:50%;background:var(--red);display:grid;place-items:center;font:700 .85rem var(--label);flex:none}
+.otfctl b{font:700 1rem var(--label);letter-spacing:.08em;min-width:74px}
+.otfctl span{color:#cfcfd3}
+.otfpitchart{height:120px;border-radius:18px;background:repeating-linear-gradient(90deg,#1f7440 0 12.5%,#1d6b3a 12.5% 25%);position:relative;border:2px solid rgba(255,255,255,.5)}
+.otfpitchart::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid rgba(255,255,255,.5)}
+.otfpitchart::after{content:"⚽";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.8rem;animation:otfbounce 1.6s ease-in-out infinite}
+@keyframes otfbounce{50%{transform:translate(-50%,-62%)}}
+.otfhi{margin:0}
+.otfspin{width:52px;height:52px;margin:0 auto;border-radius:50%;border:4px solid var(--panel-2);border-top-color:var(--red);animation:spin .9s linear infinite}
+.otfwait b{font:400 1.5rem var(--display);text-transform:uppercase}
+.otfcount{font:400 3rem var(--display);color:var(--red)}
+/* match */
+.otfmatch{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;position:relative}
+.otfbar{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;flex:none}
+.otfsc{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:14px;padding:6px 10px;min-width:0}
+.otfsc span{font:700 .78rem var(--label);text-transform:uppercase;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.otfsc .n1{text-align:right}
+.otfsc b{font:400 1.6rem/1 var(--display);font-variant-numeric:tabular-nums}
+.otftime{font:400 1.4rem var(--display);font-variant-numeric:tabular-nums;min-width:54px;text-align:right}
+.otftime.sd{color:#ffb020;font-size:.85rem;letter-spacing:.08em}
+.otfstage{flex:1;min-height:0;position:relative;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.otfstage canvas{position:absolute;inset:0;display:block}
+.otfpow{flex:none;height:8px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;position:absolute;left:12%;right:12%;bottom:6px;pointer-events:none}
+.otfpow i{display:block;height:100%;width:0;background:linear-gradient(90deg,#fff,#ffb020,#ff3b3b);border-radius:8px}
+.otfbig{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;pointer-events:none;padding:20px}
+.otfbig[hidden]{display:none!important}
+.otfbig b{font:400 clamp(3rem,18vw,6rem)/1 var(--display);text-shadow:0 6px 24px rgba(0,0,0,.8)}
+.otfbig b.g{color:#fff;text-shadow:0 0 24px rgba(227,25,31,.9),0 6px 24px rgba(0,0,0,.8);animation:otfgoal .5s cubic-bezier(.3,1.7,.5,1)}
+.otfbig small,.otfbig span{font:700 .95rem var(--label);letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);padding:6px 12px;border-radius:99px}
+@keyframes otfgoal{from{transform:scale(.4)}to{transform:scale(1)}}
+.otfgear{position:absolute;inset:0;z-index:3;background:rgba(8,8,9,.95);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.otfgear>b{font:400 1.4rem var(--display);text-transform:uppercase}
+.otfsw{display:flex;align-items:center;gap:10px;font:600 1rem var(--body)}
+.otfsw input{width:22px;height:22px;accent-color:var(--red)}
+.otfpoprow{display:flex;gap:10px}
+/* result */
+.otfres small{font:700 .8rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.otfresc{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.otfresc span{font:700 .95rem var(--label);text-transform:uppercase;overflow-wrap:anywhere}
+.otfresc b{font:400 3.4rem/1 var(--display)}
+.otfres h2{font:400 clamp(2.6rem,13vw,4rem)/1 var(--display);margin:0}
+.otfres.won h2{color:#f0c35a;text-shadow:0 0 30px rgba(240,180,74,.5)}
+.otfres.lost h2{color:#d9dbe0}
+/* invitation popups, on every page */
+#otfPops{position:fixed;z-index:95;left:0;right:0;top:calc(10px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 12px}
+.otfpop{pointer-events:auto;width:min(420px,100%);border-radius:20px;padding:14px 16px 16px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#123a22,#0d0d0f 70%);border:1px solid rgba(80,200,120,.5);box-shadow:0 18px 50px rgba(0,0,0,.6);animation:otfin .45s cubic-bezier(.2,.9,.3,1.2) both}
+.otfpop.out{animation:otfout .3s ease forwards}
+@keyframes otfin{from{opacity:0;transform:translateY(-20px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes otfout{to{opacity:0;transform:translateY(-14px)}}
+.otfpophead{font:700 .78rem var(--label);letter-spacing:.14em;color:#8fe3ad}
+.otfpop p{margin:6px 0 0;font-size:.95rem}
+.otfpop .otfpopq{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+.otfpop .otfbtn{padding:11px 12px;font-size:.92rem}
+.otfpopbar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:#8fe3ad;transform-origin:left;animation:otfbar linear forwards}
+@keyframes otfbar{to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){.otfpop,.otfpitchart::after,.otfbig b.g{animation:none}}

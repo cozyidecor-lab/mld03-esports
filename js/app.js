@@ -59,17 +59,15 @@ function navIcon(c){
   if(c.id==='goat')return `<span class="goatic">🐐</span>`;
   if(c.id==='compare')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></svg>`;
   if(c.id==='games')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="17.5" cy="13.5" r="1"/></svg>`;
-  if(c.id==='turbo')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>`;
-  if(c.id==='play')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="14" r="4"/><circle cx="17" cy="8" r="2.5"/><path d="M11 11l4-2"/></svg>`;
   if(c.id==='side-quests')return `<img alt="" src="${MANDI_IC}" style="border-radius:50%">`;
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Games',locked:true,lead:()=>'Mini games · MLD Flick, MLD Turbo'},play:{id:'play',t:'MLD Flick',lead:()=>'Disc football · turn based'},turbo:{id:'turbo',t:'MLD Turbo',lead:()=>'Car football · drive, jump, boost'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'All MLD Players',lead:()=>'Everyone, in the order they joined'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'One Touch Football · online'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
-    return `<button class="ditem${id==='mld-dor'?' gold':''}" style="--d:${k++}" data-go="${id==='home'?'':id}" data-nav="${id}"><span class="dic">${navIcon(c)}</span><span class="dtx"><b>${c.t}${c.locked&&GAMES_LOCKED&&!gamesUnlocked()?' <span class="lockic" aria-label="Locked">🔒</span>':''}</b><small>${c.locked&&GAMES_LOCKED&&!gamesUnlocked()?'Locked · admin PIN needed':esc(c.lead())}</small></span></button>`}).join('')}`).join('');
+    return `<button class="ditem${id==='mld-dor'?' gold':''}" style="--d:${k++}" data-go="${id==='home'?'':id}" data-nav="${id}"><span class="dic">${navIcon(c)}</span><span class="dtx"><b>${c.t}</b><small>${esc(c.lead())}</small></span></button>`}).join('')}`).join('');
 }
 function markNav(){document.querySelectorAll('.ditem').forEach(b=>b.classList.toggle('on',(b.dataset.nav==='home'&&!cur)||b.dataset.nav===cur));}
 function openMenu(){const d=$('#drawer');markNav();$('#scrim').hidden=false;requestAnimationFrame(()=>{document.body.classList.add('menu-open');});
@@ -234,32 +232,13 @@ const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</
   ${rows.map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
 
 
-/* ---- mini games hub: every game lives here, so the menu stays short ---- */
-const GAMES=[
-  {id:'play',name:'MLD Flick',about:'Disc football. Pull back a disc, aim and flick it into the ball. Turn based.',tags:['Online','2 players','Turn based'],
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="14" r="4"/><circle cx="17" cy="8" r="2.5"/><path d="M11 11l4-2"/></svg>'},
-  {id:'turbo',name:'MLD Turbo',about:'Car football. Drive, jump, flip and boost to smash the ball into the goal.',tags:['Online','vs computer','2 players'],
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15l2-5h9l4 3h3v2H3z"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>'},
-];
-const LB_GAMES=[['flick','MLD Flick'],['turbo','MLD Turbo']];
-let lbGame='flick',lbOff=null;
+/* ---- mini games: One Touch Football (js/otf.js) ---- */
 function gamesView(){
-  setTimeout(mountLeaderboard,0);
-  return {t:'Mini <em>Games</em>',p:'Quick games to play with the squad. Pick one to start.',
-    b:`<div class="games">${GAMES.map(g=>`<button class="gcard" data-go="${g.id}"><span class="gi">${g.icon}</span><span><b>${g.name}</b><small>${g.about}</small><span class="tags">${g.tags.map(t=>`<span class="pill">${t}</span>`).join('')}</span></span></button>`).join('')}</div>
-    <h2 class="sec">Mini games leaderboard <small>ONLINE WINS</small></h2>
-    <div class="pills" id="lbTabs">${LB_GAMES.map(([k,n])=>`<button class="pill${k===lbGame?' on':''}" data-lb="${k}">${n}</button>`).join('')}</div>
-    <div class="rows" id="lbRows"><p class="note">Loading…</p></div>`};
+  return {t:'Mini <em>Games</em>',p:'A quick game to play with the squad.',
+    b:`<div class="games"><div class="gcard otfcard"><span class="otfthumb" aria-hidden="true"><svg viewBox="0 0 120 80"><rect width="120" height="80" rx="10" fill="#1f7440"/><path d="M4 40H116M60 4V76" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><circle cx="60" cy="40" r="13" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><rect x="4" y="27" width="10" height="26" fill="none" stroke="#fff" stroke-width="2"/><rect x="106" y="27" width="10" height="26" fill="none" stroke="#fff" stroke-width="2"/><circle cx="74" cy="34" r="6" fill="#fff"/><path d="M74 28l3 3-1 4h-4l-1-4z" fill="#111"/></svg></span>
+      <span><b>One Touch Football</b><small>One touch. One shot. Score to win.</small><span class="tags"><span class="pill">Online · 2 players</span><span class="pill">60 seconds</span></span>
+      <button class="flbtn red otfplay" data-otf="open">Play now</button></span></div></div>`};
 }
-function mountLeaderboard(){
-  const box=document.getElementById('lbRows');if(!box)return;if(lbOff){lbOff();lbOff=null;}
-  lbOff=NET.onLeaderboard(lbGame,list=>{const b=document.getElementById('lbRows');if(!b)return;
-    if(list===null){b.innerHTML='<p class="note">The leaderboard could not connect. Check your internet and reload.</p>';return;}
-    b.innerHTML=list.length?list.slice(0,30).map((p,i)=>`<div class="row${i<3?' top3':''}"><div class="rk">${i+1}</div><div class="nm"><span class="av0">${esc(p.name.slice(0,2).toUpperCase())}</span><div><b>${esc(p.name)}</b><span>${p.wins} online win${p.wins===1?'':'s'}</span></div></div><div class="vl">${p.wins}<small>wins</small></div></div>`).join('')
-      :'<p class="note">No wins yet. Win an online match and your name goes here first.</p>';});
-}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-lb]');if(!t)return;lbGame=t.dataset.lb;
-  document.querySelectorAll('#lbTabs .pill').forEach(b=>b.classList.toggle('on',b.dataset.lb===lbGame));mountLeaderboard();});
 
 function renderStat(){
   const v=VIEWS[cur]();
@@ -310,31 +289,9 @@ function mountLike(n){
 const closeSheet=()=>{if(likeOff){likeOff();likeOff=null;}$('#sheet').classList.remove('on');sheetOpen=null;stopIntro();};
 
 /* ---- routing ---- */
-/* ---- Games are locked behind an admin PIN while they are being finished ---- */
-const GAMES_LOCKED=true; /* set to false to open the games to everyone */
-const LOCKED_VIEWS=['games','play','turbo'];
-const PIN_HASH='05ab8109'; /* hash of the PIN, so the PIN itself is not written in the page */
-const pinHash=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h.toString(16).padStart(8,'0');};
-const gamesUnlocked=()=>{try{return sessionStorage.getItem('mld-games')==='1';}catch(e){return false;}};
-function askPin(then){
-  const w=document.createElement('div');w.className='nmodal';
-  w.innerHTML=`<div class="nbox" role="dialog" aria-modal="true" aria-labelledby="pinT"><b class="flbig" id="pinT">🔒 Games are locked</b>
-    <p class="note" style="margin:0">The mini games are still being finished. Enter the admin PIN to open them.</p>
-    <label class="search" for="pinIn" style="margin:0"><input id="pinIn" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN"></label>
-    <p class="note" id="pinMsg" style="margin:0;color:var(--red)" hidden>Wrong PIN. Try again.</p>
-    <div class="flrow"><button class="flbtn red" id="pinGo">Unlock</button><button class="flbtn" id="pinCancel">Cancel</button></div></div>`;
-  document.body.appendChild(w);const inp=w.querySelector('#pinIn');setTimeout(()=>inp.focus(),50);
-  const tryIt=()=>{if(pinHash(inp.value.trim())===PIN_HASH){try{sessionStorage.setItem('mld-games','1');}catch(e){}w.remove();renderHome();then();}
-    else{w.querySelector('#pinMsg').hidden=false;inp.value='';inp.focus();}};
-  w.querySelector('#pinGo').onclick=tryIt;w.querySelector('#pinCancel').onclick=()=>w.remove();
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter')tryIt();if(e.key==='Escape')w.remove();});
-}
 function go(v){
-  if(GAMES_LOCKED&&LOCKED_VIEWS.includes(v)&&!gamesUnlocked()){{const t=v;askPin(()=>go(t));}if(!cur||LOCKED_VIEWS.includes(cur)){v='';}else return;}
-  cur=VIEWS[v]||v==='play'||v==='turbo'?v:'';
-  $('#v-home').classList.toggle('on',!cur);$('#v-stat').classList.toggle('on',!!cur&&cur!=='play'&&cur!=='turbo');$('#v-game').classList.toggle('on',cur==='play');$('#v-turbo').classList.toggle('on',cur==='turbo');
-  if(cur==='play')FL.show();else FL.hide();
-  if(cur==='turbo')TB.show();else TB.hide();
+  cur=VIEWS[v]?v:'';
+  $('#v-home').classList.toggle('on',!cur);$('#v-stat').classList.toggle('on',!!cur);
   if(cur&&VIEWS[cur]){lb={q:'',limit:25};renderStat();}
   const h=cur?'#'+cur:' ';
   try{history.replaceState(null,'',cur?'#'+cur:location.pathname+location.search)}catch(e){}
@@ -525,18 +482,6 @@ function perfChart(n){
    `<p class="perf-note">Points each season = goals + rating + 20 per title won, 10 per runner-up finish, Golden Boot or Golden Ball, 15 per season-wide Golden Boot or Golden Ball, and 5 for a 3rd–5th place. A cup marks a season they won a title.</p>`;
 }
 
-/* ---- home banner: someone is waiting for an MLD Flick match ---- */
-NET.onLobby('flick',list=>{
-  const box=document.getElementById('liveMatch');if(!box)return;
-  if(!list.length||(typeof FL!=='undefined'&&FL.S.phase==='search')){box.innerHTML='';return;}
-  const who=esc(list[0].name),more=list.length-1;
-  box.innerHTML=`<div class="livematch"><span class="lmdot"></span><div class="lmtxt"><small>Live now · MLD Flick</small>
-    <b>${who}${more?` and ${more} other${more>1?'s':''}`:''} ${more?'are':'is'} looking for a match</b><span>Join now and play them online.</span></div>
-    <button class="flbtn red lmjoin" data-joinflick="1">Join match</button></div>`;
-});
-document.addEventListener('click',e=>{if(!e.target.closest('[data-joinflick]'))return;
-  const start=()=>{go('play');setTimeout(()=>FL.joinOnline(),60);};
-  if(GAMES_LOCKED&&!gamesUnlocked())askPin(start);else start();});
 /* ---- Donate: the admin's real UPI QR code, shown on request ---- */
 /* same link the QR code holds (read from it); no amount, so the giver chooses */
 const UPI_ID='yadhurajck5@oksbi';
@@ -558,7 +503,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('[data-donate]'))retu
     else if(ev.target.closest('[data-qrbig]'))v.classList.toggle('big');});
   const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
 });
-renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&(VIEWS[h0]||h0==='play'||h0==='turbo'))go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
+renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&VIEWS[h0])go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 
 /* ---- intro ---- */
