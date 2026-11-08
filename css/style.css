@@ -1159,3 +1159,19 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fksugi span,.fkpicked span{display:flex;flex-direction:column;min-width:0}
 .fksugi b,.fkpicked b{font:700 1rem var(--label);text-transform:uppercase;letter-spacing:.04em}
 .fksugi small{color:rgba(255,255,255,.75);font-size:.78rem}.fkpicked small{color:#1a7f3b;font-size:.8rem;font-weight:600}
+
+/* ---- 🔥 roast button + card ---- */
+.pcrow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:2px 0 14px}
+.pcrow .pcbtn{margin:0}
+.rsbtn{border-radius:16px;padding:12px 16px;cursor:pointer;border:1px solid rgba(255,106,0,.55);background:linear-gradient(135deg,rgba(255,90,20,.22),var(--panel) 75%);
+  color:var(--ink);font:700 .9rem var(--label);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.rsbox{position:relative;width:min(420px,100%);background:linear-gradient(160deg,#2a1206,#121214 60%);border:1px solid rgba(255,106,0,.45);border-radius:24px;padding:20px 18px 16px;
+  box-shadow:0 20px 60px -20px rgba(255,90,20,.55)}
+.rsx{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.rshead{display:flex;align-items:center;gap:12px}.rshead .av0{width:52px;height:52px;box-shadow:0 0 0 2px #ff7a3c;display:grid;place-items:center;line-height:1;font-size:1.2rem}
+.rshead span{display:flex;flex-direction:column}.rshead small{font:700 .72rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:#ff8a4c}
+.rshead b{font:400 1.7rem/1 var(--display);text-transform:uppercase}
+.rsline{font:600 1.18rem/1.45 var(--body);margin:16px 0 10px;color:#fff}
+.rsline.pop{animation:gfade .35s ease both}
+.rsmeta{font-size:.78rem;color:var(--muted);margin-bottom:14px}
+.rsbtns{display:grid;grid-template-columns:1fr auto;gap:8px}

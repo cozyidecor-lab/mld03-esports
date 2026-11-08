@@ -23,6 +23,7 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/home.js`: Season progress at the TOP of Home (edit `SEASON_NOW` tour `stage`: index, 'done' or null; Authentic uses
   UCL stages League → Play-offs → R16 → QF → SF → Final with match-share weights), 🎲 random
   player button, copy-profile-link (links look like `/?p=Name`), toast. S-tier profiles get `.sheet.stier` gold styling.
+- `js/roast.js`: 🔥 Roast button on profiles; ~27 stat-based roast templates (conditions on data.js), each tap a new one, Share.
 - `js/mates.js`: Teammates section on profiles (Team Tour teammates, titles together, best partnership).
 - App install: `manifest.webmanifest`, `sw.js` (network-first, offline fallback), `js/pwa.js` (menu install button),
   icons `images/app-icon-*.png`, `images/apple-touch-icon.png`.
