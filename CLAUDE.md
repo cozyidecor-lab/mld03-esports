@@ -40,6 +40,8 @@ The owner is not technical: explain in simple words, never delete existing stats
   Turbo) and the PIN lock were removed.
 
 ## Adding a finished tournament (the usual job)
+0. PENDING (S14 Solo Authentic): when its stats arrive, add new players Hudaifa (Mandi side-quest winner, game profile
+   "Hudaif") and T-REX (game profile "T-REX") to the database. Do NOT add them before the owner sends the stats.
 1. ADD rows; never remove old ones. Append `log` rows for every player, add `trophies` (Player Trophy /
    Runner-up / Manager Trophy / places), `awards` row (Golden Boot & Ball for that tour), and for Team Tour a
    `finals` entry `{s, champ, runner, cp:[...], rp:[...], mg:[...]}`.
