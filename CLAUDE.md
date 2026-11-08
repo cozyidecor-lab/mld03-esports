@@ -32,7 +32,8 @@ The owner is not technical: explain in simple words, never delete existing stats
   positions → identical result on every phone. Firebase paths under `ff/`: `players` (profile, PIN hash, w/l/m/cur/best),
   `names` (unique names), `invites` (30 s, transaction join), `rooms` (private codes), `matches` (one transaction per
   turn: checks turn number + side + positions, stores flick + before/after state), `mping` (presence), `results`
-  (public results for weekly/monthly boards). Clock/turn timers use Firebase server time. CSS classes use the `fk`
+  (public results for weekly/monthly boards). Profiles link to an MLD database player (`players/{id}/mld`, picked while
+  typing the name, or asked once for older profiles); that player's photo is drawn on all 4 of their discs. Clock/turn timers use Firebase server time. CSS classes use the `fk`
   prefix (Fun Facts owns `ff*` classes). `js/net.js`: shared Firebase connection (likes + game).
   Rules: `firebase-rules.json` (owner pastes them in the Firebase console). Old games (One Touch Football, Flick,
   Turbo) and the PIN lock were removed.

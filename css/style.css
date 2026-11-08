@@ -1149,3 +1149,13 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .sptop b{font-size:2.2rem}
 .splab span.on{color:var(--ink)}
 .splab em{font-style:normal;color:var(--red);margin-left:2px}
+
+/* game profile: "are you this MLD player?" */
+.fksug{display:flex;flex-direction:column;gap:6px}
+.fksug>small{font:700 .72rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.fksugi,.fkpicked{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.22);color:#fff;border-radius:14px;padding:8px 10px;cursor:pointer}
+.fkpicked{background:#fff;color:#111;cursor:default}
+.fksugi .av0,.fkpicked .av0{width:40px;height:40px}
+.fksugi span,.fkpicked span{display:flex;flex-direction:column;min-width:0}
+.fksugi b,.fkpicked b{font:700 1rem var(--label);text-transform:uppercase;letter-spacing:.04em}
+.fksugi small{color:rgba(255,255,255,.75);font-size:.78rem}.fkpicked small{color:#1a7f3b;font-size:.8rem;font-weight:600}

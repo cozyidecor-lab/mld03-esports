@@ -36,13 +36,14 @@ const FF=(function(){
   const saved=()=>LS.get('ff.profiles',[]);
   function remember(p){const l=saved().filter(x=>x.id!==p.id);l.unshift({id:p.id,name:p.name});LS.set('ff.profiles',l.slice(0,6));LS.set('ff.me',p.id);S.me={id:p.id,name:p.name};}
   (function(){const id=LS.get('ff.me',null),p=saved().find(x=>x.id===id);if(p)S.me=p;})();
-  async function createProfile(name,pin){
+  async function createProfile(name,pin,mld){
     const d=db();if(!d)throw new Error('offline');
     const key=keyOf(name);if(key.length<2)throw new Error('Use at least 2 letters or numbers.');
     const id=d.ref('ff/players').push().key;
     const r=await d.ref('ff/names/'+key).transaction(cur=>cur?undefined:id);
     if(!r.committed)throw new Error('That name is taken. If it is yours, use "I already have a profile".');
-    await d.ref('ff/players/'+id).set({name,key,pin:await hashPin(id,pin),ts:TS,w:0,l:0,m:0,cur:0,best:0});
+    const rec={name,key,pin:await hashPin(id,pin),ts:TS,w:0,l:0,m:0,cur:0,best:0};if(mld)rec.mld=mld;
+    await d.ref('ff/players/'+id).set(rec);LS.set('ff.linkAsked.'+id,true); // already asked while typing the name
     remember({id,name});}
   async function signIn(name,pin){
     const d=db();if(!d)throw new Error('offline');
@@ -50,7 +51,7 @@ const FF=(function(){
     const p=(await d.ref('ff/players/'+id).get()).val();if(!p||p.pin!==await hashPin(id,pin))throw new Error('Wrong PIN.');
     remember({id,name:p.name});}
   async function loadPlayers(){const d=db();if(!d)return [];try{const v=(await d.ref('ff/players').get()).val()||{};
-    return Object.entries(v).map(([id,p])=>({id,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
+    return Object.entries(v).map(([id,p])=>({id,mld:p.mld||null,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
   const sortBoard=L=>L.filter(p=>p.m>0||p.w+p.l>0).sort((a,b)=>b.w-a.w||(b.w/Math.max(1,b.w+b.l))-(a.w/Math.max(1,a.w+a.l))||a.l-b.l||a.name.localeCompare(b.name));
 
   /* ================= overlay + screens ================= */
@@ -82,7 +83,7 @@ const FF=(function(){
       <div class="fkname">
         ${list.length&&!signin?`<div class="fksaved"><small>Your profiles on this phone</small>${list.map(p=>`<button class="fkbtn" data-f="use" data-id="${H_(p.id)}">Continue as <b>${H_(p.name)}</b></button>`).join('')}<small class="fkor">or create a new one</small></div>`:''}
         <label for="ffName">${signin?'SIGN IN TO YOUR PROFILE':'ENTER YOUR PLAYER NAME'}</label>
-        <input id="ffName" maxlength="16" autocomplete="nickname" enterkeyhint="next" placeholder="Player name">
+        <input id="ffName" maxlength="16" autocomplete="off" enterkeyhint="next" placeholder="Player name">${signin?'':'<div class="fksug" id="fkSug"></div>'}
         <input id="ffPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" placeholder="4-digit PIN" type="password">
         <p class="fknote">${signin?'Use the name and PIN you made before.':'Pick a 4-digit PIN. It keeps your name yours, and lets you sign in on another phone.'}</p>
         <p class="fkmsg" id="ffMsg" hidden></p>
@@ -93,6 +94,26 @@ const FF=(function(){
     i.addEventListener('keydown',e=>{if(e.key==='Enter')p.focus();});
     p.addEventListener('keydown',e=>{if(e.key==='Enter')act(signin?'signin-ok':'create-ok');});
     if(!list.length||signin)setTimeout(()=>i.focus(),80);
+    S.pickMld=null;if(!signin){i.addEventListener('input',()=>{S.pickMld=null;suggest(i.value,'fkSug');});}
+  }
+  /* "Are you this player?": MLD database players whose names match what is typed */
+  function dbMatches(q){q=String(q||'').trim().toLowerCase();if(!q||typeof D==='undefined')return [];
+    const L=D.players.filter(p=>!p.side),a=L.filter(p=>p.n.toLowerCase().startsWith(q)),b=L.filter(p=>!a.includes(p)&&p.n.toLowerCase().includes(q));
+    return a.concat(b).slice(0,6);}
+  function suggest(q,boxId,onPick){
+    const box=el(boxId);if(!box)return;const M=dbMatches(q);
+    if(S.pickMld){box.innerHTML=`<div class="fkpicked">${typeof avatar==='function'?avatar(S.pickMld):''}<span><b>${H_(S.pickMld)}</b><small>Linked to your MLD profile ✓ Your photo will be on your players.</small></span></div>`;return;}
+    box.innerHTML=M.length?`<small>Are you one of these MLD players?</small>${M.map(p=>{const s0=Math.min(...D.log.filter(r=>r[2]===p.n).map(r=>r[0]));
+      return `<button class="fksugi" data-f="pickmld" data-n="${H_(p.n)}">${typeof avatar==='function'?avatar(p.n):''}<span><b>${H_(p.n)}</b><small>Joined S${isFinite(s0)?s0:'?'} · ${p.t} tournaments · ${p.g} goals</small></span></button>`;}).join('')}`:'';
+    S.onPick=onPick||null;
+  }
+  function linkScreen(name){ // asked once, for profiles made before linking existed
+    show('link',`${top('Your MLD profile')}<div class="fkname"><label for="fkLinkQ">ARE YOU THIS PLAYER?</label>
+      <p class="fknote">Find yourself in the MLD database and your photo will be on your players in every match.</p>
+      <input id="fkLinkQ" maxlength="20" autocomplete="off" placeholder="Search your name" value="${H_(name)}"><div class="fksug" id="fkSug"></div>
+      <button class="fklink" data-f="linkskip">I'm not in the MLD database</button></div>`);
+    const q=el('fkLinkQ'),pick=async n=>{try{await db().ref('ff/players/'+S.me.id+'/mld').set(n);}catch(e){}LS.set('ff.linkAsked.'+S.me.id,true);S.pickMld=null;homeScreen(`Linked to ${n} ✓`);};
+    suggest(name,'fkSug',pick);q.addEventListener('input',()=>suggest(q.value,'fkSug',pick));q.addEventListener('focus',()=>setTimeout(()=>q.scrollIntoView({block:'center'}),320));
   }
   function msg(t){const m=el('ffMsg');if(m){m.textContent=t;m.hidden=!t;}}
 
@@ -113,6 +134,7 @@ const FF=(function(){
         </div></div>`);
     // stats + rank
     loadPlayers().then(L=>{const me=L.find(p=>p.id===S.me.id),b=sortBoard(L),rk=b.findIndex(p=>p.id===S.me.id)+1;const s=el('ffMeStats');
+      if(me&&!me.mld&&!String(S.me.id).startsWith('local-')&&!LS.get('ff.linkAsked.'+S.me.id,false)&&S.screen==='home')return linkScreen(me.name);
       if(s)s.textContent=me?`${me.w} W · ${me.l} L · ${me.m} played${rk?` · Rank #${rk}`:' · Unranked'}${me.cur>1?` · 🔥${me.cur} streak`:''}`:'Online stats unavailable';});
     // a match to resume?
     if(cur&&db())db().ref('ff/matches/'+cur.mid).get().then(s=>{const m=s.val(),r=el('ffResume');
@@ -264,7 +286,14 @@ const FF=(function(){
     el('ffMyName').textContent=G.names[G.my];el('ffOppName').textContent=G.names[E.other(G.my)];
     cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
     clearInterval(G.tickT);G.tickT=setInterval(tick,250);
+    loadFaces(G);
   }
+  /* each player's MLD photo goes on all four of their discs */
+  function loadFaces(g){g.faces={};const d=db();
+    const ids=g.mode==='cpu'?{a:S.me.id}:{a:(g.latest&&g.latest.a||{}).id,b:(g.latest&&g.latest.b||{}).id};
+    Object.entries(ids).forEach(([side,id])=>{if(!id||!d||String(id).startsWith('local-'))return;
+      d.ref('ff/players/'+id+'/mld').get().then(s=>{const n=s.val(),u=n&&typeof photoOf==='function'?photoOf(n):null;if(!u||G!==g)return;
+        const im=new Image();im.onload=()=>{if(G===g)g.faces[side]=im;};im.src=u;}).catch(()=>{});});}
   function stopGame(){if(!G)return;clearInterval(G.tickT);clearInterval(G.pingT);clearTimeout(G.aiT);if(G.ref)G.ref.off();if(G.pingRef)G.pingRef.off();cancelAnimationFrame(raf);G=null;aim=null;}
 
   /* ---------- drawing ---------- */
@@ -321,9 +350,14 @@ const FF=(function(){
       const g=c.createRadialGradient(x-r*.35,y-r*.35,r*.1,x,y,r);
       if(teamA){g.addColorStop(0,'#ff5a50');g.addColorStop(1,'#c40e14');}else{g.addColorStop(0,'#ffffff');g.addColorStop(1,'#dcdcdc');}
       c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill();
+      const face=G.faces&&G.faces[i<=4?'a':'b'];
+      if(face){c.save();c.beginPath();c.arc(x,y,r*.78,0,7);c.clip();const sc=Math.max(2*r*.78/face.width,2*r*.78/face.height);
+        c.drawImage(face,x-face.width*sc/2,y-face.height*sc/2,face.width*sc,face.height*sc);c.restore();}
       c.lineWidth=Math.max(1.5,r*.16);c.strokeStyle=teamA?'#fff':'#e3191f';c.beginPath();c.arc(x,y,r*.78,0,7);c.stroke();
       c.lineWidth=Math.max(1,r*.07);c.strokeStyle=teamA?'#8a070b':'#b9b9b9';c.beginPath();c.arc(x,y,r,0,7);c.stroke();
-      if(gk){c.fillStyle=teamA?'#fff':'#e3191f';c.font=`700 ${Math.max(8,r*.62)}px "Barlow Condensed",sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('GK',x,y+1);}
+      if(gk&&face){const w=r*.9,h=r*.42,yy=y+r*.42;c.fillStyle=teamA?'#c40e14':'#fff';rr(c,x-w/2,yy-h/2,w,h,h/2);c.fill();
+        c.fillStyle=teamA?'#fff':'#c40e14';c.font=`700 ${Math.max(7,r*.36)}px "Barlow Condensed",sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('GK',x,yy+.5);}
+      else if(gk){c.fillStyle=teamA?'#fff':'#e3191f';c.font=`700 ${Math.max(8,r*.62)}px "Barlow Condensed",sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('GK',x,y+1);}
     }
     // ball
     const [bx,by]=toScreen(pos[0],pos[1]),br=E.BR*s;
@@ -602,12 +636,14 @@ const FF=(function(){
       case 'profile':return profileScreen(homeScreen);
       case 'signin':return profileScreen(null,'signin');
       case 'use':{const p=saved().find(x=>x.id===b.dataset.id);if(p){remember(p);const n=S.afterProfile;S.afterProfile=null;return (n||homeScreen)();}return;}
+      case 'pickmld':{const n=b.dataset.n;S.pickMld=n;if(S.onPick)return S.onPick(n);const i=el('ffName');if(i)i.value=n.slice(0,16);suggest(n,'fkSug');const p=el('ffPin');if(p)p.focus();return;}
+      case 'linkskip':LS.set('ff.linkAsked.'+S.me.id,true);return homeScreen();
       case 'create-ok':case 'signin-ok':{
         const name=cleanName((el('ffName')||{}).value),pin=((el('ffPin')||{}).value||'').trim();
         if(name.length<2)return msg('Type your player name (at least 2 letters).');if(!/^\d{4}$/.test(pin))return msg('The PIN must be 4 digits.');
         const btn=b;if(btn)btn.disabled=true;
         try{if(!db()){if(f==='signin-ok')throw new Error('Signing in needs the internet.');remember({id:'local-'+keyOf(name),name});}
-          else if(f==='create-ok')await createProfile(name,pin);else await signIn(name,pin);
+          else if(f==='create-ok')await createProfile(name,pin,S.pickMld);else await signIn(name,pin);
           const n=S.afterProfile;S.afterProfile=null;return (n||homeScreen)();}
         catch(e){msg(e.message==='offline'?'You are offline.':e.message);if(btn)btn.disabled=false;}return;}
       case 'online':if(!S.me)return profileScreen(playOnline);if(String(S.me.id).startsWith('local-'))return homeScreen('Online play needs an online profile. Switch profile to make one.');return playOnline();
