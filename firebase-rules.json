@@ -13,9 +13,15 @@
         "$id": {
           ".write": true,
           ".validate": "newData.child('name').isString() && newData.child('name').val().length <= 16 && newData.child('pin').isString() && (!data.exists() || (newData.child('pin').val() == data.child('pin').val() && newData.child('name').val() == data.child('name').val()))",
-          "w": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
-          "l": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
-          "m": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"}
+          "w": {
+            ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"
+          },
+          "l": {
+            ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"
+          },
+          "m": {
+            ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"
+          }
         }
       },
       "names": {
@@ -27,36 +33,55 @@
       },
       "invites": {
         ".read": true,
-        ".indexOn": ["ts"],
+        ".indexOn": [
+          "ts"
+        ],
         "$id": {
           ".write": true,
           ".validate": "!newData.exists() || (newData.child('name').isString() && newData.child('name').val().length <= 16 && (newData.child('status').val() == 'open' || newData.child('status').val() == 'taken'))",
           "status": {
             ".validate": "!data.exists() || newData.val() == data.val() || (data.val() == 'open' && newData.val() == 'taken' && data.parent().child('ts').val() + 30000 > now)"
           },
-          "guest": {".validate": "!data.exists() || newData.val() == data.val()"},
-          "mid": {".validate": "!data.exists() || newData.val() == data.val()"}
+          "guest": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          },
+          "mid": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          }
         }
       },
       "rooms": {
         ".read": true,
-        "$c": {".write": true}
+        "$c": {
+          ".write": true
+        }
       },
       "matches": {
         "$m": {
           ".read": true,
           ".write": true,
-          "turn": {".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"},
-          "rec": {".validate": "!data.exists() || newData.val() == data.val()"}
+          "turn": {
+            ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val() || newData.val() == data.val() + 1)"
+          },
+          "rec": {
+            ".validate": "!data.exists() || newData.val() == data.val()"
+          }
         }
       },
       "mping": {
-        "$m": {".read": true, ".write": true}
+        "$m": {
+          ".read": true,
+          ".write": true
+        }
       },
       "results": {
         ".read": true,
-        ".indexOn": ["ts"],
-        "$r": {".write": "!data.exists()"}
+        ".indexOn": [
+          "ts"
+        ],
+        "$r": {
+          ".write": "!data.exists()"
+        }
       }
     },
     "presence": {
@@ -64,6 +89,15 @@
       "$id": {
         ".write": true,
         ".validate": "!newData.exists() || newData.child('t').isNumber()"
+      }
+    },
+    "bday": {
+      ".read": true,
+      "$p": {
+        "$y": {
+          ".write": true,
+          ".validate": "newData.child('n').isNumber() && ((!data.exists() && newData.child('n').val() == 1) || (data.exists() && newData.child('n').val() == data.child('n').val() + 1))"
+        }
       }
     }
   }
