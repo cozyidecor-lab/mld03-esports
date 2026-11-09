@@ -75,7 +75,7 @@ const FF=(function(){
   function close(){
     stopGame();cancelInvite();cancelRoom();if(S.mm){S.mm.ref.off();S.mm=null;}if(!root)return;root.hidden=true;S.screen=null;document.body.classList.remove('ff-open');
     try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}catch(e){}}
-  const busy=()=>!!S.screen&&['game','form','wait','room'].includes(S.screen);
+  const busy=()=>!!S.screen&&['game','form','wait','room','specwait'].includes(S.screen);
 
   function profileScreen(next,mode){
     S.afterProfile=next||S.afterProfile;const list=saved(),signin=mode==='signin';
@@ -126,6 +126,7 @@ const FF=(function(){
           <div class="fkme" id="ffMe"><span class="fkav">${H_(S.me.name[0]||'?').toUpperCase()}</span><span><b>${H_(S.me.name)}</b><small id="ffMeStats">Loading stats…</small></span><button class="fklink" data-f="profile">Switch</button></div>
           ${note?`<p class="fkmsg">${H_(note)}</p>`:''}<div id="ffResume"></div></div>
         <div class="fkmenu">
+          <div id="fkHomeLive"></div>
           <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY ONLINE</button>
           <button class="fkbtn" data-f="cpu"><span>🤖</span> PLAY AGAINST COMPUTER</button>
           <button class="fkbtn" data-f="private"><span>🔒</span> PRIVATE ROOM</button>
@@ -136,6 +137,7 @@ const FF=(function(){
     loadPlayers().then(L=>{const me=L.find(p=>p.id===S.me.id),b=sortBoard(L),rk=b.findIndex(p=>p.id===S.me.id)+1;const s=el('ffMeStats');
       if(me&&!me.mld&&!String(S.me.id).startsWith('local-')&&!LS.get('ff.linkAsked.'+S.me.id,false)&&S.screen==='home')return linkScreen(me.name);
       if(s)s.textContent=me?`${me.w} W · ${me.l} L · ${me.m} played${rk?` · Rank #${rk}`:' · Unranked'}${me.cur>1?` · 🔥${me.cur} streak`:''}`:'Online stats unavailable';});
+    paintLive();
     // a match to resume?
     if(cur&&db())db().ref('ff/matches/'+cur.mid).get().then(s=>{const m=s.val(),r=el('ffResume');
       if(!m||m.status==='over'||!(m[cur.my]&&m[cur.my].id===S.me.id)){LS.set('ff.cur',null);return;}
@@ -276,6 +278,7 @@ const FF=(function(){
         <div class="fkpl me"><span class="fkdisc r"></span><span class="fknm" id="ffMyName"></span><b id="ffMyScore">0</b></div>
         <div class="fkturn" id="ffTurn"><b>YOUR TURN</b><i><s id="ffTurnBar"></s></i></div>
         <button class="fkic fkset" data-f="settings" aria-label="Settings">⚙</button>
+        <span class="fkeye" id="fkEye" hidden aria-live="polite"></span>
       </div>
       <div class="fkstage" id="ffStage"><canvas id="ffCv"></canvas><div class="fkover" id="ffOver" hidden></div>
 <canvas id="ffFx" class="fkfx"></canvas></div>
@@ -294,7 +297,8 @@ const FF=(function(){
     Object.entries(ids).forEach(([side,id])=>{if(!id||!d||String(id).startsWith('local-'))return;
       d.ref('ff/players/'+id+'/mld').get().then(s=>{const n=s.val(),u=n&&typeof photoOf==='function'?photoOf(n):null;if(!u||G!==g)return;
         const im=new Image();im.onload=()=>{if(G===g)g.faces[side]=im;};im.src=u;}).catch(()=>{});});}
-  function stopGame(){if(!G)return;clearInterval(G.tickT);clearInterval(G.pingT);clearTimeout(G.aiT);if(G.ref)G.ref.off();if(G.pingRef)G.pingRef.off();cancelAnimationFrame(raf);G=null;aim=null;}
+  function stopGame(){if(!G)return;clearInterval(G.tickT);clearInterval(G.pingT);clearTimeout(G.aiT);if(G.ref)G.ref.off();if(G.pingRef)G.pingRef.off();if(G.specRef)G.specRef.off();if(G.aimRef)G.aimRef.off();if(G.myWatch){G.myWatch.onDisconnect().cancel();G.myWatch.remove().catch(()=>{});}
+    if(G.aimOut)G.aimOut.remove().catch(()=>{});cancelAnimationFrame(raf);G=null;aim=null;}
 
   /* ---------- drawing ---------- */
   const PADX=14,PADY=52;let V={s:1,ox:0,oy:0};
@@ -366,9 +370,9 @@ const FF=(function(){
     c.fillStyle='#111';c.beginPath();for(let k=0;k<5;k++){const a=-Math.PI/2+k*2*Math.PI/5;c.lineTo(bx+Math.cos(a)*br*.42,by+Math.sin(a)*br*.42);}c.closePath();c.fill();
     for(let k=0;k<5;k++){const a=-Math.PI/2+k*2*Math.PI/5;c.beginPath();c.arc(bx+Math.cos(a)*br*.95,by+Math.sin(a)*br*.95,br*.22,0,7);c.fill();}
   }
-  function drawAim(c){
-    if(!aim||!aim.p)return;const s=V.s,[dx,dy]=[G.v.st[2*aim.d],G.v.st[2*aim.d+1]],[sx,sy]=toScreen(dx,dy);
-    const [px,py]=toScreen(aim.p[0],aim.p[1]);const sh=shotFromAim();
+  function drawAim(c,A){
+    if(!A||!A.p)return;const s=V.s,[dx,dy]=[G.v.st[2*A.d],G.v.st[2*A.d+1]],[sx,sy]=toScreen(dx,dy);
+    const [px,py]=toScreen(A.p[0],A.p[1]);const sh=shotFromAim(A);
     c.setLineDash([6,6]);c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=2;c.beginPath();c.moveTo(sx,sy);c.lineTo(px,py);c.stroke();c.setLineDash([]);
     if(!sh)return;const pw=Math.sqrt(sh.vx*sh.vx+sh.vy*sh.vy)/E.MAXV,[ux,uy]=tx(sh.vx,sh.vy);const fx=flip()?-sh.vx:sh.vx,fy=flip()?-sh.vy:sh.vy,l=Math.sqrt(fx*fx+fy*fy);
     const len=(70+pw*220)*s,ex=sx+fx/l*len,ey=sy+fy/l*len;
@@ -386,7 +390,7 @@ const FF=(function(){
     if(G.anim){const a=G.anim,k=Math.min(a.frames.length-1,Math.floor((t-(a.t0||(a.t0=t)))/(1000/120)));
       pos=a.frames[k]||pos;while(a.ev<a.events.length&&a.events[a.ev].s<=k){const e=a.events[a.ev++];sfx(e.k,e.v);}
       if(k>=a.frames.length-1){G.anim=null;a.done&&a.done();pos=G.v.st;}}
-    ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,cv.width,cv.height);drawPitch(ctx);drawBodies(ctx,pos,t);drawAim(ctx);
+    ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,cv.width,cv.height);drawPitch(ctx);drawBodies(ctx,pos,t);drawAim(ctx,aim);if(G.spec&&G.specAim&&!G.anim)drawAim(ctx,G.specAim);
   }
   function hud(){
     if(!G)return;const v=G.v,o=E.other(G.my),n=clockNow();
@@ -395,8 +399,11 @@ const FF=(function(){
     el('ffClock').textContent=v.status==='sd'?'SD':fmtT(pre?MATCH_MS:v.end-n);
     el('ffPhase').textContent=v.status==='sd'?'SUDDEN DEATH':v.status==='over'?'FULL TIME':'MATCH';
     el('ffClock').parentNode.classList.toggle('sd',v.status==='sd');
+    const eye=el('fkEye');if(eye){const nS=G.spec?0:(G.specN||0);eye.hidden=!(G.spec||nS);eye.innerHTML=G.spec?'<i class="livedot"></i> LIVE · WATCHING':`👁 ${nS}`;
+      eye.title=G.spec?'You are watching this match':`${nS} ${nS===1?'person is':'people are'} watching`;eye.classList.toggle('spec',!!G.spec);}
     const tb=el('ffTurn');let label,mine=false;
-    if(v.status==='over')label='FULL TIME';
+    if(G.spec){label=v.status==='over'?'FULL TIME':pre?'GET READY':G.anim?`${G.names[G.anim.by]}'s flick`.toUpperCase():`${G.names[v.side]}'s turn`.toUpperCase();}
+    else if(v.status==='over')label='FULL TIME';
     else if(pre)label='GET READY';
     else if(G.anim)label=G.anim.by===G.my?'…':G.mode==='cpu'?"COMPUTER'S TURN":"OPPONENT'S TURN";
     else if(v.side===G.my){label='YOUR TURN';mine=true;}
@@ -435,20 +442,27 @@ const FF=(function(){
   function toast(t){banner(`<span class="t">${H_(t)}</span>`,1600,'toast');}
 
   /* ---------- input: pull back from your disc, release to flick ---------- */
-  const isMyTurn=()=>G&&!G.anim&&!G.pending&&G.v.side===G.my&&(G.v.status==='play'||G.v.status==='sd')&&!(G.v.start&&clockNow()<G.v.start);
+  const isMyTurn=()=>G&&!G.spec&&!G.anim&&!G.pending&&G.v.side===G.my&&(G.v.status==='play'||G.v.status==='sd')&&!(G.v.start&&clockNow()<G.v.start);
   function bindInput(){
     const pt=e=>{const r=cv.getBoundingClientRect();return toField(e.clientX-r.left,e.clientY-r.top);};
     cv.onpointerdown=e=>{if(!isMyTurn())return;const p=pt(e);let best=null,bd=1e9;
       E.TEAM[G.my].forEach(i=>{const dx=G.v.st[2*i]-p[0],dy=G.v.st[2*i+1]-p[1],d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}});
       if(best==null||bd>(E.R*2.1)**2)return;aim={d:best,p:null};cv.setPointerCapture(e.pointerId);e.preventDefault();};
-    cv.onpointermove=e=>{if(!aim)return;aim.p=pt(e);};
-    const up=e=>{if(!aim)return;const sh=shotFromAim();aim=null;if(sh&&isMyTurn())shoot(sh);};
-    cv.onpointerup=up;cv.onpointercancel=()=>{aim=null;};
+    cv.onpointermove=e=>{if(!aim)return;aim.p=pt(e);sendAim();};
+    const up=e=>{if(!aim)return;const sh=shotFromAim();aim=null;sendAim(true);if(sh&&isMyTurn())shoot(sh);};
+    cv.onpointerup=up;cv.onpointercancel=()=>{aim=null;sendAim(true);};
   }
-  function shotFromAim(){
-    if(!aim||!aim.p)return null;const dx=G.v.st[2*aim.d]-aim.p[0],dy=G.v.st[2*aim.d+1]-aim.p[1],l=Math.sqrt(dx*dx+dy*dy);
+  let aimT=0;
+  function sendAim(clear){ // aim line for spectators: ~8 updates a second, only while someone watches
+    if(!G||G.mode!=='online'||G.spec||!G.specN||!G.aimOut)return;
+    if(clear||!aim||!aim.p){G.aimOut.remove().catch(()=>{});return;}
+    const t=Date.now();if(t-aimT<120)return;aimT=t;
+    G.aimOut.set({d:aim.d,x:Math.round(aim.p[0]),y:Math.round(aim.p[1])}).catch(()=>{});
+  }
+  function shotFromAim(A){A=A||aim;
+    if(!A||!A.p)return null;const dx=G.v.st[2*A.d]-A.p[0],dy=G.v.st[2*A.d+1]-A.p[1],l=Math.sqrt(dx*dx+dy*dy);
     if(l<E.R*.9)return null;const p=Math.min(1,(l-E.R*.6)/230),v=Math.max(.08,p)*E.MAXV*.999;
-    return {d:aim.d,vx:Math.round(dx/l*v*100)/100,vy:Math.round(dy/l*v*100)/100};
+    return {d:A.d,vx:Math.round(dx/l*v*100)/100,vy:Math.round(dy/l*v*100)/100};
   }
   /* play a resolved flick on screen (at double speed: 120 physics steps a second) */
   function animate(res,by,done){G.anim={frames:res.frames,events:res.events,ev:0,t0:0,by,done};if(by===G.my)sfx('flick');}
@@ -487,6 +501,10 @@ const FF=(function(){
     const c=S.mm;if(!c)return;
     if(!m){if(Date.now()-c.t0<10000)return;c.ref.off();S.mm=null;LS.set('ff.cur',null);if(!G)homeScreen('The match was closed.');return;}
     const opp=E.other(c.my);
+    if(c.spec){
+      if(m.status==='form'||m.status==='wait'){if(S.screen!=='specwait')show('specwait',`${top('Watching')}<div class="fkwait"><div class="fkspin">⚽</div><h3>The match is about to start…</h3></div>`);return;}
+      if(m.status==='over'&&(!G||G.mid!==c.mid)){c.ref.off();S.mm=null;return homeScreen('That match has just finished.');}
+    }
     if(m.status==='over'&&m.noscore&&(!G||G.mid!==c.mid)){c.ref.off();S.mm=null;LS.set('ff.cur',null);return homeScreen('Your opponent left before kick-off.');}
     if(m.status==='wait')return; // private room: still waiting (room screen is showing)
     if(m.status==='form'){
@@ -496,8 +514,18 @@ const FF=(function(){
       const note=el('ffFormNote');if(note)note.textContent=m['r'+opp]?`${(m[opp]||{}).name} is ready.`:`${(m[opp]||{}).name||'Opponent'} is choosing a formation…`;
       return;}
     if(!G||G.mode!=='online'||G.mid!==c.mid){ // build the game from the saved state (also used to reconnect)
-      startGame({mode:'online',kind:m.kind,mid:c.mid,my:c.my,ref:c.ref,names:{a:m.a.name,b:(m.b||{}).name||'Opponent'},
+      startGame({mode:'online',kind:m.kind,mid:c.mid,my:c.my,ref:c.ref,spec:!!c.spec,names:{a:m.a.name,b:(m.b||{}).name||'Opponent'},
         v:viewOf(m),seen:m.turn,latest:m});
+      const dd=db();
+      if(c.spec){ // I am watching: count me in, and receive the players' aim lines
+        G.myWatch=dd.ref('ff/spec/'+c.mid+'/'+dev);G.myWatch.onDisconnect().remove();G.myWatch.set(true).catch(()=>{});
+        G.aimRef=dd.ref('ff/aim/'+c.mid);G.aimRef.on('value',s=>{const a=s.val();if(G)G.specAim=a&&a.d?{d:a.d,p:[a.x,a.y]}:null;});
+        if(m.status==='over')setTimeout(finish,600);
+        return;}
+      // I am playing: list the match as live, and watch how many people are spectating
+      if(m.status!=='over')dd.ref('ff/live/'+c.mid).update({a:m.a.name,b:(m.b||{}).name||'',kind:m.kind||'public',ts:TS,sa:(m.score||{}).a||0,sb:(m.score||{}).b||0}).catch(()=>{});
+      G.aimOut=dd.ref('ff/aim/'+c.mid);
+      G.specRef=dd.ref('ff/spec/'+c.mid);G.specRef.on('value',s=>{if(G)G.specN=s.numChildren();});
       // "still here" signal on a separate path, so it never re-sends the match itself
       const pr=db().ref('ff/mping/'+c.mid);G.pingRef=pr;const beat=()=>pr.child(c.my).set(TS).catch(()=>{});beat();G.pingT=setInterval(beat,8000);
       pr.on('value',s=>{const p=(s.val()||{})[opp];if(G)G.oppAway=!!p&&now()-p>25000;});
@@ -507,10 +535,10 @@ const FF=(function(){
     if(m.turn>G.seen){
       const prev=G.seen;G.seen=m.turn;const L=m.last||{};
       if(L.by===G.my&&L.n===prev&&G.mineAnim)return; // my own flick: already playing on my screen
-      if(m.turn===prev+1&&L.shot&&L.n===prev&&L.by!==G.my&&!G.anim){
+      if(m.turn===prev+1&&L.shot&&L.n===prev&&(L.by!==G.my||G.spec)&&!G.anim){
         const res=E.simulate(L.st0,L.shot,{frames:true});G.pending=true;
         animate(res,L.by,()=>{if(!G)return;G.pending=false;sync();if(L.goal)celebrate(L.goal);});return;}
-      if(L.pass&&L.by!==undefined&&!G.anim)toast(L.by===G.my?'Time up: your turn passed':'Opponent ran out of time');
+      if(L.pass&&L.by!==undefined&&!G.anim)toast(G.spec?`${G.names[L.by]} ran out of time`:L.by===G.my?'Time up: your turn passed':'Opponent ran out of time');
     }
     if(!G.anim&&!G.pending)sync();
   }
@@ -529,7 +557,7 @@ const FF=(function(){
       if(cur.turn!==turn||cur.side!==G.my||!(cur.status==='play'||cur.status==='sd')||JSON.stringify(cur.st)!==stJSON)return; // not my turn any more → refuse
       return Object.assign({},cur,{st:next.st,score:next.score,status:next.status,winner:next.winner||null,side:next.side,turn:turn+1,dl,
         last:{n:turn,by:G.my,shot,st0:cur.st,goal:res.goal||null}});
-    },null,false).then(r=>{if(!G)return;if(!r.committed){G.anim=null;G.mineAnim=false;G.pending=false;toast('Move not accepted: turn already over');sync();}})
+    },null,false).then(r=>{if(!G)return;if(r.committed&&res.goal)db().ref('ff/live/'+G.mid).update({sa:next.score.a,sb:next.score.b}).catch(()=>{});if(!r.committed){G.anim=null;G.mineAnim=false;G.pending=false;toast('Move not accepted: turn already over');sync();}})
       .catch(()=>{if(G){G.anim=null;G.mineAnim=false;G.pending=false;toast('Connection problem: move not sent');sync();}});
   }
   function onlineTick(){
@@ -541,11 +569,17 @@ const FF=(function(){
       G.ref.transaction(cur=>{if(cur===null)return null;if(cur.turn!==m.turn||now()<=cur.dl||!(cur.status==='play'||cur.status==='sd'))return;
         return Object.assign({},cur,{side:E.other(cur.side),turn:cur.turn+1,dl:now()+TURN_MS,last:{n:cur.turn,by:cur.side,pass:true}});},null,false).catch(()=>{});}
   }
-  function tick(){if(!G)return;hud();if(G.mode==='cpu')cpuTick();else onlineTick();}
+  function tick(){if(!G)return;hud();if(G.mode==='cpu')cpuTick();else if(!G.spec)onlineTick();}
 
   /* ---------- end of match ---------- */
   function finish(){
     if(!G||G.finished)return;G.finished=true;const v=G.v,w=v.winner,mine=w===G.my,o=E.other(G.my);
+    if(G.spec){const g=G;setTimeout(()=>{if(G!==g)return;
+      show('result',`<div class="fkres"><small>Live match · Full time</small><h2>${H_(g.names[w]||'')} WINS</h2>
+        <div class="fkscore"><span><b>${H_(g.names.a)}</b><i>${v.score.a}</i></span><em>–</em><span><i>${v.score.b}</i><b>${H_(g.names.b)}</b></span></div>
+        <div class="fkmenu"><button class="fkbtn red big" data-f="live">WATCH ANOTHER MATCH</button><button class="fklink" data-f="home">Back to menu</button></div></div>`);
+      if(S.mm){S.mm.ref.off();S.mm=null;}stopGame();},1400);return;}
+    if(G.mode==='online'){const dd=db();if(dd){dd.ref('ff/live/'+G.mid).remove().catch(()=>{});dd.ref('ff/aim/'+G.mid).remove().catch(()=>{});}}
     const h=LS.get('ff.history',[]);h.unshift({opp:G.names[o],sa:v.score[G.my],sb:v.score[o],res:mine?'w':'l',kind:G.kind,ts:Date.now()});LS.set('ff.history',h.slice(0,20));
     if(G.mode==='online'){LS.set('ff.cur',null);if(G.kind==='public')record(G.latest||{},G.ref);}
     sfx(mine?'win':'lose');
@@ -577,6 +611,8 @@ const FF=(function(){
   }
   function settings(){
     const ov=el('ffOver');if(!ov)return;ov.className='fkover menu';ov.hidden=false;
+    if(G&&G.spec){ov.innerHTML=`<div class="fksetm"><b>Watching</b><button class="fkbtn" data-f="sound">${S.sound?'🔊 Sound: on':'🔇 Sound: off'}</button>
+      <button class="fkbtn" data-f="stopwatch">👋 Stop watching</button><button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;return;}
     ov.innerHTML=`<div class="fksetm"><b>Settings</b>
       <button class="fkbtn" data-f="sound">${S.sound?'🔊 Sound: on':'🔇 Sound: off'}</button>
       <button class="fkbtn" data-f="howin">❔ How to play</button>
@@ -667,6 +703,9 @@ const FF=(function(){
           return x;},null,false).catch(()=>{});return;}
       case 'leave':if(S.screen==='form'&&S.mm){const c=S.mm;c.ref.transaction(cur=>cur&&cur.status==='form'?Object.assign({},cur,{status:'over',winner:E.other(c.my),forfeit:true,noscore:true}):undefined,null,false).catch(()=>{});c.ref.off();S.mm=null;LS.set('ff.cur',null);return homeScreen();}
         return leaveMatch();
+      case 'live':return liveScreen();
+      case 'watch':return watch(b.dataset.mid);
+      case 'stopwatch':return stopWatching();
       case 'settings':return settings();
       case 'closeset':{const ov=el('ffOver');if(ov)ov.hidden=true;return;}
       case 'sound':S.sound=!S.sound;LS.set('ff.sound',S.sound);return settings();
@@ -681,7 +720,32 @@ const FF=(function(){
     if(ig){S.ignored.add(ig.dataset.fkignore);hidePopup(ig.dataset.fkignore);}
     if(j){const id=j.dataset.fkjoin;hidePopups();goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(id);else profileScreen(()=>join(id));}
     if(e.target.closest('[data-ff="open"]'))open();
+    const w=e.target.closest('.fklivebox [data-f="watch"]');if(w){goFull();watch(w.dataset.mid);}
   });
-  setTimeout(()=>{if(db())listenInvites();},1500);
-  return {open,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
+  /* ================= live matches: menu badge, Mini Games page, watching ================= */
+  S.live=[];
+  const LIVE_MAX=8*60000; // a listed match older than this is stale (players closed the app without finishing)
+  function listenLive(){const d=db();if(!d)return;
+    d.ref('ff/live').on('value',s=>{const v=s.val()||{},n=now();
+      S.live=Object.entries(v).filter(([,x])=>x&&x.a&&x.b&&(!x.ts||n-x.ts<LIVE_MAX)).map(([mid,x])=>({mid,...x})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+      paintLive();});
+    document.addEventListener('click',e=>{if(e.target.closest('#menuBtn'))setTimeout(paintLive,50);});}
+  function liveRows(){return S.live.map(x=>`<button class="fklive1" data-f="watch" data-mid="${H_(x.mid)}"><i class="livedot"></i>
+      <span class="fklvs"><b>${H_(x.a)}</b><em>${x.sa||0} – ${x.sb||0}</em><b>${H_(x.b)}</b></span><span class="fkwatch">👁 Watch</span></button>`).join('');}
+  function paintLive(){
+    const n=S.live.length;
+    const mi=document.querySelector('.ditem[data-nav="games"] small');
+    if(mi)mi.innerHTML=n?`<span class="livetag"><i class="livedot"></i>${n} ${n===1?'match':'matches'} live</span>`:'MLD Football Flick';
+    const box=document.getElementById('fkLive');
+    if(box)box.innerHTML=n?`<div class="fklivebox"><div class="fklivehd"><i class="livedot"></i> LIVE NOW <small>Tap a match to watch</small></div>${liveRows()}</div>`:'';
+    const hb=el('fkHomeLive');if(hb)hb.innerHTML=n?`<button class="fkbtn watchlive" data-f="live"><i class="livedot"></i> WATCH LIVE <b>${n}</b></button>`:'';
+    if(S.screen==='live'){const L=el('fkLiveList');if(L)L.innerHTML=n?liveRows():'<p class="fknote">No matches right now. Check back soon, or start one: PLAY ONLINE!</p>';}
+  }
+  function liveScreen(){
+    show('live',`${top('Live matches')}<div class="fkwait"><p class="fknote">Matches being played right now. Tap one to watch it live.</p><div class="fklivelist" id="fkLiveList"></div></div>`);paintLive();}
+  function watch(mid){const d=db();if(!d)return;stopGame();if(S.mm){S.mm.ref.off();S.mm=null;}
+    mount();const ref=d.ref('ff/matches/'+mid);S.mm={mid,my:'a',ref,t0:Date.now(),spec:true};ref.on('value',s=>onMatch(s.val()));}
+  function stopWatching(){if(S.mm){S.mm.ref.off();S.mm=null;}stopGame();homeScreen();}
+  setTimeout(()=>{if(db()){listenInvites();listenLive();}},1500);
+  return {open,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
 })();

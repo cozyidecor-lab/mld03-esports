@@ -82,6 +82,26 @@
         "$r": {
           ".write": "!data.exists()"
         }
+      },
+      "live": {
+        ".read": true,
+        "$m": {
+          ".write": true
+        }
+      },
+      "spec": {
+        "$m": {
+          ".read": true,
+          "$d": {
+            ".write": true
+          }
+        }
+      },
+      "aim": {
+        "$m": {
+          ".read": true,
+          ".write": true
+        }
       }
     },
     "presence": {
