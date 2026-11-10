@@ -1229,8 +1229,7 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.livedot{animation:none}}
 
 /* loading screen: one small random fact under the bar */
-#intro .ifact{position:absolute;top:calc(86% + 14px);left:50%;transform:translateX(-50%);width:max-content;max-width:86vw;margin:0;
-  text-align:center;font:500 .86rem/1.4 var(--body);color:rgba(255,255,255,.9);width:min(86vw,420px);opacity:0}
-#intro .ifact b{display:block;font:700 .66rem var(--label);letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:2px}
+#intro .ifact{position:absolute;bottom:calc(14% - 34px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:max-content;max-width:86vw;margin:0;
+  text-align:center;font:600 .8rem/1.3 var(--body);color:rgba(255,255,255,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0}
 #intro.play .ifact{animation:ifact .5s ease .5s forwards}
 @keyframes ifact{to{opacity:1}}
