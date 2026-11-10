@@ -4,7 +4,10 @@
    counter (Firebase: bday/{name}/{year}, one wish per phone), a share button, a tap-to-play music-box
    "Happy Birthday" made in the browser (no music file), and a 🎂 badge on the player's profile. */
 (function(){
-  const BIRTHDAYS={Cijin:'11-09'};
+  const BIRTHDAYS={
+    Cijin:'11-09',Siyan:'05-04',Kriz:'02-27',Abhilash:'11-13',Midhun:'04-20',Salman:'05-11',Nabeel:'07-05',
+    Zainudheen:'06-02','Zayidali Nahyan':'03-29',Rmees:'03-23',Arjun:'10-08',Millaj:'05-22',Sreedev:'02-25',
+    Pranav:'05-21',Vishnu:'06-15',WaCky:'07-26'}; // Rmees = Ramees (database spelling); Pranav = Pranav P
 
   const d=new Date(),md=String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const test=(new URLSearchParams(location.search).get('bdaytest')||'');

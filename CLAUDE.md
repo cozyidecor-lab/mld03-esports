@@ -24,7 +24,7 @@ The owner is not technical: explain in simple words, never delete existing stats
   UCL stages League → Play-offs → R16 → QF → SF → Final with match-share weights), 🎲 random
   player button, copy-profile-link (links look like `/?p=Name`), toast. S-tier profiles get `.sheet.stier` gold styling.
 - `js/roast.js`: 🔥 Roast button on profiles; ~27 stat-based roast templates (conditions on data.js), each tap a new one, Share.
-- `js/birthday.js`: `BIRTHDAYS={Name:'MM-DD'}` (only Cijin 11-09 so far; owner sends more). On the day: Home banner at top,
+- `js/birthday.js`: `BIRTHDAYS={Name:'MM-DD'}` (16 players so far; owner sends more). On the day: Home banner at top,
   confetti, wishes counter (`bday/{name}/{year}` in Firebase), share, tap-to-play music-box tune, 🎂 on profile.
   No "upcoming birthdays" list (owner said no).
 - `js/mates.js`: Teammates section on profiles (Team Tour teammates, titles together, best partnership).
