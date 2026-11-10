@@ -133,8 +133,4 @@
     box.innerHTML=`<button class="ffhome" data-go="fun-facts"><span class="ffhic"><img alt="" src="images/fun-facts.jpg"></span>
       <span class="ffhtx"><small>Did you know? ${f.e}</small><b>${esc(f.h)}</b><span>${esc(f.t)}</span><i>More fun facts →</i></span></button>`;}
   homeCard();
-  /* one short random fact on the loading screen (tiny, one line) */
-  (function(){const box=document.getElementById('introFact');if(!box||!facts.length)return;
-    const f=facts[Math.floor(Math.random()*facts.length)],who=f.who&&f.who.length===1?f.who[0]+' · ':'';
-    box.textContent=who?`${f.e} ${who}${f.big} ${f.sm}`:`${f.e} ${f.h} · ${f.big} ${f.sm}`;})();
 })();
