@@ -39,3 +39,8 @@ window.MLD_DATA.dorNominees={total:30,list:[
   {rank:29,name:"Jomon",points:27.87,img:"images/mld-dor/29-Jomon.jpg"},
   {rank:30,name:"Black Devil",points:27.18,img:"images/mld-dor/30-Black Devil.jpg"}
 ]};
+
+/* Team Tour managers (managers exist only from Season 12). [season, team, manager]. Used by the achievements. */
+window.MLD_DATA.managers=[
+  [12,'France','WaCky'],[12,'Spain','Rmees'],[12,'Argentina','Razin'],[12,'Portugal','Arun'],[12,'Brazil','Zainudheen'],
+  [13,'Bayern','WaCky'],[13,'Barcelona','Pranav'],[13,'Man City','Rmees'],[13,'Man United','Zainudheen'],[13,'Real Madrid','Shiyas'],[13,'AC Milan','Razin']];

@@ -33,7 +33,7 @@ The owner is not technical: explain in simple words, never delete existing stats
   wins/runner-ups, never goals/ratings/awards. Rating = career score (Top Ratings formula). Season-level ones need the
   season final (S1–12 always; S13+ once `seasonAwards` has the season). d'Or editions: `editions` in evaluate (1st = S1–12).
   Managers exist ONLY from Season 12 on (S1–11 had none). Only winning managers are recorded so far (Manager Trophy / finals.mg);
-  owner will send the full S12 and S13 manager lists. Owner may send full lists → add
+  Full S12 + S13 manager lists are in data.js (`MLD_DATA.managers`, appended at the end of the file). Owner may send full lists → add
   `managers:[[season,'Team','Name'],...]` to MLD_DATA; engine uses it for appearances and finals automatically.
   Tests: run the scenario script idea in the engine comments (all 14 owner scenarios passed).
 - `js/mates.js`: Teammates section on profiles (Team Tour teammates, titles together, best partnership).
