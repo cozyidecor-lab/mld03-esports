@@ -1273,3 +1273,17 @@ button.acrec{cursor:pointer}
 .acf{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}.acf small{font:700 .64rem/1.15 var(--label);text-transform:uppercase;letter-spacing:.04em;color:#cfcfd3}
 .acrecline{font-size:.82rem}.acrecline i{font-style:normal;color:var(--muted)}
 .acprof .flbtn{width:100%;margin-top:4px}
+
+/* achievements: Players tab */
+.actabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:var(--panel);border:1px solid var(--line);margin:14px 0 4px}
+.actabs button{border:0;border-radius:10px;background:transparent;color:var(--muted);padding:10px;font:700 .85rem var(--label);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.actabs button.on{background:var(--red);color:#fff}
+.acplhd{display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;color:var(--muted);font-size:.85rem}
+.acplhd .chip{cursor:pointer}
+.acpl{display:flex;flex-direction:column;gap:6px}
+.acpli{display:grid;grid-template-columns:28px auto 1fr;gap:10px;align-items:center;padding:8px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-align:left;cursor:pointer}
+.acplr{font:400 1.1rem var(--display);color:var(--muted);text-align:center}
+.acpli .av0{width:36px;height:36px}
+.acplm{display:flex;flex-direction:column;gap:5px;min-width:0}
+.acpln{display:flex;justify-content:space-between;gap:8px}.acpln b{font:700 .95rem var(--label);text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acpln small{color:var(--muted);flex:none}

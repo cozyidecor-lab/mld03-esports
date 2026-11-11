@@ -6,7 +6,7 @@
   if(typeof ACHE==='undefined')return;
   let R=ACHE.evaluate(D);
   const RC=['','#9a9aa0','#3ad06a','#4ea3ff','#a66bff','#f0c35a'];
-  const A={sel:null,cat:'all',rar:0,status:'all',open:null};
+  const A={sel:null,cat:'all',rar:0,status:'all',open:null,tab:'ach',psort:'desc'};
   const total=ACHE.L.length;
   const pct=n=>Math.round(n/Math.max(1,R.players)*100);
   const listOf=n=>R.res[n]?R.res[n].list:[];
@@ -72,8 +72,17 @@
       b:`${playerPicker()}
       <div class="acsum all"><div class="acsumtx"><b>All of MLD</b><div class="acbig"><span>${got}</span> / ${total} achievements unlocked by at least one player</div>
         <div class="acbar big"><i style="width:${Math.round(got/total*100)}%"></i></div></div></div>
-      <h2 class="sec">Recently unlocked <small>LATEST RESULTS</small></h2><div class="acrecent">${recent.slice(0,6).map(({n,z})=>`<button class="acrec" data-acsel="${esc(n)}">${ico(z.a)}<span><b>${esc(n)}</b><small>${esc(z.a.name)} · ${esc(z.at)}</small></span></button>`).join('')}</div>
-      ${filters('all')}${grid(items,'all')}${adm?admin():''}`};
+      <div class="actabs"><button class="${A.tab==='ach'?'on':''}" data-actab="ach">Achievements</button><button class="${A.tab==='players'?'on':''}" data-actab="players">Players</button></div>
+      ${A.tab==='players'?playersList():`<h2 class="sec">Recently unlocked <small>LATEST RESULTS</small></h2><div class="acrecent">${recent.slice(0,6).map(({n,z})=>`<button class="acrec" data-acsel="${esc(n)}">${ico(z.a)}<span><b>${esc(n)}</b><small>${esc(z.a.name)} · ${esc(z.at)}</small></span></button>`).join('')}</div>
+      ${filters('all')}${grid(items,'all')}`}${adm?admin():''}`};
+  }
+  /* players tab: everyone, sorted by number of achievements; tap a player for the full details */
+  function playersList(){
+    const L=D.players.filter(p=>!p.side&&R.res[p.n]).map(p=>({n:p.n,u:unlockedOf(p.n).length}));
+    L.sort((a,b)=>(A.psort==='desc'?b.u-a.u:a.u-b.u)||(byName[a.n].crk-byName[b.n].crk));
+    return `<div class="acplhd"><span>${L.length} players</span><button class="chip" data-acsort="1">${A.psort==='desc'?'↓ Most first':'↑ Fewest first'}</button></div>
+      <div class="acpl">${L.map((x,i)=>`<button class="acpli" data-acsel="${esc(x.n)}"><span class="acplr">${i+1}</span>${avatar(x.n)}
+        <span class="acplm"><span class="acpln"><b>${esc(x.n)}</b><small>${x.u} / ${total}</small></span><span class="acbar"><i style="width:${Math.round(x.u/total*100)}%"></i></span></span></button>`).join('')}</div>`;
   }
   function admin(){
     const rows=[];Object.keys(R.res).forEach(n=>R.res[n].list.forEach(z=>{if(z.unlocked)rows.push({n,z});}));
@@ -93,6 +102,8 @@
   }
   document.addEventListener('click',e=>{
     const s=e.target.closest('[data-acsel]');if(s){A.sel=s.dataset.acsel||null;A.open=null;if(cur==='achievements'){renderStat();scrollTo(0,0);}else go('achievements');return;}
+    const tb=e.target.closest('[data-actab]');if(tb){A.tab=tb.dataset.actab;renderStat();return;}
+    if(e.target.closest('[data-acsort]')){A.psort=A.psort==='desc'?'asc':'desc';renderStat();return;}
     const f=e.target.closest('[data-acf]');if(f){const k=f.dataset.acf;A[k]=k==='rar'?+f.dataset.v:f.dataset.v;renderStat();return;}
     const o=e.target.closest('[data-acopen]');if(o){A.open=A.open===o.dataset.acopen?null:o.dataset.acopen;renderStat();return;}
     if(e.target.closest('[data-acrecalc]')){R=ACHE.evaluate(D);renderStat();window.mldToast&&mldToast('Achievements recalculated');return;}
