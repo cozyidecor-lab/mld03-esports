@@ -79,10 +79,19 @@ const ACHE=(function(){
     ['dor-1','d\'Or','🏆','MLD d\'Or Winner','The highest honour in MLD.','Win the MLD d\'Or',5,s=>[s.dorWins,1]],
     ['dor-2','d\'Or','👑','Two-Time d\'Or Winner','Twice the best in MLD.','Win the MLD d\'Or twice',5,s=>[s.dorWins,2]],
     ['dor-3x','d\'Or','🐐','Three-Time d\'Or Winner','Three times the best. A legend forever.','Win the MLD d\'Or three times',5,s=>[s.dorWins,3]],
+    // G. Managers (Team Tour only)
+    ['mgr-1','Manager','📋','The Gaffer','Take charge of a team.','Manage a team in a Team Tour',2,s=>[s.mgApps,1]],
+    ['mgr-5','Manager','🧠','Touchline Veteran','Five tournaments in the dugout.','Manage a team in 5 Team Tours',4,s=>[s.mgApps,5]],
+    ['mgr-final','Manager','🎽','Final Whistle','Lead a team all the way to the final.','Reach a Team Tour final as manager (winner or runner-up)',3,s=>[s.mgFinals,1]],
+    ['mgr-win','Manager','🏆','Title-Winning Manager','Win the Team Tour from the dugout.','Win a Team Tour as manager',3,s=>[s.mgWins,1]],
+    ['mgr-win2','Manager','🎩','Serial Winner','Two Team Tour titles as manager.','Win 2 Team Tours as manager',4,s=>[s.mgWins,2]],
+    ['mgr-win3','Manager','🏟️','Managerial Dynasty','Three Team Tour titles as manager.','Win 3 Team Tours as manager',5,s=>[s.mgWins,3]],
+    ['mgr-b2b','Manager','🔂','Back-to-Back Boss','Defend the title from the dugout.','Win the Team Tour as manager in consecutive seasons',5,s=>[s.mgStreak,2]],
+    ['player-manager','Manager','🔄','Player & Manager','Champion on the pitch and on the touchline.','Win a Team Tour as a player and win one as a manager',4,s=>[(s.playerT?1:0)+(s.mgWins?1:0),2]],
   ].map(([id,cat,ic,name,desc,cond,rar,p])=>({id,cat,ic,name,desc,cond,rar,p}));
   const RARITY=['','Common','Uncommon','Rare','Epic','Legendary'];
-  const CATS=['Career','Success','Awards','Rating','Special','d\'Or'];
-  const CAT_NAME={Career:'Career & Goals',Success:'Tournament Success',Awards:'Individual Awards',Rating:'Rating',Special:'Consistency & Special','d\'Or':'MLD d\'Or'};
+  const CATS=['Career','Success','Awards','Rating','Special','d\'Or','Manager'];
+  const CAT_NAME={Career:'Career & Goals',Success:'Tournament Success',Awards:'Individual Awards',Rating:'Rating',Special:'Consistency & Special','d\'Or':'MLD d\'Or',Manager:'Managers'};
 
   const names=v=>String(v||'').split(/\s*,\s*/).filter(Boolean);
   const streak=set=>{const a=[...set].sort((x,y)=>x-y);let b=0,c=0,prev=null;a.forEach(v=>{c=prev!==null&&v===prev+1?c+1:1;b=Math.max(b,c);prev=v;});return b;};
@@ -94,7 +103,7 @@ const ACHE=(function(){
     const S={};
     const st=n=>S[n]||(S[n]={n,apps:0,tours:new Set(),goals:0,rows:0,rSum:0,rN:0,cs:0,csPeak:0,bestRank:null,rank:null,wins:0,ru:0,winTypes:new Set(),winsBySeason:{},bestSeasonWins:0,
       boots:0,balls:0,sboots:0,sballs:0,doubleGlory:0,seasonBoth:0,awardsN:0,awardSeasons:new Set(),awardFormats:new Set(),bootSeasons:new Set(),ballSeasons:new Set(),bootStreak:0,ballStreak:0,
-      bootFmt:{},ballFmt:{},bestBootSeason:0,bestBallSeason:0,dorBest:null,dorWins:0,unlocked:{}});
+      bootFmt:{},ballFmt:{},bestBootSeason:0,bestBallSeason:0,dorBest:null,dorWins:0,mgApps:0,mgSeasons:new Set(),mgFinals:0,mgWins:0,mgWinSeasons:new Set(),mgStreak:0,playerT:0,unlocked:{}});
     players.forEach(st);
 
     // every completed tournament, in order
@@ -122,8 +131,18 @@ const ACHE=(function(){
       // results: winners and runner-ups (Co-op pairs and Team Tour squads included; managers are not players)
       T.tro.forEach(r=>{const x=st(r[2]);
         if(T.t==='C'&&(r[3]==='Player Trophy'||r[3]==='Runner-up')&&!x.tours.has(key(T.s,T.t))){x.tours.add(key(T.s,T.t));x.apps++;} // Co-op players are known from the results
+        if(r[3]==='Player Trophy'&&T.t==='T')x.playerT++;
         if(r[3]==='Player Trophy'){x.wins++;x.winTypes.add(T.t);(x.winsBySeason[T.s]=x.winsBySeason[T.s]||new Set()).add(T.t);}
         else if(r[3]==='Runner-up')x.ru++;});
+      // managers (Team Tour only): data.managers rows [season, team, name] when recorded, plus the winning
+      // manager from the Manager Trophy records. A manager's team in the final earns 'Final Whistle'.
+      if(T.t==='T'){const fin=(D.finals||[]).find(f=>f.s===T.s)||{},M={};
+        (D.managers||[]).filter(m=>m[0]===T.s).forEach(m=>{M[m[2]]=M[m[2]]||{team:m[1]};});
+        T.tro.filter(r=>r[3]==='Manager Trophy').forEach(r=>{M[r[2]]=Object.assign(M[r[2]]||{},{won:true});});
+        (fin.mg||[]).forEach(n=>{M[n]=Object.assign(M[n]||{},{won:true});});
+        Object.entries(M).forEach(([n,m])=>{const x=st(n);if(!x.mgSeasons.has(T.s)){x.mgSeasons.add(T.s);x.mgApps++;}
+          const won=m.won||(m.team&&m.team===fin.champ),fin2=won||(m.team&&m.team===fin.runner);
+          if(fin2)x.mgFinals++;if(won){x.mgWins++;x.mgWinSeasons.add(T.s);x.mgStreak=streak(x.mgWinSeasons);}});}
       // tournament Golden Boot / Golden Ball (never Co-op)
       if(T.aw&&T.t!=='C'){const a=T.aw,bs=names(a[3]),bl=names(a[5]);
         bs.forEach(n=>{const x=st(n);x.boots++;x.awardsN++;x.awardSeasons.add(T.s);x.awardFormats.add(T.t);x.bootSeasons.add(T.s);(x.bootFmt[T.s]=x.bootFmt[T.s]||new Set()).add(T.t);x.bootStreak=streak(x.bootSeasons);});

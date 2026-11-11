@@ -65,7 +65,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'achievements':{id:'achievements',t:'Achievements',lead:()=>'49 badges to unlock'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'achievements':{id:'achievements',t:'Achievements',lead:()=>(typeof ACHE!=='undefined'?ACHE.L.length:57)+' badges to unlock'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];

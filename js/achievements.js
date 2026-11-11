@@ -68,7 +68,7 @@
     recent.sort((a,b)=>b.z.order-a.z.order||b.z.a.rar-a.z.a.rar);
     const items=ACHE.L.map(a=>({a,unlocked:R.rate[a.id]>0,cur:0,target:1}));
     const got=ACHE.L.filter(a=>R.rate[a.id]>0).length;
-    return {t:'MLD <em>Achievements</em>',p:`${total} achievements across six categories, unlocked automatically from the official MLD records. Pick a player to see their progress.`,
+    return {t:'MLD <em>Achievements</em>',p:`${total} achievements across ${ACHE.CATS.length} categories, unlocked automatically from the official MLD records. Pick a player to see their progress.`,
       b:`${playerPicker()}
       <div class="acsum all"><div class="acsumtx"><b>All of MLD</b><div class="acbig"><span>${got}</span> / ${total} achievements unlocked by at least one player</div>
         <div class="acbar big"><i style="width:${Math.round(got/total*100)}%"></i></div></div></div>
