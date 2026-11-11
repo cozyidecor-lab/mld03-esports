@@ -50,13 +50,14 @@ const CATS=[
 ];
 function leader(k){return [...D.players].sort((a,b)=>(b[k]??-1)-(a[k]??-1)||b.g-a.g)[0]}
 
-const GROUPS=[['',['home','all-players','compare']],['Hall of fame',['mld-dor']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
+const GROUPS=[['',['home','all-players','compare']],['Hall of fame',['mld-dor','achievements']],['All-time',['goat','scorers','rating','trophies','runners','managers']],
   ['Tournaments',['team','dream','auth','coop']],['Season awards',['goldenboot','goldenball']],['Extras',['fun-facts','side-quests','games']]];
 function navIcon(c){
   if(c.id==='home')return `<img alt="" src="${EMBLEM}" style="width:40px;height:40px;object-fit:cover;object-position:50% 45%">`;
   if(c.id==='mld-dor')return `<img alt="" src="${TROPHY}">`;
   if(c.id==='all-players')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0112 0M15 20a4 4 0 016 0"/></svg>`;
   if(c.id==='goat')return `<span class="goatic">🐐</span>`;
+  if(c.id==='achievements')return `<span class="goatic">🏅</span>`;
   if(c.id==='compare')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z"/></svg>`;
   if(c.id==='games')return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="15.5" cy="11.5" r="1"/><circle cx="17.5" cy="13.5" r="1"/></svg>`;
   if(c.id==='fun-facts')return `<img alt="" src="images/fun-facts.jpg" style="width:40px;height:40px;object-fit:cover">`;
@@ -64,7 +65,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'achievements':{id:'achievements',t:'Achievements',lead:()=>'49 badges to unlock'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
