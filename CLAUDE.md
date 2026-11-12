@@ -55,9 +55,10 @@ The owner is not technical: explain in simple words, never delete existing stats
   Turbo) and the PIN lock were removed.
 
 ## Adding a finished tournament (the usual job)
-0. PENDING: owner to confirm Co-op S13 Adarsh (existing?) and Karthik (= Karthik G?). Najil, Rizan (NOT Razin), Flento are new
-   players (only Co-op so far): add them when their first individual stats arrive. Co-op "Sahad" = Goal Wol ve.
-   Pranav has two S2 Team Tour rows (France 25/20, Italy 16/10): owner will say which is correct; delete the other + recompute.
+0. Co-op S13 new players (no individual stats yet; add when they arrive): Najil, Rizan (NOT Razin), Flento, Mandhuu
+   (registered as "Adarsh" in Co-op, renamed; NOT the existing Adarsh). Co-op "Sahad" = Goal Wol ve; Karthik = Karthik G.
+   Karthik's S5 AC Milan row was moved to Karthik G (owner confirmed). Pranav S2: the Italy row is Pranav; the France row
+   is an unknown other Pranav; owner said leave both rows as they are.
    (S14 Solo Authentic): when its stats arrive, add new players Hudaifa (Mandi side-quest winner, game profile
    "Hudaif") and T-REX (game profile "T-REX") to the database. Do NOT add them before the owner sends the stats.
 1. ADD rows; never remove old ones. Append `log` rows for every player, add `trophies` (Player Trophy /
