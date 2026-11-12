@@ -210,11 +210,12 @@ const FF=(function(){
     if(S.popups[id])return;let box=el('ffPops');
     if(!box){box=document.createElement('div');box.id='ffPops';box.setAttribute('aria-live','polite');document.body.appendChild(box);}
     const p=document.createElement('div');p.className='fkpop';p.setAttribute('role','alertdialog');p.setAttribute('aria-label','Football Flick invitation');
-    p.innerHTML=`<div class="fkpophead">⚽ MLD FOOTBALL FLICK</div>
-      <p><b>${H_(v.name)}</b> is challenging you to a football match!</p><p class="fkpopq">Would you like to join?</p>
-      <div class="fkpoprow"><button class="fkbtn red" data-fkjoin="${H_(id)}">JOIN MATCH</button><button class="fkbtn" data-fkignore="${H_(id)}">IGNORE</button></div>
+    p.innerHTML=`<span class="fkpopic">⚽</span><span class="fkpoptx"><b>${H_(v.name)}</b> challenges you to Football Flick</span>
+      <button class="fkpopjoin" data-fkjoin="${H_(id)}">Join</button><button class="fkpopx" data-fkignore="${H_(id)}" aria-label="Ignore">✕</button>
       <i class="fkpopbar" style="animation-duration:${Math.max(1,INVITE_MS-(now()-v.ts))}ms"></i>`;
-    box.appendChild(p);S.popups[id]={p,t:v.ts};sfx('ping');
+    box.prepend(p);S.popups[id]={p,t:v.ts};sfx('ping');
+    // never more than 2 on screen: the oldest one goes
+    const ids=Object.keys(S.popups).sort((a,b)=>S.popups[b].t-S.popups[a].t);ids.slice(2).forEach(hidePopup);
   }
   function hidePopup(id){const x=S.popups[id];if(!x)return;delete S.popups[id];x.p.classList.add('out');setTimeout(()=>x.p.remove(),300);}
   const hidePopups=()=>Object.keys(S.popups).forEach(hidePopup);
@@ -728,7 +729,7 @@ const FF=(function(){
   function listenLive(){const d=db();if(!d)return;
     d.ref('ff/live').on('value',s=>{const v=s.val()||{},n=now();
       S.live=Object.entries(v).filter(([,x])=>x&&x.a&&x.b&&(!x.ts||n-x.ts<LIVE_MAX)).map(([mid,x])=>({mid,...x})).sort((a,b)=>(b.ts||0)-(a.ts||0));
-      paintLive();});
+      paintLive();liveToast();});
     document.addEventListener('click',e=>{if(e.target.closest('#menuBtn'))setTimeout(paintLive,50);});}
   function liveRows(){return S.live.map(x=>`<button class="fklive1" data-f="watch" data-mid="${H_(x.mid)}"><i class="livedot"></i>
       <span class="fklvs"><b>${H_(x.a)}</b><em>${x.sa||0} – ${x.sb||0}</em><b>${H_(x.b)}</b></span><span class="fkwatch">👁 Watch</span></button>`).join('');}
@@ -741,6 +742,19 @@ const FF=(function(){
     const hb=el('fkHomeLive');if(hb)hb.innerHTML=n?`<button class="fkbtn watchlive" data-f="live"><i class="livedot"></i> WATCH LIVE <b>${n}</b></button>`:'';
     if(S.screen==='live'){const L=el('fkLiveList');if(L)L.innerHTML=n?liveRows():'<p class="fknote">No matches right now. Check back soon, or start one: PLAY ONLINE!</p>';}
   }
+  /* a small floating "match is live" note for 5 seconds; tap it to watch */
+  const seenLive=new Set();let firstLive=true,ltT=0;
+  function liveToast(){
+    const fresh=S.live.filter(x=>!seenLive.has(x.mid));S.live.forEach(x=>seenLive.add(x.mid));
+    const was=firstLive;firstLive=false;
+    const mine=S.mm&&!S.mm.spec?S.mm.mid:null;
+    const x=fresh.find(m=>m.mid!==mine);if(!x||busy()||(G&&G.mode==='cpu'))return;
+    if(was&&fresh.length>1)return; // page just opened: the menu badge already shows them
+    let t=el('fkLiveToast');if(!t){t=document.createElement('button');t.id='fkLiveToast';t.className='fklt';document.body.appendChild(t);}
+    t.dataset.mid=x.mid;t.innerHTML=`<i class="livedot"></i><span><b>Live now</b> ${H_(x.a)} vs ${H_(x.b)}</span><em>Watch</em>`;
+    t.classList.remove('out');t.classList.add('on');clearTimeout(ltT);ltT=setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.classList.remove('on'),300);},5000);
+  }
+  document.addEventListener('click',e=>{const t=e.target.closest('#fkLiveToast');if(!t)return;t.classList.remove('on');clearTimeout(ltT);goFull();watch(t.dataset.mid);});
   function liveScreen(){
     show('live',`${top('Live matches')}<div class="fkwait"><p class="fknote">Matches being played right now. Tap one to watch it live.</p><div class="fklivelist" id="fkLiveList"></div></div>`);paintLive();}
   function watch(mid){const d=db();if(!d)return;stopGame();if(S.mm){S.mm.ref.off();S.mm=null;}

@@ -1118,16 +1118,23 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fksetm>b{font:400 1.4rem var(--display);-webkit-text-stroke:0;color:#fff;text-shadow:none;text-transform:uppercase}
 .fkfx{position:absolute;inset:0;pointer-events:none;z-index:3}
 /* invitation popup (shows on every page of the site) */
-#ffPops{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:95;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 24px))}
-.fkpop{position:relative;overflow:hidden;background:#fff;color:#111;border-radius:20px;padding:14px 14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);animation:fkpopin .35s cubic-bezier(.2,1.4,.5,1) both}
-.fkpop.out{animation:fkpopout .3s ease both}
-@keyframes fkpopin{from{transform:translateY(30px) scale(.95);opacity:0}}@keyframes fkpopout{to{transform:translateY(20px);opacity:0}}
-.fkpophead{font:400 1.15rem var(--display);letter-spacing:.04em;color:#c40e14}
-.fkpop p{margin:6px 0 0;font-size:.95rem;line-height:1.4}.fkpopq{color:#555}
-.fkpoprow{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-top:12px}
-.fkpop .fkbtn{padding:11px 8px;font-size:.88rem;color:#111;border-color:#ddd;background:#f3f3f3}
-.fkpop .fkbtn.red{background:#e3191f;color:#fff;border-color:#e3191f}
-.fkpopbar{position:absolute;left:0;bottom:0;height:4px;width:100%;background:#e3191f;transform-origin:left;animation:fkbar linear both}
+#ffPops{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));z-index:95;display:flex;flex-direction:column;gap:6px;width:min(380px,calc(100vw - 20px))}
+.fkpop{position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;background:rgba(18,18,20,.94);color:#fff;border:1px solid rgba(227,25,31,.55);
+  border-radius:99px;padding:6px 6px 6px 10px;box-shadow:0 10px 30px rgba(0,0,0,.5);backdrop-filter:blur(8px);animation:fkpopin .3s cubic-bezier(.2,1.4,.5,1) both}
+.fkpop.out{animation:fkpopout .25s ease both}
+@keyframes fkpopin{from{transform:translateY(-16px);opacity:0}}@keyframes fkpopout{to{transform:translateY(-12px);opacity:0}}
+.fkpopic{font-size:1.1rem;flex:none}
+.fkpoptx{flex:1;min-width:0;font-size:.82rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fkpoptx b{color:#ff6b6b}
+.fkpopjoin{flex:none;border:0;border-radius:99px;background:#e3191f;color:#fff;font:700 .78rem var(--label);letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;cursor:pointer}
+.fkpopx{flex:none;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#ccc;cursor:pointer}
+.fkpopbar{position:absolute;left:0;bottom:0;height:2px;width:100%;background:#e3191f;transform-origin:left;animation:fkbar linear both}
+.fklt{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:94;display:none;align-items:center;gap:8px;max-width:calc(100vw - 24px);
+  transform:translateX(-50%);background:rgba(18,18,20,.94);color:#fff;border:1px solid rgba(255,59,59,.5);border-radius:99px;padding:8px 8px 8px 14px;
+  font-size:.82rem;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+.fklt.on{display:flex;animation:fkltin .3s ease both}.fklt.out{animation:fkltout .3s ease both}
+.fklt span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fklt b{color:#ff6b6b;margin-right:4px}
+.fklt em{font-style:normal;flex:none;background:#fff;color:#c40e14;border-radius:99px;padding:5px 11px;font:700 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase}
+@keyframes fkltin{from{transform:translate(-50%,16px);opacity:0}}@keyframes fkltout{to{transform:translate(-50%,16px);opacity:0}}
 @keyframes fkbar{to{transform:scaleX(0)}}
 @media (prefers-reduced-motion:reduce){.fkpop,.fkspin,.fkover.goal b{animation:none}}
 /* games page card */
