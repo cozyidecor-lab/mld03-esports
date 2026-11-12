@@ -27,7 +27,7 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/birthday.js`: `BIRTHDAYS={Name:'MM-DD'}` (16 players so far; owner sends more). On the day: Home banner at top,
   confetti, wishes counter (`bday/{name}/{year}` in Firebase), share, tap-to-play music-box tune, 🎂 on profile.
   No "upcoming birthdays" list (owner said no).
-- `js/ach-engine.js` + `js/achievements.js`: 57 achievements (49 + 8 Manager) (menu → Hall of fame → Achievements; summary on every profile;
+- `js/ach-engine.js` + `js/achievements.js`: 61 achievements (49 + 4 per-format wins + 8 Manager) (menu → Hall of fame → Achievements; summary on every profile;
   admin table with `?admin=1`). Engine replays every completed tournament in order and unlocks the first time a condition
   is met (stamp = that tournament), so unlocks are permanent and recalc on data fixes. Co-op: counts for appearances/
   wins/runner-ups, never goals/ratings/awards. Rating = career score (Top Ratings formula). Season-level ones need the

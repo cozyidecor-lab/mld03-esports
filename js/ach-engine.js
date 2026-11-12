@@ -44,6 +44,10 @@ const ACHE=(function(){
     ['silver-medal','Success','🥈','Silver Medal','Reach a final and finish runner-up.','Finish runner-up once',1,s=>[s.ru,1]],
     ['silver-collector','Success','🪙','Silver Collector','Five runner-up finishes.','Finish runner-up 5 times',4,s=>[s.ru,5]],
     ['serial-finalist','Success','🔁','Serial Finalist','Ten runner-up finishes.','Finish runner-up 10 times',5,s=>[s.ru,10]],
+    ['win-T','Success','🏆','Team Tour Champion','Win the Team Tour.','Win a Team Tour',2,s=>[s.winTypes.has('T')?1:0,1]],
+    ['win-A','Success','🎯','Authentic Champion','Win Solo Authentic.','Win a Solo Authentic tournament',3,s=>[s.winTypes.has('A')?1:0,1]],
+    ['win-D','Success','⭐','Dream Team Champion','Win Solo Dream Team.','Win a Solo Dream Team tournament',3,s=>[s.winTypes.has('D')?1:0,1]],
+    ['win-C','Success','🤝','Co-op Champion','Win Co-op with your partner.','Win a Co-op tournament',3,s=>[s.winTypes.has('C')?1:0,1]],
     ['four-format','Success','🧩','Four-Format Champion','Champion in every format.','Win Team Tour, Solo Authentic, Solo Dream Team and Co-op at least once',4,s=>[s.winTypes.size,4]],
     ['complete-dominance','Success','🌍','Complete Dominance','Win everything in one season.','Win all four tournaments in the same season',5,s=>[s.bestSeasonWins,4]],
     // C. Individual Awards (never Co-op)
