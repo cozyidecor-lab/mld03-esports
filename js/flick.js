@@ -21,6 +21,7 @@ const FF=(function(){
   const TS={'.sv':'timestamp'};
   const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
   const S={screen:null,me:null,popups:{},ignored:new Set(),sound:LS.get('ff.sound',true),ranks:null};
+  const GOD=new Set(['-P60SA0R5I7J-Z69qk1n']);const meGod=()=>S.me&&GOD.has(S.me.id); // personal aim-line, kept out of the leaderboard
   let DB=null,skew=0;
   const db=()=>{if(!DB&&typeof NET!=='undefined'){DB=NET.db();if(DB)DB.ref('.info/serverTimeOffset').on('value',s=>{skew=s.val()||0;});}return DB;};
   const now=()=>Date.now()+skew;
@@ -52,7 +53,7 @@ const FF=(function(){
     remember({id,name:p.name});}
   async function loadPlayers(){const d=db();if(!d)return [];try{const v=(await d.ref('ff/players').get()).val()||{};
     return Object.entries(v).map(([id,p])=>({id,mld:p.mld||null,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
-  const sortBoard=L=>L.filter(p=>p.m>0||p.w+p.l>0).sort((a,b)=>b.w-a.w||(b.w/Math.max(1,b.w+b.l))-(a.w/Math.max(1,a.w+a.l))||a.l-b.l||a.name.localeCompare(b.name));
+  const sortBoard=L=>L.filter(p=>!GOD.has(p.id)&&(p.m>0||p.w+p.l>0)).sort((a,b)=>b.w-a.w||(b.w/Math.max(1,b.w+b.l))-(a.w/Math.max(1,a.w+a.l))||a.l-b.l||a.name.localeCompare(b.name));
 
   /* ================= overlay + screens ================= */
   let root;
@@ -371,6 +372,23 @@ const FF=(function(){
     c.fillStyle='#111';c.beginPath();for(let k=0;k<5;k++){const a=-Math.PI/2+k*2*Math.PI/5;c.lineTo(bx+Math.cos(a)*br*.42,by+Math.sin(a)*br*.42);}c.closePath();c.fill();
     for(let k=0;k<5;k++){const a=-Math.PI/2+k*2*Math.PI/5;c.beginPath();c.arc(bx+Math.cos(a)*br*.95,by+Math.sin(a)*br*.95,br*.22,0,7);c.fill();}
   }
+  let godPath=null; // Yadav's full-shot preview (ball + disc), computed with the real physics
+  function predict(){
+    if(!meGod()||!aim||!aim.p||!isMyTurn()){godPath=null;return;}
+    const sh=shotFromAim(aim);if(!sh){godPath=null;return;}
+    try{const res=E.simulate(G.v.st,sh,{frames:true}),fr=res.frames,bp=[],dp=[];
+      for(let i=0;i<fr.length;i+=2){bp.push([fr[i][0],fr[i][1]]);dp.push([fr[i][2*sh.d],fr[i][2*sh.d+1]]);}
+      bp.push([res.final[0],res.final[1]]);dp.push([res.final[2*sh.d],res.final[2*sh.d+1]]);
+      godPath={bp,dp,goal:res.goal};}catch(e){godPath=null;}
+  }
+  function drawGodPath(c){
+    if(!godPath)return;const s=V.s,line=(pts,col,w,dash)=>{if(pts.length<2)return;c.save();c.setLineDash(dash||[]);c.strokeStyle=col;c.lineWidth=w;c.lineJoin='round';c.beginPath();
+      pts.forEach((p,i)=>{const[x,y]=toScreen(p[0],p[1]);i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();c.restore();};
+    line(godPath.dp,'rgba(255,255,255,.5)',Math.max(1.5,2.5*s),[5,5]);
+    line(godPath.bp,godPath.goal?'#3ad06a':'#ffd23f',Math.max(2.5,4*s),[]);
+    const end=godPath.bp[godPath.bp.length-1],[ex,ey]=toScreen(end[0],end[1]);
+    c.fillStyle=godPath.goal?'#3ad06a':'#ffd23f';c.beginPath();c.arc(ex,ey,Math.max(4,6*s),0,7);c.fill();
+  }
   function drawAim(c,A){
     if(!A||!A.p)return;const s=V.s,[dx,dy]=[G.v.st[2*A.d],G.v.st[2*A.d+1]],[sx,sy]=toScreen(dx,dy);
     const [px,py]=toScreen(A.p[0],A.p[1]);const sh=shotFromAim(A);
@@ -391,7 +409,7 @@ const FF=(function(){
     if(G.anim){const a=G.anim,k=Math.min(a.frames.length-1,Math.floor((t-(a.t0||(a.t0=t)))/(1000/120)));
       pos=a.frames[k]||pos;while(a.ev<a.events.length&&a.events[a.ev].s<=k){const e=a.events[a.ev++];sfx(e.k,e.v);}
       if(k>=a.frames.length-1){G.anim=null;a.done&&a.done();pos=G.v.st;}}
-    ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,cv.width,cv.height);drawPitch(ctx);drawBodies(ctx,pos,t);drawAim(ctx,aim);if(G.spec&&G.specAim&&!G.anim)drawAim(ctx,G.specAim);
+    ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,cv.width,cv.height);drawPitch(ctx);drawBodies(ctx,pos,t);if(meGod()&&aim&&aim.p&&!G.anim)drawGodPath(ctx);drawAim(ctx,aim);if(G.spec&&G.specAim&&!G.anim)drawAim(ctx,G.specAim);
   }
   function hud(){
     if(!G)return;const v=G.v,o=E.other(G.my),n=clockNow();
@@ -449,9 +467,9 @@ const FF=(function(){
     cv.onpointerdown=e=>{if(!isMyTurn())return;const p=pt(e);let best=null,bd=1e9;
       E.TEAM[G.my].forEach(i=>{const dx=G.v.st[2*i]-p[0],dy=G.v.st[2*i+1]-p[1],d=dx*dx+dy*dy;if(d<bd){bd=d;best=i;}});
       if(best==null||bd>(E.R*2.1)**2)return;aim={d:best,p:null};cv.setPointerCapture(e.pointerId);e.preventDefault();};
-    cv.onpointermove=e=>{if(!aim)return;aim.p=pt(e);sendAim();};
-    const up=e=>{if(!aim)return;const sh=shotFromAim();aim=null;sendAim(true);if(sh&&isMyTurn())shoot(sh);};
-    cv.onpointerup=up;cv.onpointercancel=()=>{aim=null;sendAim(true);};
+    cv.onpointermove=e=>{if(!aim)return;aim.p=pt(e);sendAim();if(meGod())predict();};
+    const up=e=>{if(!aim)return;const sh=shotFromAim();aim=null;godPath=null;sendAim(true);if(sh&&isMyTurn())shoot(sh);};
+    cv.onpointerup=up;cv.onpointercancel=()=>{aim=null;godPath=null;sendAim(true);};
   }
   let aimT=0;
   function sendAim(clear){ // aim line for spectators: ~8 updates a second, only while someone watches
@@ -596,6 +614,7 @@ const FF=(function(){
   }
   async function record(m,ref){ // exactly once per public match (database transaction on "rec")
     const d=db();if(!d||!m.a||!m.b||!m.winner||m.noscore)return;
+    if(GOD.has(m.a.id)||GOD.has(m.b.id))return; // matches with Yadav are never written to the leaderboard
     try{const r=await ref.child('rec').transaction(c=>c?undefined:true);if(!r.committed)return;
       const win=m[m.winner].id,lose=m[E.other(m.winner)].id;
       await Promise.all([[win,true],[lose,false]].map(([id,won])=>d.ref('ff/players/'+id).transaction(p=>{if(!p)return p;
