@@ -44,10 +44,22 @@ const ACHE=(function(){
     ['silver-medal','Success','🥈','Silver Medal','Reach a final and finish runner-up.','Finish runner-up once',1,s=>[s.ru,1]],
     ['silver-collector','Success','🪙','Silver Collector','Five runner-up finishes.','Finish runner-up 5 times',4,s=>[s.ru,5]],
     ['serial-finalist','Success','🔁','Serial Finalist','Ten runner-up finishes.','Finish runner-up 10 times',5,s=>[s.ru,10]],
-    ['win-T','Success','🏆','Team Tour Champion','Win the Team Tour.','Win a Team Tour',2,s=>[s.winTypes.has('T')?1:0,1]],
-    ['win-A','Success','🎯','Authentic Champion','Win Solo Authentic.','Win a Solo Authentic tournament',3,s=>[s.winTypes.has('A')?1:0,1]],
-    ['win-D','Success','⭐','Dream Team Champion','Win Solo Dream Team.','Win a Solo Dream Team tournament',3,s=>[s.winTypes.has('D')?1:0,1]],
-    ['win-C','Success','🤝','Co-op Champion','Win Co-op with your partner.','Win a Co-op tournament',3,s=>[s.winTypes.has('C')?1:0,1]],
+    ['win-T1','Success','🏆','Team Tour Champion','Win Team Tour.','Win Team Tour once',1,s=>[s.winBy.T||0,1]],
+    ['win-T2','Success','🏆','Team Tour Double Champion','Two Team Tour titles.','Win Team Tour 2 times',2,s=>[s.winBy.T||0,2]],
+    ['win-T3','Success','🏆','Team Tour Triple Champion','Three Team Tour titles.','Win Team Tour 3 times',3,s=>[s.winBy.T||0,3]],
+    ['win-T5','Success','🏆','Team Tour Five-Time Champion','Five Team Tour titles.','Win Team Tour 5 times',4,s=>[s.winBy.T||0,5]],
+    ['win-A1','Success','🎯','Authentic Champion','Win Solo Authentic.','Win Solo Authentic once',2,s=>[s.winBy.A||0,1]],
+    ['win-A2','Success','🎯','Authentic Double Champion','Two Solo Authentic titles.','Win Solo Authentic 2 times',3,s=>[s.winBy.A||0,2]],
+    ['win-A3','Success','🎯','Authentic Triple Champion','Three Solo Authentic titles.','Win Solo Authentic 3 times',4,s=>[s.winBy.A||0,3]],
+    ['win-A5','Success','🎯','Authentic Five-Time Champion','Five Solo Authentic titles.','Win Solo Authentic 5 times',5,s=>[s.winBy.A||0,5]],
+    ['win-D1','Success','⭐','Dream Team Champion','Win Solo Dream Team.','Win Solo Dream Team once',2,s=>[s.winBy.D||0,1]],
+    ['win-D2','Success','⭐','Dream Team Double Champion','Two Solo Dream Team titles.','Win Solo Dream Team 2 times',3,s=>[s.winBy.D||0,2]],
+    ['win-D3','Success','⭐','Dream Team Triple Champion','Three Solo Dream Team titles.','Win Solo Dream Team 3 times',4,s=>[s.winBy.D||0,3]],
+    ['win-D5','Success','⭐','Dream Team Five-Time Champion','Five Solo Dream Team titles.','Win Solo Dream Team 5 times',5,s=>[s.winBy.D||0,5]],
+    ['win-C1','Success','🤝','Co-op Champion','Win Co-op.','Win Co-op once',2,s=>[s.winBy.C||0,1]],
+    ['win-C2','Success','🤝','Co-op Double Champion','Two Co-op titles.','Win Co-op 2 times',3,s=>[s.winBy.C||0,2]],
+    ['win-C3','Success','🤝','Co-op Triple Champion','Three Co-op titles.','Win Co-op 3 times',4,s=>[s.winBy.C||0,3]],
+    ['win-C5','Success','🤝','Co-op Five-Time Champion','Five Co-op titles.','Win Co-op 5 times',5,s=>[s.winBy.C||0,5]],
     ['four-format','Success','🧩','Four-Format Champion','Champion in every format.','Win Team Tour, Solo Authentic, Solo Dream Team and Co-op at least once',4,s=>[s.winTypes.size,4]],
     ['complete-dominance','Success','🌍','Complete Dominance','Win everything in one season.','Win all four tournaments in the same season',5,s=>[s.bestSeasonWins,4]],
     // C. Individual Awards (never Co-op)
@@ -105,7 +117,7 @@ const ACHE=(function(){
     opt=opt||{};
     const players=(D.players||[]).filter(p=>!p.side).map(p=>p.n);
     const S={};
-    const st=n=>S[n]||(S[n]={n,apps:0,tours:new Set(),goals:0,rows:0,rSum:0,rN:0,cs:0,csPeak:0,bestRank:null,rank:null,wins:0,ru:0,winTypes:new Set(),winsBySeason:{},bestSeasonWins:0,
+    const st=n=>S[n]||(S[n]={n,apps:0,tours:new Set(),goals:0,rows:0,rSum:0,rN:0,cs:0,csPeak:0,bestRank:null,rank:null,wins:0,ru:0,winTypes:new Set(),winBy:{},winsBySeason:{},bestSeasonWins:0,
       boots:0,balls:0,sboots:0,sballs:0,doubleGlory:0,seasonBoth:0,awardsN:0,awardSeasons:new Set(),awardFormats:new Set(),bootSeasons:new Set(),ballSeasons:new Set(),bootStreak:0,ballStreak:0,
       bootFmt:{},ballFmt:{},bestBootSeason:0,bestBallSeason:0,dorBest:null,dorWins:0,mgApps:0,mgSeasons:new Set(),mgFinals:0,mgWins:0,mgWinSeasons:new Set(),mgStreak:0,playerT:0,unlocked:{}});
     players.forEach(st);
@@ -136,7 +148,7 @@ const ACHE=(function(){
       T.tro.forEach(r=>{const x=st(r[2]);
         if(T.t==='C'&&(r[3]==='Player Trophy'||r[3]==='Runner-up')&&!x.tours.has(key(T.s,T.t))){x.tours.add(key(T.s,T.t));x.apps++;} // Co-op players are known from the results
         if(r[3]==='Player Trophy'&&T.t==='T')x.playerT++;
-        if(r[3]==='Player Trophy'){x.wins++;x.winTypes.add(T.t);(x.winsBySeason[T.s]=x.winsBySeason[T.s]||new Set()).add(T.t);}
+        if(r[3]==='Player Trophy'){x.wins++;x.winTypes.add(T.t);x.winBy[T.t]=(x.winBy[T.t]||0)+1;(x.winsBySeason[T.s]=x.winsBySeason[T.s]||new Set()).add(T.t);}
         else if(r[3]==='Runner-up')x.ru++;});
       // managers (Team Tour only): data.managers rows [season, team, name] when recorded, plus the winning
       // manager from the Manager Trophy records. A manager's team in the final earns 'Final Whistle'.
