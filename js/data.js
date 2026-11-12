@@ -46,11 +46,12 @@ window.MLD_DATA.managers=[
   [13,'Bayern','WaCky'],[13,'Barcelona','Pranav'],[13,'Man City','Rmees'],[13,'Man United','Zainudheen'],[13,'Real Madrid','Shiyas'],[13,'AC Milan','Razin']];
 
 /* Co-op Tour line-ups: [season, team, player1, player2]. Names as sent by the owner; mapped to database names
-   where confirmed (Derry = Vishnu, Not Black = Notblack, Zayid = Zayidali Nahyan, Karthik = Karthik G, Sahad = existing Sahad).
-   Najil, Rizan and Flento are not in the database yet (to be confirmed), so they are not counted anywhere.
+   where confirmed (Derry = Vishnu, Not Black = Notblack, Zayid = Zayidali Nahyan, Karthik = Karthik G (to confirm),
+   "Sahad" in Co-op = Goal Wol ve (his real name; NOT the existing Sahad)). Najil, Rizan (not Razin) and Flento are new
+   players: they join the database with their first individual tournament stats, and this Co-op appearance then counts.
    Co-op counts as a tournament appearance in the achievements; never for goals, ratings or awards. */
 window.MLD_DATA.coop=[
   [13,'Southside','WaCky','Nezel'],[13,'Kattakada','Harris','Siyan'],[13,'Andimukk FC','Arjun','Rasim'],[13,'La Peace','Sreedev','Vishnu'],
-  [13,'Poolamangalam Kings','Eleven','Sahad'],[13,'La Masia','Notblack','Didhi'],[13,'MJ FC','Millaj','Junaid Ansari'],[13,'El Bicho','Aadil','Najil'],
+  [13,'Poolamangalam Kings','Eleven','Goal Wol ve'],[13,'La Masia','Notblack','Didhi'],[13,'MJ FC','Millaj','Junaid Ansari'],[13,'El Bicho','Aadil','Najil'],
   [13,'Randennam','Arun','Farza'],[13,'Akatsuki','Midhun','Cijin'],[13,'Neverlusen','Salman','Ashik'],[13,'Rock & Roll','Zayidali Nahyan','Rizan'],
   [13,'Dynamic Duo','Kriz','Flento'],[13,'Anthappan FC','Adarsh','Karthik G'],[13,'Salsa','Joyal','Diyan'],[13,'Mia San Mia','Rashid','Hijjas']];
