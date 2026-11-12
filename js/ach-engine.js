@@ -74,10 +74,10 @@ const ACHE=(function(){
     ['season-boot','Awards','🎇','Season\'s Top Scorer','Top scorer of a whole season.','Win the season-wide Golden Boot',4,s=>[s.sboots,1]],
     ['season-dominator','Awards','👁️','Season Dominator','Owned an entire season.','Win the season-wide Golden Boot and Golden Ball in the same season',5,s=>[s.seasonBoth,1]],
     // D. Rating (the all-time rating on the Top Ratings page: avg rating × ln(1 + tournaments))
-    ['rated-20','Rating','📈','Rated Player','Reach an all-time rating of 20.','All-time rating 20 (unlocks for good once reached)',1,s=>[s.csPeak,20]],
-    ['rated-30','Rating','📊','Elite Rating','Reach an all-time rating of 30.','All-time rating 30 (unlocks for good once reached)',2,s=>[s.csPeak,30]],
-    ['rated-40','Rating','💹','Master Rating','Reach an all-time rating of 40.','All-time rating 40 (unlocks for good once reached)',3,s=>[s.csPeak,40]],
-    ['rated-50','Rating','🚀','Legendary Rating','Reach an all-time rating of 50.','All-time rating 50 (unlocks for good once reached)',4,s=>[s.csPeak,50]],
+    ['rated-20','Rating','📈','Rated Player','Reach an average rating of 20.','Average rating 20 (unlocks for good once reached)',1,s=>[s.csPeak,20]],
+    ['rated-30','Rating','📊','Elite Rating','Reach an average rating of 30.','Average rating 30 (unlocks for good once reached)',2,s=>[s.csPeak,30]],
+    ['rated-40','Rating','💹','Master Rating','Reach an average rating of 40.','Average rating 40 (unlocks for good once reached)',3,s=>[s.csPeak,40]],
+    ['rated-50','Rating','🚀','Legendary Rating','Reach an average rating of 50.','Average rating 50 (unlocks for good once reached)',4,s=>[s.csPeak,50]],
     ['rating-top10','Rating','🔟','Rating Top 10','Break into the all-time rating top 10.','Reach the top 10 of the Top Ratings leaderboard (unlocks for good)',3,s=>[s.bestRank&&s.bestRank<=10?1:0,1]],
     // E. Consistency & Special
     ['award-regular','Special','📆','Award Regular','Individual awards across three seasons.','Win individual awards in 3 different seasons',4,s=>[s.awardSeasons.size,3]],

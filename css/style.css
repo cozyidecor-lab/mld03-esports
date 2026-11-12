@@ -1287,3 +1287,5 @@ button.acrec{cursor:pointer}
 .acplm{display:flex;flex-direction:column;gap:5px;min-width:0}
 .acpln{display:flex;justify-content:space-between;gap:8px}.acpln b{font:700 .95rem var(--label);text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acpln small{color:var(--muted);flex:none}
+
+.acnote{margin:-6px 0 10px;font-size:.76rem;color:var(--muted);line-height:1.4}

@@ -41,7 +41,7 @@
   function grid(items,mode){
     const by={};items.filter(pass).forEach(z=>(by[z.a.cat]=by[z.a.cat]||[]).push(z));
     const out=ACHE.CATS.filter(c=>by[c]).map(c=>{const g=by[c],u=g.filter(z=>z.unlocked).length;
-      return `<h2 class="sec">${ACHE.CAT_NAME[c]} <small>${mode==='player'?`${u} / ${g.length}`:`${g.length}`}</small></h2><div class="acgrid">${g.map(z=>card(z,mode)).join('')}</div>`;}).join('');
+      return `<h2 class="sec">${ACHE.CAT_NAME[c]} <small>${mode==='player'?`${u} / ${g.length}`:`${g.length}`}</small></h2>${c==='Rating'?'<p class="acnote">Note: this is not a simple average of match ratings. It goes up with both how well you play and how many tournaments you play.</p>':''}<div class="acgrid">${g.map(z=>card(z,mode)).join('')}</div>`;}).join('');
     return out||'<p class="note">Nothing matches these filters.</p>';
   }
   function playerPicker(){return `<div class="acpick"><label class="search" for="acQ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
