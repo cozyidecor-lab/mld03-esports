@@ -144,6 +144,9 @@ const ACHE=(function(){
       // appearances (Co-op too); goals and ratings only outside Co-op
       T.rows.forEach(r=>{const x=st(r[2]);if(!x.tours.has(key(T.s,T.t))){x.tours.add(key(T.s,T.t));x.apps++;}
         if(T.t!=='C'){x.rows++;x.goals+=r[4]||0;if(r[5]!=null){x.rSum+=r[5];x.rN++;}}});
+      // Co-op line-ups (data.coop): every listed player who is in the database takes part
+      if(T.t==='C')(D.coop||[]).filter(c=>c[0]===T.s).forEach(c=>[c[2],c[3]].forEach(n=>{if(!players.includes(n))return;const x=st(n);
+        if(!x.tours.has(key(T.s,T.t))){x.tours.add(key(T.s,T.t));x.apps++;}}));
       // results: winners and runner-ups (Co-op pairs and Team Tour squads included; managers are not players)
       T.tro.forEach(r=>{const x=st(r[2]);
         if(T.t==='C'&&(r[3]==='Player Trophy'||r[3]==='Runner-up')&&!x.tours.has(key(T.s,T.t))){x.tours.add(key(T.s,T.t));x.apps++;} // Co-op players are known from the results

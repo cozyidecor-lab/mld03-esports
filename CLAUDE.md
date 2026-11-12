@@ -32,6 +32,7 @@ The owner is not technical: explain in simple words, never delete existing stats
   is met (stamp = that tournament), so unlocks are permanent and recalc on data fixes. Co-op: counts for appearances/
   wins/runner-ups, never goals/ratings/awards. Rating = career score (Top Ratings formula). Season-level ones need the
   season final (S1–12 always; S13+ once `seasonAwards` has the season). d'Or editions: `editions` in evaluate (1st = S1–12).
+  Co-op line-ups: `MLD_DATA.coop` [season, team, p1, p2] (end of data.js); only names in the database count.
   Managers exist ONLY from Season 12 on (S1–11 had none). Only winning managers are recorded so far (Manager Trophy / finals.mg);
   Full S12 + S13 manager lists are in data.js (`MLD_DATA.managers`, appended at the end of the file). Owner may send full lists → add
   `managers:[[season,'Team','Name'],...]` to MLD_DATA; engine uses it for appearances and finals automatically.
@@ -54,7 +55,9 @@ The owner is not technical: explain in simple words, never delete existing stats
   Turbo) and the PIN lock were removed.
 
 ## Adding a finished tournament (the usual job)
-0. PENDING (S14 Solo Authentic): when its stats arrive, add new players Hudaifa (Mandi side-quest winner, game profile
+0. PENDING: confirm Co-op S13 names Najil, Rizan (Razin?), Flento (not in DB), Zayid=Zayidali Nahyan, Karthik=Karthik G?,
+   Sahad = existing Sahad?; Pranav has two S2 Team Tour rows (France 25/20, Italy 16/10): owner says duplicate, ask which to keep.
+   (S14 Solo Authentic): when its stats arrive, add new players Hudaifa (Mandi side-quest winner, game profile
    "Hudaif") and T-REX (game profile "T-REX") to the database. Do NOT add them before the owner sends the stats.
 1. ADD rows; never remove old ones. Append `log` rows for every player, add `trophies` (Player Trophy /
    Runner-up / Manager Trophy / places), `awards` row (Golden Boot & Ball for that tour), and for Team Tour a

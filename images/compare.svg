@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#1b3a5c"/><stop offset=".5" stop-color="#151518"/><stop offset="1" stop-color="#5c0d12"/></linearGradient>
+    <clipPath id="argc"><path d="M14 40l14-10h12a8 8 0 0016 0h0l-1 0h1l14 10-6 12-7-3v41H27V49l-7 3z"/></clipPath>
+  </defs>
+  <rect width="120" height="120" rx="22" fill="url(#bg)"/>
+  <!-- Argentina: sky-blue and white stripes, number 10 -->
+  <g transform="translate(-6 4)">
+    <g clip-path="url(#argc)">
+      <rect x="10" y="26" width="70" height="70" fill="#fff"/>
+      <rect x="27" y="26" width="7" height="70" fill="#75aadb"/><rect x="41" y="26" width="7" height="70" fill="#75aadb"/><rect x="55" y="26" width="7" height="70" fill="#75aadb"/>
+      <rect x="10" y="26" width="10" height="70" fill="#75aadb"/>
+    </g>
+    <path d="M14 40l14-10h12a8 8 0 0016 0l14 10-6 12-7-3v41H27V49l-7 3z" fill="none" stroke="#0d2740" stroke-width="2" stroke-linejoin="round"/>
+    <text x="42" y="73" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="20" text-anchor="middle" fill="#0d2740">10</text>
+  </g>
+  <!-- Portugal: red with green trim, number 7 -->
+  <g transform="translate(46 22) scale(.9)">
+    <path d="M14 40l14-10h12a8 8 0 0016 0l14 10-6 12-7-3v41H27V49l-7 3z" fill="#c8102e" stroke="#4a050c" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M40 30a8 8 0 0016 0" fill="none" stroke="#046a38" stroke-width="3.5"/>
+    <path d="M27 49v4M69 49v4" stroke="#046a38" stroke-width="3"/>
+    <text x="48" y="76" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="24" text-anchor="middle" fill="#ffd23f" stroke="#4a050c" stroke-width=".8">7</text>
+  </g>
+  <!-- VS -->
+  <circle cx="60" cy="98" r="13" fill="#fff"/>
+  <text x="60" y="103" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="13" text-anchor="middle" fill="#e3191f">VS</text>
+</svg>
