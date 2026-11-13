@@ -29,10 +29,15 @@
   const share=(arr,v)=>{ // 1 = best in the field, 0 = last
     const vals=arr.filter(x=>x!=null);if(v==null||vals.length<2)return null;
     const better=vals.filter(x=>x>v).length,same=vals.filter(x=>x===v).length-1;return 1-(better+same/2)/(vals.length-1);};
+  /* how far you went in the tournament gives a small form bonus (a finalist edges a non-finalist with
+     slightly better raw stats). Only the champion, runner-up and recorded 3rd–5th places are known. */
+  const RESULT_BONUS={'Player Trophy':0.10,'Runner-up':0.06,'3rd Place':0.03,'4th Place':0.02,'5th Place':0.01};
+  const resBonus={};(D.trophies||[]).forEach(t=>{const bn=RESULT_BONUS[t[3]];if(bn==null)return;const k=t[0]+'|'+t[1]+'|'+t[2];resBonus[k]=Math.max(resBonus[k]||0,bn);});
   const perf={};
   list.forEach(t=>{
     const G=t.rows.map(r=>r[4]),R=t.rows.map(r=>r[5]);
-    const scored=t.rows.map(r=>{const a=share(G,r[4]),b=share(R,r[5]);const p=[a,b].filter(x=>x!=null);return {r,v:p.length?p.reduce((x,y)=>x+y,0)/p.length:null};});
+    const scored=t.rows.map(r=>{const a=share(G,r[4]),b=share(R,r[5]);const p=[a,b].filter(x=>x!=null);
+      let v=p.length?p.reduce((x,y)=>x+y,0)/p.length:null;if(v!=null)v+=(resBonus[t.s+'|'+t.ty+'|'+r[2]]||0);return {r,v};});
     const ranked=scored.filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
     scored.forEach(x=>{if(x.v==null)return;(perf[x.r[2]]=perf[x.r[2]]||[]).push({s:t.s,ty:t.ty,team:x.r[3],g:x.r[4],rt:x.r[5],v:x.v,place:ranked.indexOf(x)+1,field:ranked.length,o:order(t.s,t.ty)});});
   });
