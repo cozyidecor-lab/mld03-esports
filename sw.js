@@ -7,3 +7,10 @@ self.addEventListener('fetch',e=>{
   e.respondWith(fetch(r).then(res=>{if(res.ok){const c=res.clone();caches.open(CACHE).then(x=>x.put(r,c));}return res;})
     .catch(()=>caches.match(r).then(m=>m||caches.match('/'))));
 });
+self.addEventListener('notificationclick',e=>{e.notification.close();
+  const url=(e.notification.data&&e.notification.data.url)||'/';
+  e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
+    for(const c of cs){if('focus'in c){try{c.navigate&&c.navigate(url);}catch(err){}return c.focus();}}
+    if(clients.openWindow)return clients.openWindow(url);
+  }));
+});

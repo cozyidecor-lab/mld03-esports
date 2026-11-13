@@ -203,7 +203,7 @@ const FF=(function(){
     const q=d.ref('ff/invites').orderByChild('ts').startAt(now()-INVITE_MS-5000);
     const upd=s=>{const v=s.val(),id=s.key;if(!v)return hidePopup(id);
       const fresh=now()-(v.ts||now())<INVITE_MS;
-      if(v.status==='open'&&fresh&&v.dev!==dev&&!(S.me&&v.by===S.me.id)&&!S.ignored.has(id)&&!busy()&&!(G&&G.mode==='cpu'))showPopup(id,v);else hidePopup(id);};
+      if(v.status==='open'&&fresh&&v.dev!==dev&&!(S.me&&v.by===S.me.id)&&!S.ignored.has(id)&&!busy()&&!(G&&G.mode==='cpu')){showPopup(id,v);notifyInvite(id,v);}else hidePopup(id);};
     q.on('child_added',upd);q.on('child_changed',upd);q.on('child_removed',s=>hidePopup(s.key));
     setInterval(()=>{Object.entries(S.popups).forEach(([id,p])=>{if(now()-p.t>INVITE_MS||busy())hidePopup(id);});},1000);
   }
@@ -779,6 +779,26 @@ const FF=(function(){
   function watch(mid){const d=db();if(!d)return;stopGame();if(S.mm){S.mm.ref.off();S.mm=null;}
     mount();const ref=d.ref('ff/matches/'+mid);S.mm={mid,my:'a',ref,t0:Date.now(),spec:true};ref.on('value',s=>onMatch(s.val()));}
   function stopWatching(){if(S.mm){S.mm.ref.off();S.mm=null;}stopGame();homeScreen();}
+  /* ---- phone notifications (free, no server): only fire while the site is open in the background ---- */
+  function askNotif(){
+    if(!('Notification'in window)||Notification.permission!=='default'||LS.get('ff.notifAsked',false))return;
+    LS.set('ff.notifAsked',true);try{Notification.requestPermission().catch(()=>{});}catch(e){try{Notification.requestPermission(()=>{});}catch(e2){}}
+  }
+  let notifSeen={};
+  function notifyInvite(id,v){
+    if(!('Notification'in window)||Notification.permission!=='granted'||!document.hidden)return; // in-site popup covers the foreground
+    if(notifSeen[id])return;notifSeen[id]=1;
+    const body=`${v.name||'Someone'} is looking for an opponent — tap to join!`;
+    try{navigator.serviceWorker.ready.then(reg=>reg.showNotification('⚽ MLD Football Flick',
+      {body,tag:'ff-invite',renotify:true,icon:'images/app-icon-192.png',badge:'images/app-icon-192.png',
+       data:{url:location.origin+'/?ffjoin='+encodeURIComponent(id)}}).catch(()=>{}));}catch(e){}
+  }
+  // ask once, on the first tap anywhere on the site
+  document.addEventListener('click',function once(){askNotif();document.removeEventListener('click',once);},{once:true});
+  // opened from a tapped notification: auto-join that match
+  (function(){const j=new URLSearchParams(location.search).get('ffjoin');if(!j)return;
+    try{const u=new URL(location.href);u.searchParams.delete('ffjoin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}
+    setTimeout(()=>{goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(j);else profileScreen(()=>join(j));},2600);})();
   setTimeout(()=>{if(db()){listenInvites();listenLive();}},1500);
   return {open,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
 })();
