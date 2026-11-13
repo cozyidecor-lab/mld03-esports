@@ -231,7 +231,7 @@ document.addEventListener('click',e=>{
   const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
 });
 const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</th><th>Event</th><th>Team</th><th class="num">Goals</th><th class="num">Rating</th></tr></thead><tbody>
-  ${rows.map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
+  ${rows.slice().sort((a,b)=>b[0]-a[0]||(({A:0,C:1,D:2,T:3})[b[1]]||0)-(({A:0,C:1,D:2,T:3})[a[1]]||0)).map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
 
 
 /* ---- mini games: MLD Football Flick (js/flick.js + js/flick-engine.js) ---- */

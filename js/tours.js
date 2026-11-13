@@ -15,7 +15,7 @@
   const st={T:{s:null,open:null},D:{s:null,open:null},A:{s:null,open:null},C:{s:null,open:null}};
   const CUP='<svg class="tcup" aria-hidden="true"><use href="#t-team"/></svg>';
   const H=s=>esc(s);
-  const seasonsOf=ty=>[...new Set([...D.log.filter(r=>r[1]===ty).map(r=>r[0]),...D.trophies.filter(t=>t[1]===ty).map(t=>t[0])])].sort((a,b)=>a-b);
+  const seasonsOf=ty=>[...new Set([...D.log.filter(r=>r[1]===ty).map(r=>r[0]),...D.trophies.filter(t=>t[1]===ty).map(t=>t[0])])].sort((a,b)=>b-a);
   const tro=(ty,s,role)=>D.trophies.filter(t=>t[0]===s&&t[1]===ty&&t[3]===role).map(t=>t[2]);
   const award=(ty,s)=>D.awards.find(a=>a[0]===s&&a[1]===ty);
   const pl=n=>`<button class="pl" data-p="${H(n)}">${H(n)}</button>`;
