@@ -8,7 +8,7 @@
   /* real photographs only; add future ones here: PHOTOS[type][season] = {winner, runner} */
   const PHOTOS={
     T:{13:{winner:'images/tournaments/s13-team-champions-barcelona.jpg',runner:'images/tournaments/s13-team-runners-up-real-madrid.jpg'}},
-    A:{13:{winner:'images/tournaments/s13-solo-authentic-champion-ashik.jpg'}},
+    A:{13:{winner:'images/tournaments/s13-solo-authentic-champion-ashik.jpg'},14:{winner:'images/tournaments/s14-solo-authentic-champion-trex.jpg'}},
     C:{13:{winner:'images/tournaments/s13-coop-champions-harris-siyan.jpg'}},
     D:{}
   };

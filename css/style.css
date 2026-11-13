@@ -1296,3 +1296,8 @@ button.acrec{cursor:pointer}
 .acpln small{color:var(--muted);flex:none}
 
 .acnote{margin:-6px 0 10px;font-size:.76rem;color:var(--muted);line-height:1.4}
+
+/* home champion poster */
+.poster.champ{cursor:pointer;border:1px solid rgba(240,195,74,.5);border-radius:20px;overflow:hidden;margin:4px 0 12px}
+.poster.champ img{width:100%;display:block}
+.pill.gold{background:linear-gradient(135deg,#9b6514,#f7d774 45%,#e0a93a);color:#2a1a02}

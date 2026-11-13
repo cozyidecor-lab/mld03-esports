@@ -6,7 +6,7 @@
 (function(){
   const UCL=[['League phase',.45],['Knockout play-offs',.15],['Round of 16',.15],['Quarter-finals',.12],['Semi-finals',.08],['Final',.05]];
   const SEASON_NOW={s:14,tours:[
-    {k:'A',name:'Solo Authentic',sym:'#t-auth',stages:UCL,stage:4},
+    {k:'A',name:'Solo Authentic',sym:'#t-auth',stages:UCL,stage:'done'},
     {k:'C',name:'Co-op',sym:'#t-coop',stages:[['Group stage',.6],['Knockouts',.3],['Final',.1]],stage:null},
     {k:'D',name:'Solo Dream Team',sym:'#t-dream',stages:[['Group stage',.6],['Knockouts',.3],['Final',.1]],stage:null},
     {k:'T',name:'Team Tour',sym:'#t-team',stages:[['League',.6],['Knockouts',.3],['Final',.1]],stage:null}]};
