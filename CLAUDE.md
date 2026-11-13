@@ -48,7 +48,9 @@ The owner is not technical: explain in simple words, never delete existing stats
   turn: checks turn number + side + positions, stores flick + before/after state), `mping` (presence), `results`
   (public results for weekly/monthly boards), `live` (matches in progress: menu badge "N matches live", Live now list on
   Mini Games, Watch), `spec/{mid}/{dev}` (spectators → 👁 N for players), `aim/{mid}` (player's aim line, sent ~8/s only
-  while someone watches). Invites = small pills at the top (max 2). A new live match shows a 5 s floating "Live now · Watch"
+  while someone watches). Invites = small pills at the top (max 2); they also fire a PHONE notification via the service worker
+  (free, no server: only while the site is open in the background; permission asked on first tap; tap the notification → `/?ffjoin=<id>`
+  auto-joins; sw.js has `notificationclick`). A new live match shows a 5 s floating "Live now · Watch"
   toast (#fkLiveToast) on every page; tap = spectate. Profiles link to an MLD database player (`players/{id}/mld`, picked while
   typing the name, or asked once for older profiles); that player's photo is drawn on all 4 of their discs. Clock/turn timers use Firebase server time. CSS classes use the `fk`
   prefix (Fun Facts owns `ff*` classes). `js/net.js`: shared Firebase connection (likes + game).
