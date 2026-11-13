@@ -40,7 +40,7 @@
   add('roast',()=>{const zero=L.filter(r=>r[4]===0);if(!zero.length)return null;
     return {e:'🥅',h:'The net is still waiting',big:0,sm:'goals in a whole tournament',who:zero.map(r=>r[2]),
       t:zero.length===1?`${zero[0][2]} played the entire S${zero[0][0]} ${TN[zero[0][1]]} and scored 0 goals. Not one. The ball is still waiting for an introduction.`
-        :`${zero.map(r=>`${r[2]} (S${r[0]} ${TN[r[1]]})`).join(' and ')} each finished a whole tournament with 0 goals. MLD's official ghost strikers.`};});
+        :`${zero.length} players have finished a whole MLD tournament with 0 goals — including ${and(zero.slice(0,3).map(r=>`${r[2]} (S${r[0]} ${TN[r[1]]})`))}. The ball is still looking for them.`};});
   add('roast',()=>{ // champion with the fewest goals in a title-winning Team Tour
     const c=[];F.forEach(f=>f.cp.forEach(n=>{const r=tt.find(x=>x[0]===f.s&&x[2]===n);if(r&&r[4]!=null)c.push({n,s:f.s,g:r[4],team:f.champ});}));
     const a=by(c,x=>-x.g)[0];if(!a)return null;
