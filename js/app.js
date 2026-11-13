@@ -317,7 +317,21 @@ document.addEventListener('click',e=>{
   if(t.dataset.go!==undefined){go(t.dataset.go);if(t.dataset.focus)setTimeout(()=>$('#gq').focus(),60);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
-window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==cur)go(h)});
+/* ---- phone/hardware back button steps back through the app (like Instagram) instead of closing it ---- */
+function closeTopOverlay(){
+  if(document.body.classList.contains('ff-open')){ // the game: use its own on-screen back, else open its settings (leave), else close
+    const bk=document.querySelector('#ff .fktop .fkic[data-f]');if(bk){bk.click();return true;}
+    const set=document.querySelector('#ff .fkset');if(set){set.click();return true;}
+    if(window.FF&&FF._test&&FF._test.close){FF._test.close();}return true;}
+  const card=document.querySelector('.pcard');if(card){card.click();if(document.body.contains(card))card.remove();return true;} // player card / roast / install help
+  const tip=document.querySelector('.formtip');if(tip){tip.remove();return true;}
+  if(sheetOpen){closeSheet();return true;}
+  if(document.body.classList.contains('menu-open')){closeMenu();return true;}
+  if(cur!==''){go('');return true;}
+  return false;
+}
+function pushGuard(){try{history.pushState({mld:1},'',location.href);}catch(e){}}
+window.addEventListener('popstate',function(){ if(closeTopOverlay())pushGuard(); else { try{history.back();}catch(e){} } });
 
 
 /* ---- photos (shared, saved into the page) ---- */
@@ -512,6 +526,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('[data-donate]'))retu
   const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
 });
 renderHome();{const h0=location.hash.slice(1);go('');const later=()=>{if(h0&&VIEWS[h0])go(h0);};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',later):later();}
+try{history.pushState({mld:1},'',location.href);}catch(e){} // one back-button guard entry
 try{const r=sessionStorage.getItem('mld.reopen');if(r){sessionStorage.removeItem('mld.reopen');setTimeout(()=>openPlayer(r),2500);}}catch(e){}
 
 /* ---- intro ---- */

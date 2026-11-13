@@ -9,7 +9,9 @@ The owner is not technical: explain in simple words, never delete existing stats
   tournament: `[season, type, player, team, goals, rating]`), `trophies` (`[season, type, player, role, note]`),
   `awards` (per-tour Golden Boot/Ball), `seasonAwards` (season-wide), `finals` (Team Tour champ/runner rosters),
   `ballon`, `dorNominees`. Types: `T` Team Tour, `A` Solo Authentic, `D` Solo Dream Team, `C` Co-op.
-- `js/app.js`: pages, menu, profiles, trophies, photos (`DEFAULT_FACE`), sounds (`AUDIO`).
+- `js/app.js`: pages, menu, profiles, trophies, photos (`DEFAULT_FACE`), sounds (`AUDIO`). Phone/hardware BACK button steps
+  back one level (game → card/roast → profile sheet → menu → page → home → exit) via a single history guard + `popstate`
+  + `closeTopOverlay()` reading live UI (no per-open pushState; on-screen close buttons stay in sync automatically).
 - `js/compare.js`: MLD Index (sets every player's all-time rank `crk`), Compare page.
   Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
 - `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos).
