@@ -1185,22 +1185,22 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 
 /* ---- 🎂 birthday ---- */
 .bdaywrap{display:flex;flex-direction:column;gap:12px;margin:4px 0 6px}
-.bday{position:relative;overflow:hidden;display:flex;gap:16px;align-items:center;padding:18px 16px;border-radius:24px;
+.bday{position:relative;overflow:hidden;display:flex;gap:13px;align-items:center;padding:13px 14px;border-radius:20px;
   background:radial-gradient(120% 120% at 0% 0%,rgba(255,210,63,.28),transparent 55%),linear-gradient(135deg,#c40e14,#7d070b 70%);border:1px solid rgba(255,210,63,.55);
   box-shadow:0 18px 50px -20px rgba(227,25,31,.8)}
 .bdayph{position:relative;flex:none;border:0;background:none;padding:0;cursor:pointer}
-.bdayph .av0{width:92px;height:92px;font-size:1.8rem;box-shadow:0 0 0 3px #ffd23f,0 0 24px rgba(255,210,63,.6)}
-.bdayph em{position:absolute;right:-6px;bottom:-4px;font-style:normal;font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.bdayph .av0{width:70px;height:70px;font-size:1.5rem;box-shadow:0 0 0 3px #ffd23f,0 0 24px rgba(255,210,63,.6)}
+.bdayph em{position:absolute;right:-6px;bottom:-4px;font-style:normal;font-size:1.4rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
 .bdaytx{min-width:0;position:relative;z-index:1}
 .bdaytx>small{font:700 .72rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:#ffe08a}
-.bdaytx h2{font:400 clamp(1.8rem,7vw,2.6rem)/1 var(--display);text-transform:uppercase;margin:4px 0 6px}
+.bdaytx h2{font:400 clamp(1.5rem,5.5vw,2rem)/1 var(--display);text-transform:uppercase;margin:3px 0 4px}
 .bdaytx h2 span{color:#ffd23f}
-.bdaytx p{margin:0 0 12px;color:rgba(255,255,255,.88);font-size:.9rem}
+.bdaytx p{margin:0 0 9px;color:rgba(255,255,255,.88);font-size:.84rem}
 .bdaybtns{display:flex;flex-wrap:wrap;gap:8px}
-.bdaybtns .flbtn{width:auto;padding:10px 14px;font-size:.85rem}
+.bdaybtns .flbtn{width:auto;padding:8px 12px;font-size:.8rem}
 .bdaybtns .flbtn.red{background:#fff;color:#c40e14}
 .bdaybtns .flbtn.red.done{background:#ffd23f;color:#5c3a06}
-.bwished{display:block;margin-top:8px;color:#ffe08a;font-size:.82rem}
+.bwished{display:block;margin-top:6px;color:#ffe08a;font-size:.78rem}
 .bballoons{position:absolute;inset:0;pointer-events:none}
 .bballoons i{position:absolute;font-style:normal;font-size:1.6rem;opacity:.85;animation:bfloat 6s ease-in-out infinite}
 .bballoons i:nth-child(1){right:14px;top:10px}.bballoons i:nth-child(2){right:58px;top:40px;animation-delay:-2s;font-size:1.2rem}
