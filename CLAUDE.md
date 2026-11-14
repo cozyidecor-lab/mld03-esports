@@ -28,11 +28,13 @@ The `mld-dor` page (app.js) is a LANDING with two edition cards (`dorEd` state: 
   S15 added at the ceremony — not in the engine yet. VALIDATED: reproduces WaCky's exact S13 scores (Ashik 80, Senpai
   54.68, Farza 54.33, Rasim 52.79, Rashid 49.73, Vishnu 48.51, …). Champ points by format: Swiss 10/8/6/4/2 · League
   8/6/4/2 · Rounds+KO 8/5 · Team Tour 5/3 (every squad player) · Co-op 2/1. Awards: Top Scorer/MOTT 1 each, season Golden
-  Boot/Ball 3 each. To add a tour: append its rows to LOG/CH/AW (ask WaCky for the FORMAT — it sets the champ points).
-  CONFIRMED: Derry MERGED into Vishnu (Vishnu now has the S13 Solo Authentic row, rank 5 at 52.73); 'Junaid' (Team Tour)
-  = Junaid Ansari. OPEN: S14 D'or data (format + awards) not yet added — the engine currently runs through S13 only; ask
-  WaCky for each S14 tour's FORMAT. The D'or uses its own names (Fahiz, Sabith J R, Husnu… may not be in data.js);
-  Manager Trophies NEVER count in the D'or.
+  Boot/Ball 3 each. Champ points by format: Swiss 10/8/6/4/2 · League 8/6/4/2 · Rounds+KO 8/5 · UCL 10/8 (winner/runner-up
+  only, owner's call) · Team Tour 5/3 · Co-op 2/1. To add a tour: append rows to LOG/CH/AW (ask WaCky for the FORMAT — it sets
+  the champ points). CONFIRMED: Derry MERGED into Vishnu; 'Junaid' (Team Tour) = Junaid Ansari. Engine now runs THROUGH
+  S14 Solo Authentic (UCL): T-REX champion (10), Cijin runner-up (8), Top Scorer T-REX & Rasim (1 each), MOTT T-REX (1);
+  current top: Ashik 76.7, Rasim 61.7, Senpai 53.9. STILL PENDING: S14 Co-op / Dream Team / Team Tour (need format +
+  results for each). The D'or uses its own names (Fahiz, Sabith J R, Husnu… may not be in data.js); Manager Trophies
+  NEVER count in the D'or.
 Owner gate (app.js, top): `isOwner()` reads localStorage `mld_owner==='1'`. Owner unlocks a phone ONCE by opening
 `?owner=<key>` (hash checked against `OWNER_HASH`, then the param is stripped from the URL); `?owner=off` clears it.
 Only the key's SHA-256 hash is in the repo — the plain key is given to WaCky privately, never committed. To rotate: run
