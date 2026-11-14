@@ -30,7 +30,7 @@
     [[f.champ,f.cp],[f.runner,f.rp]].forEach(([t,list])=>{if(!t)return;by[t]=by[t]||[];(list||[]).forEach(n=>{if(!by[t].some(r=>r[2]===n))by[t].push([s,'T',n,t,null,null]);});});
     const mgr=D.trophies.filter(t=>t[0]===s&&t[1]==='T'&&t[3]==='Manager Trophy').map(t=>t[2]);
     return Object.entries(by).map(([name,rs])=>{const g=rs.reduce((a,r)=>a+(r[4]||0),0),rated=rs.filter(r=>r[5]!=null);
-      return {name,rows:rs.sort((a,b)=>(b[4]||0)-(a[4]||0)),goals:g,avg:rated.length?rated.reduce((a,r)=>a+r[5],0)/rated.length:null,
+      return {name,rows:rs.sort((a,b)=>(b[5]||0)-(a[5]||0)||(b[4]||0)-(a[4]||0)),goals:g,avg:rated.length?rated.reduce((a,r)=>a+r[5],0)/rated.length:null,
         top:rs.slice().sort((a,b)=>(b[4]||0)-(a[4]||0))[0],role:name===f.champ?'win':name===f.runner?'run':'',mgr:name===f.champ?mgr:[]};})
       .sort((a,b)=>(a.role==='win'?0:a.role==='run'?1:2)-(b.role==='win'?0:b.role==='run'?1:2)||b.goals-a.goals);
   }
@@ -63,7 +63,7 @@
   /* ---------- solo and co-op ---------- */
   function soloSeason(ty,s){
     const w=tro(ty,s,'Player Trophy'),r=tro(ty,s,'Runner-up'),places=['3rd Place','4th Place','5th Place'].map(p=>[p,tro(ty,s,p)]).filter(x=>x[1].length);
-    const rows=D.log.filter(x=>x[0]===s&&x[1]===ty).sort((a,b)=>(b[4]||0)-(a[4]||0)||(b[5]||0)-(a[5]||0));
+    const rows=D.log.filter(x=>x[0]===s&&x[1]===ty).sort((a,b)=>(b[5]||0)-(a[5]||0)||(b[4]||0)-(a[4]||0));
     const ph=PHOTOS[ty][s]||{},a=award(ty,s),pair=ty==='C';
     const who=list=>list.length?list.map(pl).join(pair?' &amp; ':', '):'–';
     return `<div class="tsum">

@@ -14,7 +14,7 @@ The owner is not technical: explain in simple words, never delete existing stats
   + `closeTopOverlay()` reading live UI (no per-open pushState; on-screen close buttons stay in sync automatically).
 - `js/compare.js`: MLD Index (sets every player's all-time rank `crk`), Compare page.
   Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
-- `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos).
+- `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos). Standings sorted by RATING (goals tiebreak); seasons newest-first.
 - `js/form.js`: form indicators, computed automatically from `log` (last 3 tournaments, field-position by goals+rating).
   Plus a small finish bonus (`RESULT_BONUS` from `trophies`: champion +0.10, runner-up +0.06, 3rd/4th/5th +0.03/0.02/0.01)
   so a finalist edges a non-finalist with slightly better raw stats. Form badge only; does NOT affect MLD Index/tiers.
