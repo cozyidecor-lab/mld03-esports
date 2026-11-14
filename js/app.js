@@ -11,6 +11,20 @@ const fmt=v=>v==null?'–':(Math.round(v*10)/10).toString();
 const byName=Object.fromEntries(D.players.map(p=>[p.n,p]));
 const GOAT=D.ballon.winner;
 const pname=n=>`<button class="pl" data-p="${esc(n)}">${esc(n)}</button>`;
+/* ---- MLD D'or: which edition block is open (null = landing, 1 = S1–12, 2 = S13–15 standings) ---- */
+let dorEd=null;
+/* ---- owner-only unlock for the secret D'or race standings. NOT security-grade: it keeps the
+   standings off every normal member's screen. The owner opens a one-time ?owner=<key> link once per
+   phone; only the key's hash lives in this file, and the phone is remembered afterwards (?owner=off clears it). ---- */
+const OWNER_HASH='3decfa57e9d9f952c7dd1b5c52a24f46983a83a7133feb14a25a91080e04730c';
+function isOwner(){try{return localStorage.getItem('mld_owner')==='1';}catch(e){return false;}}
+async function sha256hex(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return'';}}
+(async()=>{const m=/[?&]owner=([^&#]+)/.exec(location.search);if(!m)return;
+  const key=decodeURIComponent(m[1]);
+  try{if(key==='off')localStorage.removeItem('mld_owner');else if(await sha256hex(key)===OWNER_HASH)localStorage.setItem('mld_owner','1');}catch(e){}
+  try{const u=new URL(location.href);u.searchParams.delete('owner');history.replaceState(null,'',u.pathname+(u.search||'')+u.hash);}catch(e){}
+  if(typeof renderStat==='function'&&cur==='mld-dor')renderStat();})();
+window.isOwner=isOwner;
 const names=s=>String(s).split(',').map(x=>x.trim());
 const ICON={
   ball:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/></svg>',
@@ -35,7 +49,7 @@ function tourStats(ty){
 
 /* ---- category definitions ---- */
 const CATS=[
-  {id:'mld-dor',t:"MLD D'or",ic:'ball',tone:'gold',lead:()=>`${GOAT} · the only winner`},
+  {id:'mld-dor',t:"MLD D'or",ic:'ball',tone:'gold',lead:()=>"All MLD D'or winners"},
   {id:'scorers',t:'Top Scorers',ic:'#t-boot',tone:'red',lead:()=>{const p=leader('g');return `${p.n} · ${p.g} goals`}},
   {id:'rating',t:'Top Ratings',ic:'#t-ball',tone:'paper',lead:()=>{const p=leader('cs');return `${p.n} · ${fmt(p.cs)}`}},
   {id:'trophies',t:'Player Trophies',ic:'cup',tone:'',lead:()=>{const p=leader('pt');return `${p.n} · ${p.pt} titles`}},
@@ -184,12 +198,38 @@ document.addEventListener('pointermove',e=>{
   tip.textContent=h.dataset.tip;tip.hidden=false;const sc=svg.getBoundingClientRect().width/360;
   tip.style.left=Math.min(Math.max(px*sc,50),svg.getBoundingClientRect().width-50)+'px';
 });
+/* MLD D'or page: a landing with the editions, then each edition's detail.
+   Edition 1 (S1–12) is finished and public. Edition 2 (S13–15) is locked to everyone except the
+   owner, who sees the live provisional standings (see the owner gate up top). */
 function ballonView(){
+  if(dorEd===1)return dorEdition1();
+  if(dorEd===2&&isOwner())return dorEdition2();
+  return dorLanding();
+}
+const DORCUP='<svg class="tcup" aria-hidden="true"><use href="#t-ball"/></svg>';
+function dorLanding(){
+  const e1=`<button class="dored done" data-dored="1">
+      <span class="doredhead">${DORCUP}<span><b>1st MLD D'or</b><small>Seasons 1–12</small></span></span>
+      <span class="doredwin">🏆 ${esc(GOAT)}</span><span class="doredsub">Winner · tap to open</span></button>`;
+  const e2=isOwner()
+    ? `<button class="dored live" data-dored="2">
+        <span class="doredhead">${DORCUP}<span><b>2nd MLD D'or</b><small>Seasons 13–15</small></span></span>
+        <span class="doredwin">🔒 Live standings</span><span class="doredsub">Private · only you can see this</span></button>`
+    : `<button class="dored locked" data-dorlocked="1" aria-label="2nd MLD D'or, Seasons 13 to 15. Locked until the ceremony.">
+        <span class="doredhead">${DORCUP}<span><b>2nd MLD D'or</b><small>Seasons 13–15</small></span><span class="dorlockic" aria-hidden="true">🔒</span></span>
+        <span class="doredwin">Locked</span><span class="doredsub">Revealed at the ceremony after Season 15</span>
+        <span class="dorlockmsg">Not enough data yet — the 2nd MLD D'or standings stay secret until the ceremony.</span></button>`;
+  return {t:"MLD <em>D'or</em>",p:"MLD's biggest individual honour, awarded once every three seasons.",
+    b:`<div class="doreditions">${e1}${e2}</div>
+      <p class="note">The MLD D'or is awarded once every three seasons. The running standings are kept secret and only revealed at the ceremony after the final season.</p>`};
+}
+function dorEdition1(){
   const m=byName[GOAT];const rows=D.log.filter(r=>r[2]===GOAT);const tro=D.trophies.filter(t=>t[2]===GOAT);
   const gb=D.awards.filter(a=>names(a[5]).includes(GOAT)).map(a=>'S'+a[0]);
   const goalsRank=sortBy(D.players,'g').findIndex(p=>p.n===GOAT)+1;
-  return {t:"MLD <em>D'or</em>",p:`${D.ballon.label}. Awarded once so far, and ${GOAT} is the only player to win it.`,
-   b:`${nomineesBlock()}
+  return {t:"1st MLD <em>D'or</em>",p:`${D.ballon.label} · Seasons 1–12. ${GOAT} is the only player to win it so far.`,
+   b:`<button class="tback" data-dorback="1">← MLD D'or editions</button>
+   ${nomineesBlock()}
    <h2 class="sec">The winner <small>MIDHUN</small></h2>
    <div class="bdo-page"><div class="bigphoto"><img alt="${esc(GOAT)} holding the MLD D'or" src="${PHOTO}"><span class="tag">★ 1st MLD D'or · ${esc(GOAT)}</span></div>
    <div style="display:flex;flex-direction:column;gap:14px">
@@ -203,6 +243,29 @@ function ballonView(){
        ${gb.map(x=>`<span class="chip on">Golden Ball · ${x}</span>`).join('')}${tro.map(t=>`<span class="chip${t[3]==='Player Trophy'?' on':''}">S${t[0]} ${t[3]==='Player Trophy'?'Champion':t[3]} · ${TYPE[t[1]]}</span>`).join('')}</div></div>
    </div></div>
    <h2 class="sec">Season log <small>${rows.length} ENTRIES</small></h2>${logTable(rows)}`};
+}
+/* provisional S13–15 standings = same formula as Top Ratings (avg rating × ln(1+tournaments)),
+   but only tournaments with individual stats in Seasons 13–15. Jury vote (20%) is added only at the ceremony. */
+function dorStandings(){
+  const by={};
+  D.log.filter(r=>r[0]>=13&&r[0]<=15&&r[1]!=='C'&&(r[4]!=null||r[5]!=null)).forEach(r=>{
+    const o=by[r[2]]=by[r[2]]||{n:r[2],g:0,rs:[],t:0};o.g+=r[4]||0;if(r[5]!=null)o.rs.push(r[5]);o.t++;});
+  const tro=D.trophies.filter(t=>t[0]>=13&&t[0]<=15);
+  return Object.values(by).map(o=>{o.avg=o.rs.length?o.rs.reduce((a,b)=>a+b,0)/o.rs.length:0;
+    o.titles=tro.filter(t=>t[2]===o.n&&t[3]==='Player Trophy').length;
+    o.runners=tro.filter(t=>t[2]===o.n&&t[3]==='Runner-up').length;
+    o.score=o.avg*Math.log(1+o.t);return o;}).sort((a,b)=>b.score-a.score||b.g-a.g);
+}
+function dorEdition2(){
+  const L=dorStandings();
+  const seasons=[...new Set(D.log.filter(r=>r[0]>=13&&r[0]<=15&&r[1]!=='C'&&(r[4]!=null||r[5]!=null)).map(r=>'S'+r[0]+' '+TYPE[r[1]]))];
+  return {t:"2nd MLD <em>D'or</em>",p:"Seasons 13–15 · live standings — private to you.",
+   b:`<button class="tback" data-dorback="1">← MLD D'or editions</button>
+   <div class="ownerbar">🔒 Private view · hidden from every member. Only your phone can see this.</div>
+   <p class="note">Provisional standings, updated automatically after every tour. Ranked by performance score (average rating × number of tournaments, same idea as Top Ratings) across ${seasons.length} tournament${seasons.length===1?'':'s'} so far: ${seasons.join(', ')||'none yet'}. The jury vote (20%) and Season 15 are added at the ceremony, so the order can still change.</p>
+   ${L.length?`<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Player</th><th class="num">Score</th><th class="num">Avg</th><th class="num">Tours</th><th class="num">Goals</th><th class="num">Titles</th></tr></thead><tbody>
+   ${L.map((o,i)=>`<tr${i<3?' class="twin"':''}><td>${i+1}</td><td>${pname(o.n)}</td><td class="num">${fmt(o.score)}</td><td class="num">${fmt(o.avg)}</td><td class="num">${o.t}</td><td class="num">${o.g}</td><td class="num">${o.titles||'–'}</td></tr>`).join('')}
+   </tbody></table></div>`:'<p class="note">No Season 13–15 player stats recorded yet.</p>'}`};
 }
 
 /* ---- 1st MLD D'or nominees: winner on top, then the rest by rank ---- */
@@ -229,6 +292,12 @@ document.addEventListener('click',e=>{
   v.addEventListener('click',ev=>{if(ev.target===v||ev.target.closest('[data-pvclose]'))v.remove();
     else if(ev.target.closest('[data-pvprof]')){v.remove();openPlayer(c.dataset.pname);}});
   const k=ev=>{if(ev.key==='Escape'){v.remove();document.removeEventListener('keydown',k);}};document.addEventListener('keydown',k);
+});
+/* MLD D'or edition navigation + the locked-box "not enough data" message */
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-dored]');if(o){dorEd=+o.dataset.dored;renderStat();window.scrollTo(0,0);return;}
+  if(e.target.closest('[data-dorback]')){dorEd=null;renderStat();window.scrollTo(0,0);return;}
+  const lk=e.target.closest('[data-dorlocked]');if(lk){const msg=lk.querySelector('.dorlockmsg');if(msg)msg.classList.add('show');}
 });
 const logTable=rows=>`<div class="tw"><table class="tbl"><thead><tr><th>Season</th><th>Event</th><th>Team</th><th class="num">Goals</th><th class="num">Rating</th></tr></thead><tbody>
   ${rows.slice().sort((a,b)=>b[0]-a[0]||(({A:0,C:1,D:2,T:3})[b[1]]||0)-(({A:0,C:1,D:2,T:3})[a[1]]||0)).map(r=>`<tr><td>S${r[0]}</td><td>${TYPE[r[1]]}</td><td style="color:var(--muted)">${esc(r[3]||'–')}</td><td class="num">${r[4]??'–'}</td><td class="num">${r[5]??'–'}</td></tr>`).join('')}</tbody></table></div>`;
@@ -299,7 +368,7 @@ const closeSheet=()=>{if(likeOff){likeOff();likeOff=null;}$('#sheet').classList.
 
 /* ---- routing ---- */
 function go(v){
-  cur=VIEWS[v]?v:'';
+  cur=VIEWS[v]?v:'';dorEd=null;
   $('#v-home').classList.toggle('on',!cur);$('#v-stat').classList.toggle('on',!!cur);
   if(cur&&VIEWS[cur]){lb={q:'',limit:25};renderStat();}
   const h=cur?'#'+cur:' ';
@@ -328,6 +397,7 @@ function closeTopOverlay(){
   const tip=document.querySelector('.formtip');if(tip){tip.remove();return true;}
   if(sheetOpen){closeSheet();return true;}
   const sov=document.getElementById('searchov');if(sov&&sov.classList.contains('on')){closeSearch();return true;}
+  if(cur==='mld-dor'&&dorEd!=null){dorEd=null;renderStat();return true;}
   if(document.body.classList.contains('menu-open')){closeMenu();return true;}
   if(cur!==''){go('');return true;}
   return false;

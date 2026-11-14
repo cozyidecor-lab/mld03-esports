@@ -13,6 +13,20 @@ already-revealed edition may be public: the 1st edition (S1–12, winner Midhun,
 `?admin=1`), never on any public page, until the owner reveals them. D'or points = performance score 80% + jury vote 20%
 (jury vote only exists at ceremony time). When in doubt, keep it hidden and ask the owner.
 
+## MLD D'or page structure + owner gate
+The `mld-dor` page (app.js) is a LANDING with two edition cards (`dorEd` state: null=landing, 1, 2):
+- 1st MLD D'or (S1–12): finished, public. `dorEdition1()` = Midhun + `nomineesBlock()` (unchanged content).
+- 2nd MLD D'or (S13–15): LOCKED to everyone except the owner. Public sees a grey `.dored.locked` card; tapping it shows
+  the red `.dorlockmsg` ("Not enough data yet") and nothing else. The owner sees `.dored.live` → `dorEdition2()` = the
+  live provisional standings (`dorStandings()` = avg rating × ln(1+tournaments) over S13–15 individual-stat tours, Co-op
+  excluded; jury vote 20% + S15 added at ceremony). Menu lead is "All MLD D'or winners".
+Owner gate (app.js, top): `isOwner()` reads localStorage `mld_owner==='1'`. Owner unlocks a phone ONCE by opening
+`?owner=<key>` (hash checked against `OWNER_HASH`, then the param is stripped from the URL); `?owner=off` clears it.
+Only the key's SHA-256 hash is in the repo — the plain key is given to WaCky privately, never committed. To rotate: run
+`node -e 'c=require("crypto");k=c.randomBytes(9).toString("base64url");console.log(k, c.createHash("sha256").update(k).digest("hex"))'`,
+put the hash in `OWNER_HASH`, send WaCky the new `?owner=<key>` link. NOT security-grade (static site: the data feeding
+the standings is public), but it keeps the standings off every normal member's screen. Never show the D'or race publicly.
+
 ## Where things live
 - `js/data.js`: ALL stats. `window.MLD_DATA` = `players` (career totals), `log` (one row per player per
   tournament: `[season, type, player, team, goals, rating]`), `trophies` (`[season, type, player, role, note]`),
