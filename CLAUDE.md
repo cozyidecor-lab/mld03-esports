@@ -17,9 +17,21 @@ already-revealed edition may be public: the 1st edition (S1–12, winner Midhun,
 The `mld-dor` page (app.js) is a LANDING with two edition cards (`dorEd` state: null=landing, 1, 2):
 - 1st MLD D'or (S1–12): finished, public. `dorEdition1()` = Midhun + `nomineesBlock()` (unchanged content).
 - 2nd MLD D'or (S13–15): LOCKED to everyone except the owner. Public sees a grey `.dored.locked` card; tapping it shows
-  the red `.dorlockmsg` ("Not enough data yet") and nothing else. The owner sees `.dored.live` → `dorEdition2()` = the
-  live provisional standings (`dorStandings()` = avg rating × ln(1+tournaments) over S13–15 individual-stat tours, Co-op
-  excluded; jury vote 20% + S15 added at ceremony). Menu lead is "All MLD D'or winners".
+  the red `.dorlockmsg` ("Not enough data yet") and nothing else. The owner sees `.dored.live` → `dorEdition2()` which
+  renders `window.DOR.standings()` from **`js/dor.js`** — the REAL MLD Ballon d'Or formula (NOT data.js). Menu lead is
+  "All MLD D'or winners".
+`js/dor.js` holds the D'or's OWN authoritative logs (separate from data.js so it always matches WaCky's Excel): `LOG`
+  (individual-stat tournament rows `[type,player,goals,rating]`), `CH` (championship points `[format,player,result,points]`),
+  `AW` (award points `[tournament,award,player,points]`). Performance Score /80 = 5 categories each scored RELATIVE TO THE
+  CATEGORY LEADER (value÷leader×weight): Goals 25, Rating 20 (= avg rating × ln(1+tours)), Championships 20, Awards 10,
+  Longevity 5. Co-op excluded from goals/rating/longevity but its championship points count. Jury vote /20 (top 5 only) +
+  S15 added at the ceremony — not in the engine yet. VALIDATED: reproduces WaCky's exact S13 scores (Ashik 80, Senpai
+  54.68, Farza 54.33, Rasim 52.79, Rashid 49.73, Vishnu 48.51, …). Champ points by format: Swiss 10/8/6/4/2 · League
+  8/6/4/2 · Rounds+KO 8/5 · Team Tour 5/3 (every squad player) · Co-op 2/1. Awards: Top Scorer/MOTT 1 each, season Golden
+  Boot/Ball 3 each. To add a tour: append its rows to LOG/CH/AW (ask WaCky for the FORMAT — it sets the champ points).
+  OPEN ITEMS (ask WaCky): merge Derry→Vishnu? confirm 'Junaid' (Team Tour) = Junaid Ansari? S14 D'or data (format+awards)
+  not yet added — the engine currently runs through S13 only. The D'or uses its own names (Fahiz, Sabith J R, Derry,
+  Husnu… may not be in data.js); Manager Trophies NEVER count in the D'or.
 Owner gate (app.js, top): `isOwner()` reads localStorage `mld_owner==='1'`. Owner unlocks a phone ONCE by opening
 `?owner=<key>` (hash checked against `OWNER_HASH`, then the param is stripped from the URL); `?owner=off` clears it.
 Only the key's SHA-256 hash is in the repo — the plain key is given to WaCky privately, never committed. To rotate: run

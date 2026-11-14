@@ -244,28 +244,17 @@ function dorEdition1(){
    </div></div>
    <h2 class="sec">Season log <small>${rows.length} ENTRIES</small></h2>${logTable(rows)}`};
 }
-/* provisional S13–15 standings = same formula as Top Ratings (avg rating × ln(1+tournaments)),
-   but only tournaments with individual stats in Seasons 13–15. Jury vote (20%) is added only at the ceremony. */
-function dorStandings(){
-  const by={};
-  D.log.filter(r=>r[0]>=13&&r[0]<=15&&r[1]!=='C'&&(r[4]!=null||r[5]!=null)).forEach(r=>{
-    const o=by[r[2]]=by[r[2]]||{n:r[2],g:0,rs:[],t:0};o.g+=r[4]||0;if(r[5]!=null)o.rs.push(r[5]);o.t++;});
-  const tro=D.trophies.filter(t=>t[0]>=13&&t[0]<=15);
-  return Object.values(by).map(o=>{o.avg=o.rs.length?o.rs.reduce((a,b)=>a+b,0)/o.rs.length:0;
-    o.titles=tro.filter(t=>t[2]===o.n&&t[3]==='Player Trophy').length;
-    o.runners=tro.filter(t=>t[2]===o.n&&t[3]==='Runner-up').length;
-    o.score=o.avg*Math.log(1+o.t);return o;}).sort((a,b)=>b.score-a.score||b.g-a.g);
-}
+/* Owner-only live MLD Ballon d'Or standings — the real formula lives in js/dor.js (window.DOR). */
 function dorEdition2(){
-  const L=dorStandings();
-  const seasons=[...new Set(D.log.filter(r=>r[0]>=13&&r[0]<=15&&r[1]!=='C'&&(r[4]!=null||r[5]!=null)).map(r=>'S'+r[0]+' '+TYPE[r[1]]))];
+  if(!window.DOR)return {t:"2nd MLD <em>D'or</em>",p:"Seasons 13–15",b:'<button class="tback" data-dorback="1">← MLD D\'or editions</button><p class="note">Standings engine not loaded.</p>'};
+  const L=DOR.standings();
   return {t:"2nd MLD <em>D'or</em>",p:"Seasons 13–15 · live standings — private to you.",
    b:`<button class="tback" data-dorback="1">← MLD D'or editions</button>
    <div class="ownerbar">🔒 Private view · hidden from every member. Only your phone can see this.</div>
-   <p class="note">Provisional standings, updated automatically after every tour. Ranked by performance score (average rating × number of tournaments, same idea as Top Ratings) across ${seasons.length} tournament${seasons.length===1?'':'s'} so far: ${seasons.join(', ')||'none yet'}. The jury vote (20%) and Season 15 are added at the ceremony, so the order can still change.</p>
-   ${L.length?`<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Player</th><th class="num">Score</th><th class="num">Avg</th><th class="num">Tours</th><th class="num">Goals</th><th class="num">Titles</th></tr></thead><tbody>
-   ${L.map((o,i)=>`<tr${i<3?' class="twin"':''}><td>${i+1}</td><td>${pname(o.n)}</td><td class="num">${fmt(o.score)}</td><td class="num">${fmt(o.avg)}</td><td class="num">${o.t}</td><td class="num">${o.g}</td><td class="num">${o.titles||'–'}</td></tr>`).join('')}
-   </tbody></table></div>`:'<p class="note">No Season 13–15 player stats recorded yet.</p>'}`};
+   <p class="note">Your real MLD Ballon d'Or formula — Performance Score out of 80, each category scored against the category leader: <b>Goals 25 · Rating 20 · Championships 20 · Awards 10 · Longevity 5</b>. Through <b>${esc(DOR.THROUGH)}</b> (${DOR.TOURS_IN.map(esc).join(', ')}). The jury vote (20) and Season 15 are added at the ceremony, so the order can still change. Top 5 highlighted.</p>
+   <div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Player</th><th class="num">/80</th><th class="num">Goals</th><th class="num">Rating</th><th class="num">Champ</th><th class="num">Awards</th></tr></thead><tbody>
+   ${L.map((o,i)=>`<tr${i<5?' class="twin"':''}><td>${i+1}</td><td>${byName[o.n]?pname(o.n):esc(o.n)}</td><td class="num"><b>${fmt(o.perf)}</b></td><td class="num">${o.goals}</td><td class="num">${fmt(o.ratingScore)}</td><td class="num">${o.champ||'–'}</td><td class="num">${o.awards||'–'}</td></tr>`).join('')}
+   </tbody></table></div>`};
 }
 
 /* ---- 1st MLD D'or nominees: winner on top, then the rest by rank ---- */
