@@ -255,6 +255,7 @@ function renderStat(){
 /* ---- player sheet ---- */
 function openPlayer(n){
   const p=byName[n];if(!p)return;
+  if(typeof closeSearch==='function')closeSearch();
   if(p.side){openSidePlayer(n);return;}
   playIntro(n);
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
@@ -326,6 +327,7 @@ function closeTopOverlay(){
   const card=document.querySelector('.pcard');if(card){card.click();if(document.body.contains(card))card.remove();return true;} // player card / roast / install help
   const tip=document.querySelector('.formtip');if(tip){tip.remove();return true;}
   if(sheetOpen){closeSheet();return true;}
+  const sov=document.getElementById('searchov');if(sov&&sov.classList.contains('on')){closeSearch();return true;}
   if(document.body.classList.contains('menu-open')){closeMenu();return true;}
   if(cur!==''){go('');return true;}
   return false;
@@ -384,15 +386,31 @@ function cabinet(n){const hs=honours(n);if(!hs.length)return '<p class="note">No
     ${h.n>1?`<i>×${h.n}</i>`:''}<small>${esc(h.label).replace(' · ','<br>')}${h.mgr?'<br><em class="asmgr">(As manager)</em>':''}${h.season?'<br><em class="asseason">(Season-wide)</em>':''}</small></div>`).join('')}</div>`;}
 
 /* ---- global search ---- */
+const SOV_HINT='<p class="note sovhint">Type a name to find any MLD player, or tap the dice for a random one.</p>';
 function renderGlobal(){
-  const q=$('#gq').value.trim().toLowerCase();
-  if(!q){$('#gres').innerHTML='';return;}
+  const box=$('#gq');if(!box)return;const q=box.value.trim().toLowerCase();
+  if(!q){$('#gres').innerHTML=SOV_HINT;return;}
   const hits=Object.values(byName).filter(p=>p.n.toLowerCase().includes(q)).sort((a,b)=>a.n.toLowerCase().indexOf(q)-b.n.toLowerCase().indexOf(q)||b.g-a.g).slice(0,12);
   $('#gres').innerHTML=hits.map(p=>`<button class="row${p.n===GOAT?' goat':''}" data-p="${esc(p.n)}"><div class="rk">#${p.crk}</div>
     <div class="nm">${avatar(p.n)}<div><b>${esc(p.n)}</b><span>${p.g} goals · rating ${fmt(p.r)}</span>${miniIcons(p.n)}</div></div>
     <div class="vl">${p.g}<small>goals</small></div></button>`).join('')||'<p class="note">No player called that. Check the spelling.</p>';
 }
 $('#gq').addEventListener('input',renderGlobal);
+/* ---- top search overlay: open from the header icon, always starts empty ---- */
+function fitSearch(){const ov=$('#searchov');if(ov&&ov.classList.contains('on')&&window.visualViewport)ov.style.height=visualViewport.height+'px';}
+if(window.visualViewport){visualViewport.addEventListener('resize',fitSearch);visualViewport.addEventListener('scroll',fitSearch);}
+function openSearch(){const ov=$('#searchov');if(!ov)return;const inp=$('#gq');if(inp)inp.value='';renderGlobal();
+  ov.classList.add('on');ov.setAttribute('aria-hidden','false');document.body.classList.add('search-open');fitSearch();
+  setTimeout(()=>{inp&&inp.focus();fitSearch();},60);}
+function closeSearch(){const ov=$('#searchov');if(!ov||!ov.classList.contains('on'))return false;
+  const inp=$('#gq');if(inp){inp.blur();inp.value='';}renderGlobal();
+  ov.classList.remove('on');ov.setAttribute('aria-hidden','true');ov.style.height='';document.body.classList.remove('search-open');return true;}
+window.openSearch=openSearch;window.closeSearch=closeSearch;
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-search]')){e.preventDefault();openSearch();return;}
+  if(e.target.closest('[data-search-close]')){e.preventDefault();closeSearch();}
+});
+$('#gq').addEventListener('keydown',e=>{if(e.key==='Enter'){const first=$('#gres .row');if(first)first.click();}});
 
 /* ---- photo upload (editors only) ---- */
 let assetsNS=null, artifactNS=null, canSave=null;

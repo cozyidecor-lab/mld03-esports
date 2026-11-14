@@ -55,7 +55,7 @@
       <span>MLD 03<small>ESPORTS</small></span>
     </button></div>
     <div class="topright"><span class="online" id="onlineNow" hidden aria-live="polite"><i></i><b>1</b> online</span>
-<button class="ibtn" data-go="" data-focus="1" aria-label="Search players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button></div>
+<button class="ibtn" data-search="1" aria-label="Search players"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button></div>
   </div>
 
   <section class="view" id="v-home">
@@ -74,11 +74,6 @@
     <div id="s14box" class="reveal" style="--d:5"></div>
     <div class="rules reveal" style="--d:6"><div><b>All goals count</b><span>toward all-time stats</span></div><div><b>Performance counts</b><span>toward MLD D'or points</span></div></div>
     <div id="didYouKnow" class="reveal" style="--d:7"></div>
-    <h2 class="sec reveal" style="--d:7">Find a player</h2>
-    <div class="srow reveal" style="--d:7"><label class="search gsearch" for="gq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="gq" placeholder="Search any MLD player" autocomplete="off"></label>
-      <button class="dicebtn" data-random="1" aria-label="Open a random player" title="Random player"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg></button></div>
-    <div class="rows" id="gres"></div>
     <button class="menu-hint reveal" style="--d:8" data-open-menu="1"><span class="mi"><span></span><span></span><span></span></span><div><b>All stats & records</b><small>MLD D'or, top scorers, ratings, trophies and more</small></div><i aria-hidden="true">→</i></button>
   </section>
 
@@ -117,6 +112,15 @@
   <button id="installApp" class="insbtn" hidden><img alt="" src="images/app-icon-192.png"><span><b>Install the MLD app</b><small>Opens full screen from your home screen</small></span></button>
 </aside>
 <div id="sheet" role="dialog" aria-modal="true" aria-label="Player profile"><div class="sheet" id="sheetBody"></div></div>
+<div id="searchov" role="dialog" aria-modal="true" aria-label="Search players" aria-hidden="true">
+  <div class="sovbar">
+    <button class="ibtn" data-search-close="1" aria-label="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <label class="search sovsearch" for="gq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="gq" placeholder="Search any MLD player" autocomplete="off" enterkeyhint="search"></label>
+    <button class="dicebtn" data-random="1" aria-label="Open a random player" title="Random player"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg></button>
+  </div>
+  <div class="rows sovres" id="gres"><p class="note sovhint">Type a name to find any MLD player, or tap the dice for a random one.</p></div>
+</div>
 <script src="js/vendor/firebase-app-compat.js"></script>
 <script src="js/vendor/firebase-database-compat.js"></script>
 <script src="js/firebase-config.js"></script>

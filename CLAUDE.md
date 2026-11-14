@@ -10,11 +10,12 @@ The owner is not technical: explain in simple words, never delete existing stats
   `awards` (per-tour Golden Boot/Ball), `seasonAwards` (season-wide), `finals` (Team Tour champ/runner rosters),
   `ballon`, `dorNominees`. Types: `T` Team Tour, `A` Solo Authentic, `D` Solo Dream Team, `C` Co-op.
 - `js/app.js`: pages, menu, profiles, trophies, photos (`DEFAULT_FACE`), sounds (`AUDIO`). Phone/hardware BACK button steps
-  back one level (game → card/roast → profile sheet → menu → page → home → exit) via a single history guard + `popstate`
+  back one level (game → card/roast → profile sheet → search overlay → menu → page → home → exit) via a single history guard + `popstate`
   + `closeTopOverlay()` reading live UI (no per-open pushState; on-screen close buttons stay in sync automatically).
 - `js/compare.js`: MLD Index (sets every player's all-time rank `crk`), Compare page.
   Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
-- `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos). Standings sorted by RATING (goals tiebreak); seasons newest-first.
+- `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos). Standings sorted by RATING (goals tiebreak); seasons newest-first. Each tour's winner card shows ITS OWN trophy via `cupOf(ty)` (Team→#t-team, Dream→#t-dream, Authentic→#t-auth, Co-op→#t-coop), not the team cup.
+- Player search is ONE top overlay (`#searchov` in index.html), opened by the header search icon (`data-search`); the old "Find a player" box at the bottom of Home was removed. Input is pinned at the top with results (`#gres`, `renderGlobal`) scrolling below so the phone keyboard never covers them (overlay height tracks `visualViewport`). It always opens empty and clears on close/select (`openSearch`/`closeSearch` in app.js); opening any player calls `closeSearch()`. The random-player dice lives in this overlay.
 - Tournament trophy icons (`#t-team/#t-dream/#t-auth/#t-coop` SVG symbols in `index.html`) are transparent photo cut-outs of the real MLD champion trophies in `images/trophies/` (`team-tour.webp`, `dream-trophy.webp`, `authentic-trophy.webp`, `coop-trophy.webp`). One symbol feeds the menu, home season tiles, tournament cards and profile trophy chips. If the owner sends a nicer trophy photo, just replace the matching `.webp` (keep it a trimmed transparent cut-out).
 - `js/form.js`: form indicators, computed automatically from `log` (last 3 tournaments, field-position by goals+rating).
   Plus a small finish bonus (`RESULT_BONUS` from `trophies`: champion +0.10, runner-up +0.06, 3rd/4th/5th +0.03/0.02/0.01)

@@ -14,6 +14,8 @@
   };
   const st={T:{s:null,open:null},D:{s:null,open:null},A:{s:null,open:null},C:{s:null,open:null}};
   const CUP='<svg class="tcup" aria-hidden="true"><use href="#t-team"/></svg>';
+  /* each tournament shows its OWN trophy (Team Tour, Dream Team, Authentic, Co-op) */
+  const cupOf=ty=>`<svg class="tcup" aria-hidden="true"><use href="#t-${TT[ty].id}"/></svg>`;
   const H=s=>esc(s);
   const seasonsOf=ty=>[...new Set([...D.log.filter(r=>r[1]===ty).map(r=>r[0]),...D.trophies.filter(t=>t[1]===ty).map(t=>t[0])])].sort((a,b)=>b-a);
   const tro=(ty,s,role)=>D.trophies.filter(t=>t[0]===s&&t[1]===ty&&t[3]===role).map(t=>t[2]);
@@ -67,7 +69,7 @@
     const ph=PHOTOS[ty][s]||{},a=award(ty,s),pair=ty==='C';
     const who=list=>list.length?list.map(pl).join(pair?' &amp; ':', '):'–';
     return `<div class="tsum">
-        <div class="tfinal"><div class="tside win">${CUP}<small>${pair?'Champions':'Winner'}</small><b>${who(w)}</b></div><span class="tvs">vs</span><div class="tside run"><small>Runner${pair?'s':''}-up</small><b>${who(r)}</b></div></div>
+        <div class="tfinal"><div class="tside win">${cupOf(ty)}<small>${pair?'Champions':'Winner'}</small><b>${who(w)}</b></div><span class="tvs">vs</span><div class="tside run"><small>Runner${pair?'s':''}-up</small><b>${who(r)}</b></div></div>
         ${ph.winner?`<div class="tphotos">${photo(ph.winner,`${w.join(' and ')}, Season ${s} ${TT[ty].name} ${pair?'champions':'champion'}`,'big')}</div>`:''}
         ${places.length?`<div class="tplaces">${places.map(([p,n])=>`<div><small>${p}</small><b>${who(n)}</b></div>`).join('')}</div>`:''}
         ${a?`<div class="tawards"><div><small>Golden Boot</small><b>${String(a[3]).split(',').map(x=>pl(x.trim())).join(', ')}</b><span>${a[2]} goals</span></div><div><small>Golden Ball</small><b>${String(a[5]).split(',').map(x=>pl(x.trim())).join(', ')}</b><span>rating ${a[4]}</span></div></div>`:''}
