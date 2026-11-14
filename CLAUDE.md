@@ -4,6 +4,15 @@ Live at https://www.mld03-esports.store (GitHub Pages, publishes from `main`).
 Plain static site: no build step. Edit files, commit, push to `main`; live within ~2 minutes.
 The owner is not technical: explain in simple words, never delete existing stats.
 
+## MLD D'or is SECRET (owner's rule — do not break)
+The MLD D'or is awarded every 3 seasons (next edition = S13+S14+S15). Its standings are a SURPRISE revealed only at a
+ceremony after the final season: top 30 revealed 10/day, then a top-5 vote, then the winner. So UNLIKE every other
+leaderboard (Top Ratings/Scorers etc. are public and live), a D'or RACE must NEVER be shown publicly. Only a FINISHED,
+already-revealed edition may be public: the 1st edition (S1–12, winner Midhun, `dorNominees`) stays as-is on the public
+`mld-dor` page. For S13–15 and future editions, compute standings ONLY in an admin-only view (gated like achievements'
+`?admin=1`), never on any public page, until the owner reveals them. D'or points = performance score 80% + jury vote 20%
+(jury vote only exists at ceremony time). When in doubt, keep it hidden and ask the owner.
+
 ## Where things live
 - `js/data.js`: ALL stats. `window.MLD_DATA` = `players` (career totals), `log` (one row per player per
   tournament: `[season, type, player, team, goals, rating]`), `trophies` (`[season, type, player, role, note]`),
