@@ -29,9 +29,10 @@ The `mld-dor` page (app.js) is a LANDING with two edition cards (`dorEd` state: 
   54.68, Farza 54.33, Rasim 52.79, Rashid 49.73, Vishnu 48.51, …). Champ points by format: Swiss 10/8/6/4/2 · League
   8/6/4/2 · Rounds+KO 8/5 · Team Tour 5/3 (every squad player) · Co-op 2/1. Awards: Top Scorer/MOTT 1 each, season Golden
   Boot/Ball 3 each. To add a tour: append its rows to LOG/CH/AW (ask WaCky for the FORMAT — it sets the champ points).
-  OPEN ITEMS (ask WaCky): merge Derry→Vishnu? confirm 'Junaid' (Team Tour) = Junaid Ansari? S14 D'or data (format+awards)
-  not yet added — the engine currently runs through S13 only. The D'or uses its own names (Fahiz, Sabith J R, Derry,
-  Husnu… may not be in data.js); Manager Trophies NEVER count in the D'or.
+  CONFIRMED: Derry MERGED into Vishnu (Vishnu now has the S13 Solo Authentic row, rank 5 at 52.73); 'Junaid' (Team Tour)
+  = Junaid Ansari. OPEN: S14 D'or data (format + awards) not yet added — the engine currently runs through S13 only; ask
+  WaCky for each S14 tour's FORMAT. The D'or uses its own names (Fahiz, Sabith J R, Husnu… may not be in data.js);
+  Manager Trophies NEVER count in the D'or.
 Owner gate (app.js, top): `isOwner()` reads localStorage `mld_owner==='1'`. Owner unlocks a phone ONCE by opening
 `?owner=<key>` (hash checked against `OWNER_HASH`, then the param is stripped from the URL); `?owner=off` clears it.
 Only the key's SHA-256 hash is in the repo — the plain key is given to WaCky privately, never committed. To rotate: run

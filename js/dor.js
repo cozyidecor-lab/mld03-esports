@@ -26,7 +26,7 @@
     ['SA','Ashik',24,18],['SA','Farza',20,16],['SA','Shahid Mubarak',15,12],['SA','Eleven',15,11],
     ['SA','Harris',13,10],['SA','Junaid Ansari',12,10],['SA','Arun',11,12],['SA','Pranav CK',10,6],
     ['SA','Salman',10,6],['SA','Rashid',10,5],['SA','Ronney',9,6],['SA','Rinshad',9,6],
-    ['SA','Derry',8,6],['SA','Millaj',8,6],['SA','Bujji',8,4],['SA','Joyal',8,6],['SA','Diyan',8,8],
+    ['SA','Vishnu',8,6],['SA','Millaj',8,6],['SA','Bujji',8,4],['SA','Joyal',8,6],['SA','Diyan',8,8],
     ['SA','Siyan',7,6],['SA','Athif',6,4],['SA','Nabeel',5,3],['SA','Zayid',5,4],['SA','Cijin',5,4],
     ['SA','Nezel',5,4],['SA','Kriz',4,1],['SA','Midhun',4,4],['SA','Arjun',4,5],['SA','WaCky',4,1],
     ['SA','Sreedev',3,0],['SA','Aadil',3,3],['SA','Bilal',3,1],['SA','Anurag',2,0],['SA','Didhi',2,0],
