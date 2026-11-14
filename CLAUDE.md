@@ -15,6 +15,7 @@ The owner is not technical: explain in simple words, never delete existing stats
 - `js/compare.js`: MLD Index (sets every player's all-time rank `crk`), Compare page.
   Also the all-time tier (S 60+, A 45+, B 30+, C 15+, D below, by MLD Index), shown only on the profile.
 - `js/goat.js`: MLD GOAT page. `js/tours.js`: tournament archive (`PHOTOS` for winner photos). Standings sorted by RATING (goals tiebreak); seasons newest-first.
+- Tournament trophy icons (`#t-team/#t-dream/#t-auth/#t-coop` SVG symbols in `index.html`) are transparent photo cut-outs of the real MLD champion trophies in `images/trophies/` (`team-tour.webp`, `dream-trophy.webp`, `authentic-trophy.webp`, `coop-trophy.webp`). One symbol feeds the menu, home season tiles, tournament cards and profile trophy chips. If the owner sends a nicer trophy photo, just replace the matching `.webp` (keep it a trimmed transparent cut-out).
 - `js/form.js`: form indicators, computed automatically from `log` (last 3 tournaments, field-position by goals+rating).
   Plus a small finish bonus (`RESULT_BONUS` from `trophies`: champion +0.10, runner-up +0.06, 3rd/4th/5th +0.03/0.02/0.01)
   so a finalist edges a non-finalist with slightly better raw stats. Form badge only; does NOT affect MLD Index/tiers.
