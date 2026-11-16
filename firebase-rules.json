@@ -1,5 +1,21 @@
 {
   "rules": {
+    "secret": {
+      ".read": false,
+      "$id": {
+        ".write": "!data.exists()",
+        ".validate": "newData.hasChild('h') && newData.child('h').isString() && newData.child('h').val().length == 64"
+      }
+    },
+    "login": {
+      "$id": {
+        "$dev": {
+          ".read": false,
+          ".write": true,
+          ".validate": "newData.child('h').isString() && newData.child('h').val() === root.child('secret/' + $id + '/h').val()"
+        }
+      }
+    },
     "likes": {
       ".read": true,
       "$k": {

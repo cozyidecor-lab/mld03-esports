@@ -42,6 +42,25 @@ Only the key's SHA-256 hash is in the repo — the plain key is given to WaCky p
 put the hash in `OWNER_HASH`, send WaCky the new `?owner=<key>` link. NOT security-grade (static site: the data feeding
 the standings is public), but it keeps the standings off every normal member's screen. Never show the D'or race publicly.
 
+## Member login (js/auth.js) — Phase 1 done
+Database players log in with a password (WaCky gives each person theirs privately on WhatsApp) to prove identity — this
+will gate the planned MLD Flick weekly challenge and (Phase 2) let members set their own photo. Non-members use the whole
+site without logging in. Header has a profile icon (`#authBtn`, added in index.html next to search): logged out → login
+modal (`#authModal`); logged in → shows the player's photo, taps to an account menu (Log out; "Change my photo" = Phase 2
+placeholder). Login flow: type name → pick from DATABASE autocomplete (can't free-type a name) → password. Session saved
+in localStorage `mld-login` `{id,name}`; `window.MLDAUTH` = {me,isMember,open,close}; fires `mld-auth` event on change.
+Security (friendly-group grade, no server): password hash = PBKDF2-SHA256, 210k iters, salt `mld03-login-v1`. Hashes live
+in Firebase `secret/{id}` which the rules make `.read:false` (can't be downloaded/cracked). `verify()` in auth.js: if the
+secret is readable (test mode/mock) it compares directly; if read-blocked it proves the password by a validated write to
+`login/{id}/{dev}` (rule accepts only when the hash matches the read-blocked secret). If a player's secret is missing,
+login FAILS (no false logins). `id` = `NET.keyOf(name)`. Passwords are easy-to-type (e.g. `iron-black-43`); the full list
+is NOT in the repo — it's generated and handed to WaCky as a private Excel/PDF. To add a new player's login: PATCH
+`secret/{id}={h}` (rule allows create-only, `!data.exists()`), and give WaCky the password. `NET.get/set/on` (net.js) are
+generic helpers for this. SETUP WaCky must do once: (1) paste the updated firebase-rules.json in the Firebase console
+(adds the read-blocked `secret` + validated `login` rules AND deploys the pending game rules / closes test mode).
+Already seeded: all 196 players' hashes are in Firebase `secret/`. Phase 2 next: edit-own-photo (needs anon auth + claims
+for write protection). Then the weekly Flick challenge (count only logged-in member-vs-member public matches).
+
 ## Where things live
 - `js/data.js`: ALL stats. `window.MLD_DATA` = `players` (career totals), `log` (one row per player per
   tournament: `[season, type, player, team, goals, rating]`), `trophies` (`[season, type, player, role, note]`),

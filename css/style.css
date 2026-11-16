@@ -779,6 +779,35 @@ body.fl-full .flexit{width:38px;height:38px}
 .dorlockmsg{display:none;width:100%;margin-top:9px;background:rgba(227,25,31,.14);border:1px solid rgba(227,25,31,.5);color:#ff7a7f;border-radius:13px;padding:11px 13px;font:600 .9rem var(--label);letter-spacing:.01em}
 .dorlockmsg.show{display:block;animation:gfade .2s ease both}
 .ownerbar{background:rgba(240,180,74,.12);border:1px solid rgba(240,180,74,.42);color:var(--gold);border-radius:13px;padding:10px 13px;font:600 .9rem var(--label);letter-spacing:.02em;margin:0 0 12px}
+/* member login */
+.authbtn{overflow:hidden;padding:0}
+.authbtn svg{width:22px;height:22px}
+.authbtn.in{border-color:var(--gold)}
+.authbtn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.authbtn .authini{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font:700 .9rem var(--label);background:var(--panel-2);color:var(--ink)}
+.authmodal{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;padding:0}
+.authbox{position:relative;width:100%;max-width:460px;background:var(--bg);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;
+  padding:22px max(18px,env(safe-area-inset-right,0px)) calc(26px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;animation:authup .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes authup{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+.authbox h3{font:400 1.7rem var(--display);text-transform:uppercase;margin:2px 0 0}
+.authx{position:absolute;right:12px;top:12px}
+.authsearch{margin:0}
+.authsug{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto}
+.authsugi{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:9px 12px;color:var(--ink);cursor:pointer}
+.authsugi:active{transform:scale(.99)}
+.authsugi b{font:600 1.02rem var(--body)}
+.authav{flex:none;width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--panel-2);color:var(--ink);font:700 .85rem var(--label)}
+.authav.big{width:54px;height:54px;font-size:1.1rem}
+.authav img{width:100%;height:100%;object-fit:cover}
+.authwho{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.authwho b{display:block;font:400 1.3rem var(--display);text-transform:uppercase;line-height:1.1}
+.authwho small{color:var(--muted);font:600 .78rem var(--label);letter-spacing:.08em;text-transform:uppercase}
+#authPw{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--ink);font:500 1.05rem var(--body)}
+#authPw:focus{outline:none;border-color:var(--gold)}
+.autherr{color:#ff7a7f;font:600 .9rem var(--label);margin:0}
+.authtiny{font-size:.82rem;margin:2px 0 0}
+.authbox .fkbtn{width:100%;justify-content:center}
+.authsoon{margin-left:8px;font:700 .68rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(240,180,74,.5);border-radius:99px;padding:2px 8px}
 .tphotos{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
 .tphoto{display:block;padding:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#000;width:100%}
 .tphoto img{display:block;width:100%;height:auto}

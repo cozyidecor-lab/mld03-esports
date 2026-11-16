@@ -62,5 +62,10 @@ const NET=(function(){
     return s.txn('likes/'+keyOf(name),cur=>{cur=cur||{n:0,by:{}};cur.by=cur.by||{};if(cur.by[dev])return undefined;cur.by[dev]=true;cur.n=(cur.n||0)+1;return cur;}).catch(()=>false);}
   /* the Firebase database itself, for MLD Football Flick (js/flick.js) */
   function db(){if(MOCK||!store())return null;try{return firebase.app().database();}catch(e){return null;}}
-  return {available,keyOf,cleanName,MOCK,onLikes,like,db};
+  /* generic helpers (used by the member login in js/auth.js) — work in both Firebase and mock.
+     get() rejects when a node is read-blocked by the rules; set() rejects when a write is denied. */
+  function get(p){const s=store();return s?s.get(p):Promise.reject(new Error('offline'));}
+  function set(p,v){const s=store();return s?s.set(p,v):Promise.reject(new Error('offline'));}
+  function on(p,cb){const s=store();return s?s.on(p,cb):(cb(null),()=>{});}
+  return {available,keyOf,cleanName,MOCK,onLikes,like,db,get,set,on};
 })();

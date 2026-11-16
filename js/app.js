@@ -384,6 +384,7 @@ function closeTopOverlay(){
     if(window.FF&&FF._test&&FF._test.close){FF._test.close();}return true;}
   const card=document.querySelector('.pcard');if(card){card.click();if(document.body.contains(card))card.remove();return true;} // player card / roast / install help
   const tip=document.querySelector('.formtip');if(tip){tip.remove();return true;}
+  const am=document.getElementById('authModal');if(am&&!am.hidden){if(window.closeAuth)closeAuth();return true;}
   if(sheetOpen){closeSheet();return true;}
   const sov=document.getElementById('searchov');if(sov&&sov.classList.contains('on')){closeSearch();return true;}
   if(cur==='mld-dor'&&dorEd!=null){dorEd=null;renderStat();return true;}
