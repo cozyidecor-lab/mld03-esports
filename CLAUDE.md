@@ -86,6 +86,10 @@ the standings is public), but it keeps the standings off every normal member's s
   icons `images/app-icon-*.png`, `images/apple-touch-icon.png`.
 - `js/flick-engine.js` + `js/flick.js`: the only mini game, MLD Football Flick (turn-based, carrom-style).
   Played upright (no rotation); pitch 640×1180 grass with a thin red/white edge; goal = confetti poppers + cheer.
+  Goal is awarded when the ball's CENTRE crosses the goal line (≈50% of the ball over), not the whole ball
+  (flick-engine.js `simulate`) — fixes a ball getting stuck half-inside where a disc just bounces off it.
+  `PADX=48` in flick.js `size()` makes the pitch WIDTH set the scale, leaving a side gutter (~27px) + a slightly
+  shorter pitch so you can pull back from left/right/bottom edge discs without running off the phone screen.
   Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
   positions → identical result on every phone. Firebase paths under `ff/`: `players` (profile, PIN hash, w/l/m/cur/best),
   `names` (unique names), `invites` (30 s, transaction join), `rooms` (private codes), `matches` (one transaction per

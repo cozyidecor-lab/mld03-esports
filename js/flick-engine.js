@@ -64,7 +64,9 @@ const FFE=(function(){
           if(vn<0){const jm=-(1+E_BODY)*vn/sum;vx[i]-=jm*im[i]*nx;vy[i]-=jm*im[i]*ny;vx[j]+=jm*im[j]*nx;vy[j]+=jm*im[j]*ny;
             if(i===0)ballTouched=true;ev(i===0?'b':'d',-vn);}
         }
-        if(x[0]>G0&&x[0]<G1){if(y[0]<-BR){goal='a';break;}if(y[0]>H+BR){goal='b';break;}}
+        // goal as soon as the ball's CENTRE crosses the line (≈50% of the ball over) — not the whole ball,
+        // so a ball sitting half-inside can't get stuck where a disc (which can't enter the goal) just bounces off it
+        if(x[0]>G0&&x[0]<G1){if(y[0]<0){goal='a';break;}if(y[0]>H){goal='b';break;}}
       }
       // rolling friction
       let moving=false;
