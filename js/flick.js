@@ -303,12 +303,13 @@ const FF=(function(){
     if(G.aimOut)G.aimOut.remove().catch(()=>{});cancelAnimationFrame(raf);G=null;aim=null;}
 
   /* ---------- drawing ---------- */
-  // PADX wide enough that the pitch width (not its height) sets the scale: this leaves a side gutter to
-  // pull back from left/right edge discs, and makes the pitch a little shorter lengthwise (room at the bottom too).
-  const PADX=48,PADY=52;let V={s:1,ox:0,oy:0};
+  // PADX wide enough that the pitch WIDTH sets the scale, leaving a real side gutter to pull back from
+  // left/right edge discs. The freed vertical space is biased DOWN (OY_TOP below) so most of it becomes
+  // room at the bottom, where you pull back from your own discs. Keep it from getting too small on big screens.
+  const PADX=86,PADY=52,OY_TOP=0.34;let V={s:1,ox:0,oy:0};
   function size(){if(!cv)return;const st=el('ffStage');if(!st)return;const r=st.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);
     cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);cv.style.width=r.width+'px';cv.style.height=r.height+'px';
-    const s=Math.min(r.width/(E.W+PADX*2),r.height/(E.H+PADY*2));V={s,dpr,ox:(r.width-E.W*s)/2,oy:(r.height-E.H*s)/2};}
+    const s=Math.min(r.width/(E.W+PADX*2),r.height/(E.H+PADY*2));V={s,dpr,ox:(r.width-E.W*s)/2,oy:(r.height-E.H*s)*OY_TOP};}
   const flip=()=>G&&G.my==='b';
   const tx=(x,y)=>flip()?[E.W-x,E.H-y]:[x,y];                       // field → view (player 2 sees the board turned 180°)
   const toScreen=(x,y)=>{const [a,b]=tx(x,y);return [V.ox+a*V.s,V.oy+b*V.s];};
