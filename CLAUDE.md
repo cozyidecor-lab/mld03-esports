@@ -66,7 +66,9 @@ PRESENCE (js/online.js): each visit writes `presence/{deviceId}={t, n?}` (n = th
 `window.isOnline(name)` + a `mld-online` event + `MLDonline()` = {count, names, guests}. The top online pill (tap it) opens
 a minimal who's-online popover (member names + green dots + "N guests"); a profile shows a green dot by the name when that
 player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at init so presence gets the name. No rule
-change (presence rule only checks `t`). TODO: Flick leaderboard — bold the names of logged-in/linked members + green dot if online.
+change (presence rule only checks `t`). Flick leaderboard (flick.js `boardScreen`): a row whose ff profile is linked to a
+DB member (`mld` set, from login's `linkFlick`) is BOLD (`.fkpname.member`); a green dot shows if `isOnline(mld)`. Legend row
+explains it. Uses a `linkMap` (id→mld) built from `loadPlayers()` so week/month tabs get it too.
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
 read-blocked). NEXT: the weekly Flick challenge (count only logged-in member-vs-member public matches). Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick

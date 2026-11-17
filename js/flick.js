@@ -649,8 +649,9 @@ const FF=(function(){
     show('board',`${top('Leaderboard')}<div class="fkboard"><div class="fktabs">${[['all','All-time'],['week','This week'],['month','This month']].map(([k,l])=>`<button class="${k===tab?'on':''}" data-f="tab" data-k="${k}">${l}</button>`).join('')}</div>
       <div id="ffBoard"><p class="fknote">Loading…</p></div><p class="fknote">Only public online matches count. Computer and private matches don't.</p></div>`);
     const d=db();const box=el('ffBoard');if(!d){box.innerHTML='<p class="fknote">The leaderboard is not available right now.</p>';return;}
+    const players=await loadPlayers(),linkMap={};players.forEach(pp=>{if(pp.mld)linkMap[pp.id]=pp.mld;});
     let rows=[];
-    if(tab==='all')rows=sortBoard(await loadPlayers());
+    if(tab==='all')rows=sortBoard(players);
     else{const since=tab==='week'?weekStart():monthStart();
       // fast query once the rules (with the ts index) are pasted in Firebase; otherwise load all and filter here
       let v=await d.ref('ff/results').orderByChild('ts').startAt(since).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
@@ -659,9 +660,11 @@ const FF=(function(){
       R.forEach(r=>{[[r.a,r.an],[r.b,r.bn]].forEach(([id,nm])=>{const p=P_(id,nm);p.m++;if(r.w===id){p.w++;p.cur++;p.best=Math.max(p.best,p.cur);}else{p.l++;p.cur=0;}});});
       rows=sortBoard(Object.values(P));}
     if(S.screen!=='board')return;
-    box.innerHTML=rows.length?`<table class="fktable"><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th><th>Win %</th><th>Streak</th></tr></thead><tbody>
-      ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}"><td>${i+1}</td><td>${H_(p.name)}</td><td><b>${p.w}</b></td><td>${p.l}</td><td>${p.m||p.w+p.l}</td><td>${Math.round(p.w/Math.max(1,p.w+p.l)*100)}%</td><td>${p.cur?'🔥'+p.cur:'–'}</td></tr>`).join('')}</tbody></table>`
-      :'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>';
+    const nameCell=p=>{const mld=p.mld||linkMap[p.id]||null,on=mld&&window.isOnline&&window.isOnline(mld);
+      return `<td class="fkpname${mld?' member':''}">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
+    box.innerHTML=(rows.length?`<table class="fktable"><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th><th>Win %</th><th>Streak</th></tr></thead><tbody>
+      ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}"><td>${i+1}</td>${nameCell(p)}<td><b>${p.w}</b></td><td>${p.l}</td><td>${p.m||p.w+p.l}</td><td>${Math.round(p.w/Math.max(1,p.w+p.l)*100)}%</td><td>${p.cur?'🔥'+p.cur:'–'}</td></tr>`).join('')}</tbody></table>
+      <p class="fknote fkleg"><b class="member">Bold</b> = logged-in MLD member · <span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
   }
   function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
   function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
