@@ -808,6 +808,24 @@ body.fl-full .flexit{width:38px;height:38px}
 .authtiny{font-size:.82rem;margin:2px 0 0}
 .authbox .fkbtn{width:100%;justify-content:center}
 .authsoon{margin-left:8px;font:700 .68rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(240,180,74,.5);border-radius:99px;padding:2px 8px}
+/* birthday: who wished */
+.bwishers{display:flex;align-items:center;gap:8px;margin-top:9px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:99px;padding:5px 12px 5px 7px;color:var(--ink);cursor:pointer;max-width:100%}
+.bwishers:active{transform:scale(.99)}
+.bwishers .av0.bwav{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--bg);margin-left:-8px;font-size:.6rem}
+.bwishers .av0.bwav:first-child{margin-left:0}
+.bwtxt{font:600 .82rem var(--label);letter-spacing:.01em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:4px}
+.bwishmodal{position:fixed;inset:0;z-index:115;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.bwishbox{position:relative;width:100%;max-width:460px;background:var(--bg);border:1px solid var(--line);border-bottom:0;border-radius:26px 26px 0 0;
+  padding:22px max(18px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px;animation:authup .3s cubic-bezier(.2,.8,.2,1) both}
+.bwishbox h3{font:400 1.6rem var(--display);text-transform:uppercase;margin:2px 0 0}
+.bwishx{position:absolute;right:12px;top:12px}
+.bwishlist{display:flex;flex-direction:column;gap:6px;max-height:54vh;overflow:auto;margin-top:2px}
+.bwrow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:8px 12px;color:var(--ink);cursor:pointer}
+.bwrow.anon{cursor:default;opacity:.85}
+.bwrow b{font:600 1rem var(--body)}
+.bwrow .av0{width:36px;height:36px;border-radius:50%;flex:none;font-size:.8rem}
+.bwanon{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--panel-2);font-size:1.1rem}
+.bwtiny{font-size:.82rem;margin:4px 0 0}
 .tphotos{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
 .tphoto{display:block;padding:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#000;width:100%}
 .tphoto img{display:block;width:100%;height:auto}

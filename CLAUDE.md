@@ -91,8 +91,12 @@ challenges).
   player button, copy-profile-link (links look like `/?p=Name`), toast. S-tier profiles get `.sheet.stier` gold styling.
 - `js/roast.js`: 🔥 Roast button on profiles; ~27 stat-based roast templates (conditions on data.js), each tap a new one, Share.
 - `js/birthday.js`: `BIRTHDAYS={Name:'MM-DD'}` (16 players so far; owner sends more). On the day: Home banner at top,
-  confetti, wishes counter (`bday/{name}/{year}` in Firebase), share, tap-to-play music-box tune, 🎂 on profile.
-  No "upcoming birthdays" list (owner said no).
+  confetti, "Send wishes" + live count (`bday/{name}/{year}` = `{n, by}` in Firebase), share, tap-to-play music-box tune,
+  🎂 on profile. WHO-WISHED: each wish stores the wisher in `by` — a LOGGED-IN member's wish is `by/{m:id}=name` (so the
+  birthday person sees who it was), a not-logged-in wish is `by/{deviceId}=true` (counts, stays anonymous); one wish per
+  member/device. A "see who wished →" strip on the banner opens a list of named wishers + "N friends not logged in"
+  (`openWishers`). Uses `NET.txn`/`NET.on` so it also works in `?mock=1`. Test with `?bdaytest=MM-DD`. No Firebase rule
+  change needed (the `bday` rule only requires `n` to increment, which the wish still does). No "upcoming birthdays" list.
 - `js/ach-engine.js` + `js/achievements.js`: 73 achievements (49 + 16 per-format wins: 1/2/3/5 × Team Tour, Authentic, Dream Team, Co-op + 8 Manager) (menu → Hall of fame → Achievements; summary on every profile;
   admin table with `?admin=1`). Engine replays every completed tournament in order and unlocks the first time a condition
   is met (stamp = that tournament), so unlocks are permanent and recalc on data fixes. Co-op: counts for appearances/

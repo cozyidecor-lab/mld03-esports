@@ -27,30 +27,60 @@
           <p>${seasons} seasons · ${p.g} goals · ${p.pt} title${p.pt===1?'':'s'} · all-time #${p.crk}</p>
           <div class="bdaybtns"><button class="flbtn red" data-wish="${esc(n)}">🎉 Send wishes <b data-wishn="${esc(n)}"></b></button>
             <button class="flbtn" data-bsong="1">🎵 Play birthday song</button><button class="flbtn" data-bshare="${esc(n)}">Share</button></div>
-          <small class="bwished" data-wished="${esc(n)}"></small></div></div>`;}).join('');
+          <small class="bwished" data-wished="${esc(n)}"></small>
+          <button class="bwishers" data-wishopen="${esc(n)}" hidden></button></div></div>`;}).join('');
     home.prepend(box);
     today.forEach(watchWishes);
   }
 
   /* ---------- wishes: one per phone, live total ---------- */
   const dev=(()=>{try{let v=localStorage.getItem('mld-dev');if(!v){v=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('mld-dev',v);}return v;}catch(e){return 'anon';}})();
-  const db=()=>typeof NET!=='undefined'?NET.db():null;
+  const net=()=>typeof NET!=='undefined'&&NET.available()?NET:null;
   const key=n=>n.replace(/[.#$\[\]\/]/g,'');
   const wishedKey=n=>`mld-wished-${key(n)}-${year}`;
-  function paint(n,count){
+  const WB={};                                           // latest {wisherKey: name|true} map per birthday name
+  const meNow=()=>(window.MLDAUTH&&MLDAUTH.me&&MLDAUTH.me())||null;   // logged-in member, if any
+  const myKey=()=>{const m=meNow();return m?'m:'+m.id:dev;};         // dedupe key: member or device
+  const namesOf=by=>Object.values(by||{}).filter(v=>typeof v==='string'&&v);  // only logged-in wishers have names
+  function paint(n,count,by){by=by||WB[n]||{};
     document.querySelectorAll(`[data-wishn="${CSS.escape(n)}"]`).forEach(b=>b.textContent=count?`· ${count}`:'');
-    let mine=false;try{mine=localStorage.getItem(wishedKey(n))==='1';}catch(e){}
-    document.querySelectorAll(`[data-wished="${CSS.escape(n)}"]`).forEach(s=>s.textContent=count?`${count} ${count===1?'person has':'people have'} wished ${n} today${mine?' (you too 💛)':''}`:'Be the first to wish!');
+    const m=meNow(),mine=!!by[m?'m:'+m.id:dev];
+    document.querySelectorAll(`[data-wished="${CSS.escape(n)}"]`).forEach(s=>s.textContent=count?`${count} ${count===1?'wish':'wishes'} today${mine?' · you too 💛':''}`:'Be the first to wish!');
     document.querySelectorAll(`[data-wish="${CSS.escape(n)}"]`).forEach(b=>b.classList.toggle('done',mine));
+    const named=namesOf(by);
+    document.querySelectorAll(`[data-wishopen="${CSS.escape(n)}"]`).forEach(w=>{
+      if(!named.length){w.hidden=true;return;}w.hidden=false;
+      const show=named.slice(0,4),more=count-show.length;
+      w.innerHTML=`${show.map(nm=>avatar(nm,'bwav')).join('')}<span class="bwtxt">${esc(show.join(', '))}${more>0?` +${more} more`:''} · see who wished →</span>`;
+    });
   }
-  function watchWishes(n){const x=db();if(!x){paint(n,0);return;}x.ref(`bday/${key(n)}/${year}/n`).on('value',s=>paint(n,s.val()||0));}
-  async function wish(n,btn){
-    try{if(localStorage.getItem(wishedKey(n))==='1'){window.mldToast&&mldToast('You already wished '+n+' 🎂');return;}}catch(e){}
-    burst();const x=db();try{localStorage.setItem(wishedKey(n),'1');}catch(e){}
-    if(!x){paint(n,1);return;}
-    try{await x.ref(`bday/${key(n)}/${year}`).transaction(c=>{c=c||{n:0,by:{}};c.by=c.by||{};if(c.by[dev])return;c.by[dev]=true;c.n=(c.n||0)+1;return c;});}catch(e){}
-    window.mldToast&&mldToast('Wish sent to '+n+' 🎉');
+  function watchWishes(n){const x=net();if(!x){paint(n,0,{});return;}
+    x.on(`bday/${key(n)}/${year}`,v=>{v=v||{};WB[n]=v.by||{};paint(n,v.n||0,WB[n]);});}
+  async function wish(n){
+    const m=meNow(),wk=m?'m:'+m.id:dev,by=WB[n]||{};
+    if(by[wk]){window.mldToast&&mldToast('You already wished '+n+' 🎂');return;}
+    burst();try{localStorage.setItem(wishedKey(n),'1');}catch(e){}
+    const x=net();if(!x){return;}
+    try{await x.txn(`bday/${key(n)}/${year}`,c=>{c=c||{n:0,by:{}};c.by=c.by||{};if(c.by[wk])return;c.by[wk]=m?m.name:true;c.n=(c.n||0)+1;return c;});}catch(e){}
+    window.mldToast&&mldToast(m?('Wish sent — '+n+' will see it was you 💛'):('Wish sent to '+n+' 🎉'));
   }
+  /* ---------- "who wished" list ---------- */
+  function openWishers(n){
+    const by=WB[n]||{},named=namesOf(by),anon=Object.keys(by).length-named.length,m=meNow();
+    named.sort((a,b)=>a.localeCompare(b));
+    const el=document.createElement('div');el.className='bwishmodal';el.id='bwishModal';
+    el.innerHTML=`<div class="bwishbox"><button class="ibtn bwishx" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h3>Wished ${esc(n)} 🎂</h3>
+      <p class="note">${named.length+anon} ${named.length+anon===1?'wish':'wishes'} today${named.length?'':' — nobody logged in yet'}.</p>
+      <div class="bwishlist">${named.map(nm=>`<button class="bwrow" data-p="${esc(nm)}">${avatar(nm,'')}<b>${esc(nm)}</b></button>`).join('')}
+        ${anon?`<div class="bwrow anon"><span class="bwanon">🙂</span><b>${anon} ${anon===1?'friend who isn':'friends who aren'}’t logged in</b></div>`:''}</div>
+      ${!m?'<p class="note bwtiny">💡 Log in <b>before</b> you wish, so your name shows here instead of counting as "not logged in".</p>':''}</div>`;
+    document.body.appendChild(el);document.body.classList.add('bwish-open');
+    el.addEventListener('click',e=>{if(e.target===el||e.target.closest('.bwishx'))closeWishers();});
+  }
+  function closeWishers(){const el=document.getElementById('bwishModal');if(!el)return false;el.remove();document.body.classList.remove('bwish-open');return true;}
+  window.closeWishers=closeWishers;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWishers();});
 
   /* ---------- confetti ---------- */
   function burst(){
@@ -91,7 +121,8 @@
     const tags=document.querySelector('#sheetBody .proftags');if(tags&&!tags.querySelector('.bdaytag'))tags.insertAdjacentHTML('afterbegin','<span class="bdaytag">🎂 Birthday today</span>');};
 
   document.addEventListener('click',e=>{
-    const w=e.target.closest('[data-wish]');if(w)return wish(w.dataset.wish,w);
+    const wo=e.target.closest('[data-wishopen]');if(wo)return openWishers(wo.dataset.wishopen);
+    const w=e.target.closest('[data-wish]');if(w)return wish(w.dataset.wish);
     const s=e.target.closest('[data-bsong]');if(s)return song(s);
     const sh=e.target.closest('[data-bshare]');if(sh){const n=sh.dataset.bshare,text=`🎂 Happy birthday ${n}! 🎉\nFrom the whole MLD 03 family.\n${location.origin}/?p=${encodeURIComponent(n)}`;
       if(navigator.share)navigator.share({text}).catch(()=>{});else{try{navigator.clipboard.writeText(text);window.mldToast&&mldToast('Copied. Paste it in the group');}catch(err){}}}
