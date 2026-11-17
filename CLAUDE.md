@@ -70,10 +70,10 @@ and a local timer re-ages the list every 20s. Exposes
 `window.isOnline(name)` + a `mld-online` event + `MLDonline()` = {count, names, guests}. The top online pill (tap it) opens
 a minimal who's-online popover (member names + green dots + "N guests"); a profile shows a green dot by the name when that
 player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at init so presence gets the name. No rule
-change (presence rule only checks `t`). Flick leaderboard (flick.js `boardScreen`): a row is BOLD (`.fkpname.member`) only
-when its ff profile has `verified:true`, which `auth.js linkFlick` sets ONLY on an actual password login — NOT the `mld`
-link (the game's own name-picker also sets `mld`, so mld≠logged-in; that was a bug). Green dot shows if `isOnline(mld)`.
-`loadPlayers()` maps `verified`; `linkMap` (id→{mld,verified}) carries it to the week/month tabs. Legend row explains it.
+change (presence rule only checks `t`). Flick leaderboard (flick.js `boardScreen`): shows a green dot if `isOnline(mld)`.
+The BOLD-for-logged-in-members was REMOVED (owner's call — he didn't want it). But `auth.js linkFlick` STILL sets
+`ff/players/{ffid}/verified=true` on an actual password login (and `loadPlayers()` maps `verified`): this is the
+"is a logged-in member" flag the planned WEEKLY FLICK CHALLENGE (₹ prize) needs to count only member-vs-member matches.
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
 read-blocked). NEXT: the weekly Flick challenge (count only logged-in member-vs-member public matches). Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick

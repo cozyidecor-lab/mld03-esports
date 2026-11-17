@@ -660,11 +660,11 @@ const FF=(function(){
       R.forEach(r=>{[[r.a,r.an],[r.b,r.bn]].forEach(([id,nm])=>{const p=P_(id,nm);p.m++;if(r.w===id){p.w++;p.cur++;p.best=Math.max(p.best,p.cur);}else{p.l++;p.cur=0;}});});
       rows=sortBoard(Object.values(P));}
     if(S.screen!=='board')return;
-    const nameCell=p=>{const info=linkMap[p.id]||{},mld=p.mld||info.mld||null,ver=p.verified||info.verified,on=mld&&window.isOnline&&window.isOnline(mld);
-      return `<td class="fkpname${ver?' member':''}">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
+    const nameCell=p=>{const info=linkMap[p.id]||{},mld=p.mld||info.mld||null,on=mld&&window.isOnline&&window.isOnline(mld);
+      return `<td class="fkpname">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
     box.innerHTML=(rows.length?`<table class="fktable"><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th><th>Win %</th><th>Streak</th></tr></thead><tbody>
       ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}"><td>${i+1}</td>${nameCell(p)}<td><b>${p.w}</b></td><td>${p.l}</td><td>${p.m||p.w+p.l}</td><td>${Math.round(p.w/Math.max(1,p.w+p.l)*100)}%</td><td>${p.cur?'🔥'+p.cur:'–'}</td></tr>`).join('')}</tbody></table>
-      <p class="fknote fkleg"><b class="member">Bold</b> = logged-in MLD member · <span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
+      <p class="fknote fkleg"><span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
   }
   function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
   function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
