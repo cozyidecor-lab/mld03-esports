@@ -50,9 +50,9 @@
       b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M5.5 20c0-3.6 3.2-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg>`;}}
 
   /* ---------- modal open/close ---------- */
-  function open(html){const m=el('authModal');if(!m)return;m.hidden=false;m.innerHTML=`<div class="authbox">${html}</div>`;
+  function open(html){const m=el('authModal');if(!m)return;m.hidden=false;m.className='authmodal';m.innerHTML=`<div class="authbox">${html}</div>`;
     document.body.classList.add('auth-open');}
-  function close(){const m=el('authModal');if(!m||m.hidden)return false;m.hidden=true;m.innerHTML='';pick=null;
+  function close(){const m=el('authModal');if(!m||m.hidden)return false;m.hidden=true;m.innerHTML='';m.className='authmodal';pick=null;
     document.body.classList.remove('auth-open');return true;}
   window.closeAuth=close;
 
@@ -97,11 +97,24 @@
       pwEl.value='';pwEl.focus();}
   }
 
-  /* ---------- logged-IN: the account menu ---------- */
-  function openAccount(){const u=faceOf(me.name);
-    open(`<button class="ibtn authx" data-authclose aria-label="Close">${X}</button>
-      <div class="authwho"><span class="authav big">${u?`<img alt="" src="${esc(u)}">`:esc(initialsOf(me.name))}</span><div><small>Logged in as</small><b>${esc(me.name)}</b></div></div>
-      <button class="fkbtn" id="authOut">Log out</button>`);
+  /* ---------- logged-IN: a right-side panel with your stats + achievement progress ---------- */
+  function openAccount(){const n=me.name,u=faceOf(n),p=(typeof byName==='object'&&byName[n])||null;
+    const F=x=>typeof fmt==='function'?fmt(x):(x==null?'–':x);
+    const tile=(v,l)=>`<div class="aptile"><b>${v}</b><span>${l}</span></div>`;
+    const stats=p?`<div class="aptiles">${tile('#'+p.crk,'All-time rank')}${tile(p.g,'Goals')}${tile(F(p.r),'Avg rating')}${tile(p.pt,'Trophies')}${tile(p.ru,'Runner-up')}${tile(p.t,'Tours')}</div>`
+      :'<p class="note">No stats recorded for your account yet.</p>';
+    const m=el('authModal');if(!m)return;m.hidden=false;m.className='authmodal side';
+    m.innerHTML=`<div class="authpanel">
+      <div class="aptop">
+        <button class="apme" data-apanelprofile aria-label="Open my full profile">${u?`<img class="apav" alt="" src="${esc(u)}">`:`<span class="apav authini">${esc(initialsOf(n))}</span>`}<span class="apname"><small>Logged in as</small><b>${esc(n)}</b></span></button>
+        <button class="ibtn authx" data-authclose aria-label="Close">${X}</button>
+      </div>
+      <button class="approfbtn" data-apanelprofile>View my full profile →</button>
+      ${stats}
+      ${window.MLDach&&MLDach.panelHtml?MLDach.panelHtml(n):''}
+      <button class="fkbtn apout" id="authOut">Log out</button>
+    </div>`;
+    document.body.classList.add('auth-open');
     const out=el('authOut');if(out)out.addEventListener('click',()=>{setMe(null);close();toast('Logged out');});
   }
 
@@ -115,6 +128,8 @@
   document.addEventListener('click',e=>{
     if(e.target.closest('#authBtn')){e.preventDefault();return me?openAccount():openLogin();}
     if(e.target.closest('[data-authclose]'))return close();
+    if(e.target.closest('[data-apanelprofile]')){const n=me&&me.name;close();if(n&&typeof openPlayer==='function')openPlayer(n);return;}
+    if(e.target.closest('.authpanel [data-acview]'))return close();  // achievements handler does the navigation
     if(e.target.closest('[data-authback]'))return renderPick();
     const s=e.target.closest('[data-pickname]');if(s){pick=s.dataset.pickname;renderPw();return;}
     const m=el('authModal');if(m&&!m.hidden&&e.target===m)close();   // tap backdrop

@@ -121,8 +121,21 @@
       ${recent.length?`<p class="note acrecline">Recently: ${recent.map(z=>`${z.a.ic} ${esc(z.a.name)} <i>(${esc(z.at)})</i>`).join(' · ')}</p>`:''}
       <button class="flbtn" data-acview="${esc(n)}">View all achievements</button></section>`;
   }
+  /* compact progress block for the logged-in side panel (js/auth.js) */
+  function panelHtml(n){
+    if(!R.res[n])return'';const u=unlockedOf(n),p=Math.round(u.length/total*100);
+    const next=listOf(n).filter(z=>!z.unlocked&&z.cur>0).sort((a,b)=>b.cur/b.target-a.cur/a.target||a.a.rar-b.a.rar).slice(0,3);
+    const row=z=>{const a=z.a,pc=Math.round(Math.min(1,z.cur/z.target)*100);
+      return `<div class="apach"><span class="apachico" style="--rc:${RC[a.rar]}">${a.ic}</span>
+        <div class="apachtx"><b>${esc(a.name)}</b><div class="apbar2"><i style="width:${pc}%"></i></div>
+        <small>${fmtNum(Math.min(z.cur,z.target))} / ${z.target}</small></div></div>`;};
+    return `<div class="apsec"><div class="apsechead"><span>Achievements</span><b>${u.length} / ${total}</b></div>
+      <div class="acbar"><i style="width:${p}%"></i></div>
+      ${next.length?`<small class="apsub">Closest to unlocking</small>${next.map(row).join('')}`:'<small class="apsub">All unlocked — legend! 🏆</small>'}
+      <button class="aplink" data-acview="${esc(n)}">See all achievements →</button></div>`;
+  }
   const base=openPlayer;
   openPlayer=function(n){base(n);const kv=document.querySelector('#sheetBody .kv');if(!kv||!R.res[n])return;
     kv.insertAdjacentHTML('afterend',profileHtml(n));};
-  window.MLDach={get:()=>R,profileHtml};
+  window.MLDach={get:()=>R,profileHtml,panelHtml};
 })();

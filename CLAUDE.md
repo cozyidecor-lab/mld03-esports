@@ -46,7 +46,10 @@ the standings is public), but it keeps the standings off every normal member's s
 Database players log in with a password (WaCky gives each person theirs privately on WhatsApp) to prove identity — this
 will gate the planned MLD Flick weekly challenge and (Phase 2) let members set their own photo. Non-members use the whole
 site without logging in. Header has a profile icon (`#authBtn`, added in index.html next to search): logged out → login
-modal (`#authModal`); logged in → shows the player's photo, taps to an account menu (just Log out for now). Self-serve photo editing
+modal (`#authModal`); logged in → shows the player's photo, taps to a RIGHT-SIDE account panel (`.authmodal.side` → `.authpanel` in auth.js
+`openAccount`): photo + name, "View my full profile" (→ `openPlayer`), quick stat tiles (rank/goals/rating/trophies/
+runner-up/tours from `byName`), achievement progress (`MLDach.panelHtml(n)` = X/total bar + 3 "closest to unlocking"
+mini progress bars), and Log out at the bottom. "See all achievements" reuses the `data-acview` handler. Self-serve photo editing
 was DROPPED (owner's call — moderation risk of random uploads); members still send WaCky a photo on WhatsApp and it's
 added to DEFAULT_FACE. Login flow: type name → pick from DATABASE autocomplete (can't free-type a name) → password. Session saved
 in localStorage `mld-login` `{id,name}`; `window.MLDAUTH` = {me,isMember,open,close}; fires `mld-auth` event on change.
