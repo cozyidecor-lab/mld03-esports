@@ -43,19 +43,33 @@
   function updateProfDot(){const name=sheetName(),dot=document.querySelector('#sheetBody [data-profdot]');if(!dot)return;dot.hidden=!(name&&window.isOnline(name));}
 
   /* ---------- start ---------- */
+  // A visit counts as online only while the app is OPEN and in the FOREGROUND. We heartbeat every BEAT ms
+  // and only count entries whose last heartbeat is within STALE ms — so a backgrounded/closed/crashed app
+  // drops off within ~STALE even if Firebase's onDisconnect never fires. Backgrounding removes us at once.
+  const BEAT=20000, STALE=75000;
   const x=net();
   if(x){
-    const path='presence/'+dev,write=()=>x.set(path,myVal()).catch(()=>{});
-    x.onDisc(path);write();
-    setInterval(write,25000);
-    addEventListener('pagehide',()=>{x.remove(path);});
-    document.addEventListener('mld-auth',write);
-    x.on('presence',v=>{v=v||{};const es=Object.values(v);
-      const names=[...new Set(es.filter(e=>e&&e.n).map(e=>e.n))];
-      const guests=es.filter(e=>!e||!e.n).length;
+    const path='presence/'+dev;
+    let snap={}, hb=null;
+    const write=()=>{if(document.hidden)return;x.onDisc(path);x.set(path,myVal()).catch(()=>{});};
+    const startBeat=()=>{if(!hb)hb=setInterval(write,BEAT);};
+    const stopBeat=()=>{if(hb){clearInterval(hb);hb=null;}};
+    const goOnline=()=>{write();startBeat();};
+    const goOffline=()=>{stopBeat();x.remove(path).catch(()=>{});};
+    function recompute(){const now=Date.now();
+      const es=Object.values(snap).filter(e=>e&&typeof e.t==='number'&&(now-e.t)<STALE);
+      const names=[...new Set(es.filter(e=>e.n).map(e=>e.n))];
+      const guests=es.filter(e=>!e.n).length;
       ONLINE={count:names.length+guests,names,guests};
       paintCount();updatePop();updateProfDot();
-      document.dispatchEvent(new CustomEvent('mld-online',{detail:ONLINE}));});
+      document.dispatchEvent(new CustomEvent('mld-online',{detail:ONLINE}));}
+    x.on('presence',v=>{snap=v||{};recompute();});
+    setInterval(recompute,BEAT);                 // locally age out stale entries even if nobody writes
+    document.addEventListener('mld-auth',write); // name changed (login/logout): refresh our entry
+    document.addEventListener('visibilitychange',()=>{document.hidden?goOffline():goOnline();});
+    addEventListener('pagehide',()=>{stopBeat();x.remove(path).catch(()=>{});});
+    addEventListener('beforeunload',()=>{x.remove(path).catch(()=>{});});
+    if(!document.hidden)goOnline();
   }
   // keep the profile dot live + add it when a profile opens
   if(typeof openPlayer==='function'){const base=openPlayer;openPlayer=function(n){base(n);updateProfDot();};}

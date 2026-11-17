@@ -62,7 +62,11 @@ is NOT in the repo — it's generated and handed to WaCky as a private Excel/PDF
 `secret/{id}={h}` (rule allows create-only, `!data.exists()`), and give WaCky the password. `NET.get/set/on` (net.js) are
 generic helpers for this. SETUP WaCky must do once: (1) paste the updated firebase-rules.json in the Firebase console
 (adds the read-blocked `secret` + validated `login` rules AND deploys the pending game rules / closes test mode).
-PRESENCE (js/online.js): each visit writes `presence/{deviceId}={t, n?}` (n = the logged-in member's name). Exposes
+PRESENCE (js/online.js): each visit writes `presence/{deviceId}={t, n?}` (n = the logged-in member's name). Online means
+app OPEN + FOREGROUND: a heartbeat updates `t` every BEAT (20s); readers count only entries whose `t` is within STALE
+(75s), so a backgrounded/closed/crashed visit drops off even if Firebase `onDisconnect` never fired (the old bug: a
+person stayed "online" for an hour). `visibilitychange` (hidden) / `pagehide` / `beforeunload` remove the entry at once,
+and a local timer re-ages the list every 20s. Exposes
 `window.isOnline(name)` + a `mld-online` event + `MLDonline()` = {count, names, guests}. The top online pill (tap it) opens
 a minimal who's-online popover (member names + green dots + "N guests"); a profile shows a green dot by the name when that
 player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at init so presence gets the name. No rule
