@@ -138,6 +138,8 @@
 
   window.MLDAUTH={me:()=>me,isMember:()=>!!me,open:openLogin,close};
   paintBtn();
+  // announce the current login once at startup so presence (js/online.js, loaded first) writes our name
+  document.dispatchEvent(new CustomEvent('mld-auth',{detail:me}));
   // if the photo for the logged-in player loads/changes later, keep the header icon fresh
   document.addEventListener('mld-photos',paintBtn);
 })();

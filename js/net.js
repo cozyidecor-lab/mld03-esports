@@ -68,5 +68,7 @@ const NET=(function(){
   function set(p,v){const s=store();return s?s.set(p,v):Promise.reject(new Error('offline'));}
   function on(p,cb){const s=store();return s?s.on(p,cb):(cb(null),()=>{});}
   function txn(p,fn){const s=store();return s?s.txn(p,fn):Promise.resolve(false);}
-  return {available,keyOf,cleanName,MOCK,onLikes,like,db,get,set,on,txn};
+  function remove(p){const s=store();return s?s.remove(p):Promise.resolve();}
+  function onDisc(p){const s=store();if(s&&s.onDiscRemove)s.onDiscRemove(p);}
+  return {available,keyOf,cleanName,MOCK,onLikes,like,db,get,set,on,txn,remove,onDisc};
 })();

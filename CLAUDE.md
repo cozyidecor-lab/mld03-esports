@@ -62,6 +62,11 @@ is NOT in the repo — it's generated and handed to WaCky as a private Excel/PDF
 `secret/{id}={h}` (rule allows create-only, `!data.exists()`), and give WaCky the password. `NET.get/set/on` (net.js) are
 generic helpers for this. SETUP WaCky must do once: (1) paste the updated firebase-rules.json in the Firebase console
 (adds the read-blocked `secret` + validated `login` rules AND deploys the pending game rules / closes test mode).
+PRESENCE (js/online.js): each visit writes `presence/{deviceId}={t, n?}` (n = the logged-in member's name). Exposes
+`window.isOnline(name)` + a `mld-online` event + `MLDonline()` = {count, names, guests}. The top online pill (tap it) opens
+a minimal who's-online popover (member names + green dots + "N guests"); a profile shows a green dot by the name when that
+player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at init so presence gets the name. No rule
+change (presence rule only checks `t`). TODO: Flick leaderboard — bold the names of logged-in/linked members + green dot if online.
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
 read-blocked). NEXT: the weekly Flick challenge (count only logged-in member-vs-member public matches). Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick

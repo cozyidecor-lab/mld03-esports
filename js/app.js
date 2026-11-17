@@ -319,7 +319,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}</h3><span class="nlbtns"><button class="linkbtn" data-copylink="${esc(n)}" aria-label="Copy link to ${esc(n)}'s profile" title="Copy profile link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1.2-1.2"/></svg></button><span id="likeBox"></span></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}<span class="onlinedot" data-profdot hidden title="Online now"></span></h3><span class="nlbtns"><button class="linkbtn" data-copylink="${esc(n)}" aria-label="Copy link to ${esc(n)}'s profile" title="Copy profile link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1.2-1.2"/></svg></button><span id="likeBox"></span></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
     <div class="pcrow"><button class="pcbtn" data-pcard="${esc(n)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg>Download player card</button><button class="rsbtn" data-roast="${esc(n)}">🔥 Roast</button></div>
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
@@ -384,6 +384,7 @@ function closeTopOverlay(){
     if(window.FF&&FF._test&&FF._test.close){FF._test.close();}return true;}
   const card=document.querySelector('.pcard');if(card){card.click();if(document.body.contains(card))card.remove();return true;} // player card / roast / install help
   const tip=document.querySelector('.formtip');if(tip){tip.remove();return true;}
+  if(document.getElementById('onlPop')){if(window.closeOnlinePop)closeOnlinePop();return true;}
   if(document.getElementById('bwishModal')){if(window.closeWishers)closeWishers();return true;}
   const am=document.getElementById('authModal');if(am&&!am.hidden){if(window.closeAuth)closeAuth();return true;}
   if(sheetOpen){closeSheet();return true;}
