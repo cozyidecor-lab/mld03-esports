@@ -37,7 +37,10 @@
     try{await NET.set('login/'+id+'/'+dev,{h:h,t:Date.now()});return true;}catch(e){return false;}}
 
   /* link the logged-in person to their MLD Football Flick profile, if they have one on this phone */
-  function linkFlick(name){try{const ffid=LS.get('ff.me',null);if(ffid&&NET&&NET.set)NET.set('ff/players/'+ffid+'/mld',name).catch(()=>{});}catch(e){}}
+  function linkFlick(name){try{const ffid=LS.get('ff.me',null);if(ffid&&NET&&NET.set){
+    NET.set('ff/players/'+ffid+'/mld',name).catch(()=>{});
+    NET.set('ff/players/'+ffid+'/verified',true).catch(()=>{});  // marks the game profile as a LOGGED-IN member (leaderboard bold)
+  }}catch(e){}}
 
   function setMe(v){me=v;if(v)LS.set('mld-login',v);else LS.del('mld-login');paintBtn();
     document.dispatchEvent(new CustomEvent('mld-auth',{detail:me}));}

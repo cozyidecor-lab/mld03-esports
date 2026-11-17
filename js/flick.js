@@ -52,7 +52,7 @@ const FF=(function(){
     const p=(await d.ref('ff/players/'+id).get()).val();if(!p||p.pin!==await hashPin(id,pin))throw new Error('Wrong PIN.');
     remember({id,name:p.name});}
   async function loadPlayers(){const d=db();if(!d)return [];try{const v=(await d.ref('ff/players').get()).val()||{};
-    return Object.entries(v).map(([id,p])=>({id,mld:p.mld||null,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
+    return Object.entries(v).map(([id,p])=>({id,mld:p.mld||null,verified:!!p.verified,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
   const sortBoard=L=>L.filter(p=>!GOD.has(p.id)&&(p.m>0||p.w+p.l>0)).sort((a,b)=>b.w-a.w||(b.w/Math.max(1,b.w+b.l))-(a.w/Math.max(1,a.w+a.l))||a.l-b.l||a.name.localeCompare(b.name));
 
   /* ================= overlay + screens ================= */
@@ -649,7 +649,7 @@ const FF=(function(){
     show('board',`${top('Leaderboard')}<div class="fkboard"><div class="fktabs">${[['all','All-time'],['week','This week'],['month','This month']].map(([k,l])=>`<button class="${k===tab?'on':''}" data-f="tab" data-k="${k}">${l}</button>`).join('')}</div>
       <div id="ffBoard"><p class="fknote">Loading…</p></div><p class="fknote">Only public online matches count. Computer and private matches don't.</p></div>`);
     const d=db();const box=el('ffBoard');if(!d){box.innerHTML='<p class="fknote">The leaderboard is not available right now.</p>';return;}
-    const players=await loadPlayers(),linkMap={};players.forEach(pp=>{if(pp.mld)linkMap[pp.id]=pp.mld;});
+    const players=await loadPlayers(),linkMap={};players.forEach(pp=>{linkMap[pp.id]={mld:pp.mld,verified:pp.verified};});
     let rows=[];
     if(tab==='all')rows=sortBoard(players);
     else{const since=tab==='week'?weekStart():monthStart();
@@ -660,8 +660,8 @@ const FF=(function(){
       R.forEach(r=>{[[r.a,r.an],[r.b,r.bn]].forEach(([id,nm])=>{const p=P_(id,nm);p.m++;if(r.w===id){p.w++;p.cur++;p.best=Math.max(p.best,p.cur);}else{p.l++;p.cur=0;}});});
       rows=sortBoard(Object.values(P));}
     if(S.screen!=='board')return;
-    const nameCell=p=>{const mld=p.mld||linkMap[p.id]||null,on=mld&&window.isOnline&&window.isOnline(mld);
-      return `<td class="fkpname${mld?' member':''}">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
+    const nameCell=p=>{const info=linkMap[p.id]||{},mld=p.mld||info.mld||null,ver=p.verified||info.verified,on=mld&&window.isOnline&&window.isOnline(mld);
+      return `<td class="fkpname${ver?' member':''}">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
     box.innerHTML=(rows.length?`<table class="fktable"><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th><th>Win %</th><th>Streak</th></tr></thead><tbody>
       ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}"><td>${i+1}</td>${nameCell(p)}<td><b>${p.w}</b></td><td>${p.l}</td><td>${p.m||p.w+p.l}</td><td>${Math.round(p.w/Math.max(1,p.w+p.l)*100)}%</td><td>${p.cur?'🔥'+p.cur:'–'}</td></tr>`).join('')}</tbody></table>
       <p class="fknote fkleg"><b class="member">Bold</b> = logged-in MLD member · <span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
