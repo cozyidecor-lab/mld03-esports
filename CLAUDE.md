@@ -46,8 +46,9 @@ the standings is public), but it keeps the standings off every normal member's s
 Database players log in with a password (WaCky gives each person theirs privately on WhatsApp) to prove identity — this
 will gate the planned MLD Flick weekly challenge and (Phase 2) let members set their own photo. Non-members use the whole
 site without logging in. Header has a profile icon (`#authBtn`, added in index.html next to search): logged out → login
-modal (`#authModal`); logged in → shows the player's photo, taps to an account menu (Log out; "Change my photo" = Phase 2
-placeholder). Login flow: type name → pick from DATABASE autocomplete (can't free-type a name) → password. Session saved
+modal (`#authModal`); logged in → shows the player's photo, taps to an account menu (just Log out for now). Self-serve photo editing
+was DROPPED (owner's call — moderation risk of random uploads); members still send WaCky a photo on WhatsApp and it's
+added to DEFAULT_FACE. Login flow: type name → pick from DATABASE autocomplete (can't free-type a name) → password. Session saved
 in localStorage `mld-login` `{id,name}`; `window.MLDAUTH` = {me,isMember,open,close}; fires `mld-auth` event on change.
 Security (friendly-group grade, no server): password hash = PBKDF2-SHA256, 210k iters, salt `mld03-login-v1`. Hashes live
 in Firebase `secret/{id}` which the rules make `.read:false` (can't be downloaded/cracked). `verify()` in auth.js: if the
@@ -58,8 +59,10 @@ is NOT in the repo — it's generated and handed to WaCky as a private Excel/PDF
 `secret/{id}={h}` (rule allows create-only, `!data.exists()`), and give WaCky the password. `NET.get/set/on` (net.js) are
 generic helpers for this. SETUP WaCky must do once: (1) paste the updated firebase-rules.json in the Firebase console
 (adds the read-blocked `secret` + validated `login` rules AND deploys the pending game rules / closes test mode).
-Already seeded: all 196 players' hashes are in Firebase `secret/`. Phase 2 next: edit-own-photo (needs anon auth + claims
-for write protection). Then the weekly Flick challenge (count only logged-in member-vs-member public matches).
+Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
+read-blocked). NEXT: the weekly Flick challenge (count only logged-in member-vs-member public matches). Photo editing
+dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick
+challenges).
 
 ## Where things live
 - `js/data.js`: ALL stats. `window.MLD_DATA` = `players` (career totals), `log` (one row per player per

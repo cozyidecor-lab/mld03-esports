@@ -101,10 +101,8 @@
   function openAccount(){const u=faceOf(me.name);
     open(`<button class="ibtn authx" data-authclose aria-label="Close">${X}</button>
       <div class="authwho"><span class="authav big">${u?`<img alt="" src="${esc(u)}">`:esc(initialsOf(me.name))}</span><div><small>Logged in as</small><b>${esc(me.name)}</b></div></div>
-      <button class="fkbtn" id="authPhoto">Change my photo <span class="authsoon">soon</span></button>
       <button class="fkbtn" id="authOut">Log out</button>`);
     const out=el('authOut');if(out)out.addEventListener('click',()=>{setMe(null);close();toast('Logged out');});
-    const ph=el('authPhoto');if(ph)ph.addEventListener('click',()=>toast('Photo editing is coming next 📸'));
   }
 
   const toast=m=>{if(typeof showToast==='function')return showToast(m);
