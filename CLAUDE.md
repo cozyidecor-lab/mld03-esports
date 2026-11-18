@@ -49,7 +49,13 @@ site without logging in. Header has a profile icon (`#authBtn`, added in index.h
 modal (`#authModal`); logged in → shows the player's photo, taps to a RIGHT-SIDE account panel (`.authmodal.side` → `.authpanel` in auth.js
 `openAccount`): photo + name, "View my full profile" (→ `openPlayer`), quick stat tiles (rank/goals/rating/trophies/
 runner-up/tours from `byName`), achievement progress (`MLDach.panelHtml(n)` = X/total bar + 3 "closest to unlocking"
-mini progress bars), and Log out at the bottom. "See all achievements" reuses the `data-acview` handler. Self-serve photo editing
+mini progress bars), and Log out at the bottom. "See all achievements" reuses the `data-acview` handler. NOTIFICATIONS
+(auth.js): between "View my full profile" and the stat tiles sits a `.apnotifs` section listing `NOTIFS` (an array of
+announcement cards — first is the ₹25 Flick challenge). A member with an unopened notification gets a red dot on their
+profile icon (`#authBtn.hasnotif::after`); read state is per-device in localStorage `mld-notif-read`. Tapping a card
+(`data-notifopen`) marks it read (`markRead` → `paintBtn` removes the dot once ALL are read; a still-pending one keeps it)
+and runs its `action` — `flick-event` closes the panel and calls `FF.openEvent()`. To SEND A NEW UPDATE: append one more
+object to `NOTIFS` with a NEW `id` (keep the old ones); everyone's dot lights up until they open it. Self-serve photo editing
 was DROPPED (owner's call — moderation risk of random uploads); members still send WaCky a photo on WhatsApp and it's
 added to DEFAULT_FACE. Login flow: type name → pick from DATABASE autocomplete (can't free-type a name) → password. Session saved
 in localStorage `mld-login` `{id,name}`; `window.MLDAUTH` = {me,isMember,open,close}; fires `mld-auth` event on change.
@@ -73,9 +79,17 @@ player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at i
 change (presence rule only checks `t`). Flick leaderboard (flick.js `boardScreen`): shows a green dot if `isOnline(mld)`.
 The BOLD-for-logged-in-members was REMOVED (owner's call — he didn't want it). But `auth.js linkFlick` STILL sets
 `ff/players/{ffid}/verified=true` on an actual password login (and `loadPlayers()` maps `verified`): this is the
-"is a logged-in member" flag the planned WEEKLY FLICK CHALLENGE (₹ prize) needs to count only member-vs-member matches.
+"is a logged-in member" flag the ₹25 WEEKLY FLICK CHALLENGE uses to count only member-vs-member matches.
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
-read-blocked). NEXT: the weekly Flick challenge (count only logged-in member-vs-member public matches). Photo editing
+read-blocked). ₹25 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): a SEPARATE event leaderboard, decorated as an event
+(gold/red hero, `EVENT` ribbon, big ₹25, live weekly countdown `#ffEvCd` via `startEvCd`/`fmtLeft`/`weekEnd`). It is
+COMPUTED from `ff/results` this week, filtered to matches where BOTH ids have `verified=true` — so nothing extra is
+written: member-vs-member matches already count on the normal board AND show here; non-member matches stay normal-only,
+exactly as asked. Score = wins, but beating the SAME member counts at most `EVENT_CAP`=3 times (fairness for the real
+money); tiebreak = distinct members beaten. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
+ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹25 to the top name each
+week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
+Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick
 challenges).
 

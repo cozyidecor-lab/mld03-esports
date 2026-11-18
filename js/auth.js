@@ -45,11 +45,33 @@
   function setMe(v){me=v;if(v)LS.set('mld-login',v);else LS.del('mld-login');paintBtn();
     document.dispatchEvent(new CustomEvent('mld-auth',{detail:me}));}
 
+  /* ---------- notifications (shown to logged-in members) ----------
+     A list of announcements. To send a NEW update later, add one more object with a NEW id
+     (keep the old ones too). A red dot shows on the profile icon until the member opens it.
+     'action' decides what happens on tap — 'flick-event' jumps straight to the ₹25 challenge. */
+  const NOTIFS=[
+    {id:'flick-weekly-25',icon:'₹25',title:'₹25 Weekly Flick Challenge',
+     body:'Top this week’s Flick leaderboard and win ₹25! Only matches where both players are logged-in members count. Tap to see the event and play.',
+     cta:'See the challenge →',action:'flick-event'}
+  ];
+  const readIds=()=>LS.get('mld-notif-read',[]);
+  const unread=()=>me?NOTIFS.filter(x=>readIds().indexOf(x.id)<0):[];
+  function markRead(id){const r=readIds();if(r.indexOf(id)<0){r.push(id);LS.set('mld-notif-read',r);}paintBtn();}
+  function notifHtml(){if(!NOTIFS.length)return '';const r=readIds();
+    return `<div class="apsec apnotifs"><div class="apsechd">Notifications</div>
+      ${NOTIFS.map(x=>{const nw=r.indexOf(x.id)<0;
+        return `<button class="apnotif${nw?' new':''}" data-notifopen="${esc(x.id)}">
+          <span class="apnicon">${esc(x.icon)}</span>
+          <span class="apntext"><b>${esc(x.title)}</b><small>${esc(x.body)}</small>${x.cta?`<em class="apncta">${esc(x.cta)}</em>`:''}</span>
+          ${nw?'<span class="apndot"></span>':''}</button>`;}).join('')}</div>`;}
+
   /* ---------- header button ---------- */
   function paintBtn(){const b=el('authBtn');if(!b)return;
     if(me){const u=faceOf(me.name);b.classList.add('in');b.setAttribute('aria-label','Your account · '+me.name);
-      b.innerHTML=u?`<img alt="" src="${esc(u)}">`:`<span class="authini">${esc(initialsOf(me.name))}</span>`;}
-    else{b.classList.remove('in');b.setAttribute('aria-label','Log in');
+      b.innerHTML=u?`<img alt="" src="${esc(u)}">`:`<span class="authini">${esc(initialsOf(me.name))}</span>`;
+      const n=unread().length;b.classList.toggle('hasnotif',n>0);
+      if(n>0)b.setAttribute('aria-label','Your account · '+me.name+' · '+n+' new notification'+(n>1?'s':''));}
+    else{b.classList.remove('in','hasnotif');b.setAttribute('aria-label','Log in');
       b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M5.5 20c0-3.6 3.2-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg>`;}}
 
   /* ---------- modal open/close ---------- */
@@ -113,6 +135,7 @@
         <button class="ibtn authx" data-authclose aria-label="Close">${X}</button>
       </div>
       <button class="approfbtn" data-apanelprofile>View my full profile →</button>
+      ${notifHtml()}
       ${stats}
       ${window.MLDach&&MLDach.panelHtml?MLDach.panelHtml(n):''}
       <button class="fkbtn apout" id="authOut">Log out</button>
@@ -132,6 +155,9 @@
     if(e.target.closest('#authBtn')){e.preventDefault();return me?openAccount():openLogin();}
     if(e.target.closest('[data-authclose]'))return close();
     if(e.target.closest('[data-apanelprofile]')){const n=me&&me.name;close();if(n&&typeof openPlayer==='function')openPlayer(n);return;}
+    const no=e.target.closest('[data-notifopen]');
+    if(no){const id=no.dataset.notifopen,x=NOTIFS.find(z=>z.id===id);markRead(id);close();
+      if(x&&x.action==='flick-event'&&typeof FF!=='undefined'&&FF.openEvent)FF.openEvent();return;}
     if(e.target.closest('.authpanel [data-acview]'))return close();  // achievements handler does the navigation
     if(e.target.closest('[data-authback]'))return renderPick();
     const s=e.target.closest('[data-pickname]');if(s){pick=s.dataset.pickname;renderPw();return;}

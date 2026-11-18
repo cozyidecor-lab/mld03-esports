@@ -128,6 +128,7 @@ const FF=(function(){
           ${note?`<p class="fkmsg">${H_(note)}</p>`:''}<div id="ffResume"></div></div>
         <div class="fkmenu">
           <div id="fkHomeLive"></div>
+          <button class="fkbtn event" data-f="event"><span>₹25</span> <span class="fkevl">WEEKLY CHALLENGE<i>Beat members · win the pot</i></span></button>
           <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY ONLINE</button>
           <button class="fkbtn" data-f="cpu"><span>🤖</span> PLAY AGAINST COMPUTER</button>
           <button class="fkbtn" data-f="private"><span>🔒</span> PRIVATE ROOM</button>
@@ -667,7 +668,47 @@ const FF=(function(){
       <p class="fknote fkleg"><span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
   }
   function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
+  function weekEnd(){return weekStart()+7*86400000;}
   function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
+
+  /* ===== ₹25 Weekly Challenge: a SEPARATE event board, only member-vs-member matches ===== */
+  const EVENT_CAP=3; // beating the SAME member counts at most this many times this week (keeps the ₹ prize fair)
+  function fmtLeft(ms){ms=Math.max(0,ms);const d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,mn=Math.floor(ms/60000)%60,s=Math.floor(ms/1000)%60;
+    return d>0?`${d}d ${h}h ${mn}m`:h>0?`${h}h ${mn}m ${s}s`:`${mn}m ${s}s`;}
+  function startEvCd(){clearInterval(S.evT);const tick=()=>{const b=el('ffEvCd');if(!b||S.screen!=='event'){clearInterval(S.evT);return;}b.textContent=fmtLeft(weekEnd()-Date.now());};tick();S.evT=setInterval(tick,1000);}
+  async function eventScreen(){
+    if(!S.me)return profileScreen(eventScreen);
+    show('event',`${top('₹25 Weekly Challenge','home')}
+      <div class="fkevent">
+        <div class="fkevhero"><div class="fkevribbon">EVENT</div>
+          <div class="fkevprize"><small>WIN</small><b>₹25</b></div>
+          <h2>Weekly Flick Challenge</h2>
+          <p>Top this board by Sunday night and win <b>₹25</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
+          <div class="fkevcd"><small>⏳ Time left this week</small><b id="ffEvCd">…</b></div></div>
+        <div id="ffEvBoard"><p class="fknote">Loading the challenge board…</p></div>
+        <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>
+        <p class="fknote fkevrules">Your wins also count on the normal leaderboard, always. Here, each win over a <b>different</b> logged-in member counts — beating the same person counts up to ${EVENT_CAP} times.</p>
+      </div>`);
+    startEvCd();
+    const d=db();const box=el('ffEvBoard');
+    if(!d){box.innerHTML='<p class="fknote">The challenge board is not available right now.</p>';return;}
+    const players=await loadPlayers(),ver={};players.forEach(p=>{ver[p.id]={name:p.name,verified:p.verified,mld:p.mld};});
+    const since=weekStart();
+    let v=await d.ref('ff/results').orderByChild('ts').startAt(since).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
+    const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=since&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
+    const P={},get=(id,nm)=>P[id]=P[id]||{id,name:nm,vs:{},played:0};
+    R.forEach(r=>{const A=get(r.a,r.an),B=get(r.b,r.bn);A.played++;B.played++;
+      if(r.w===r.a)A.vs[r.b]=(A.vs[r.b]||0)+1;else if(r.w===r.b)B.vs[r.a]=(B.vs[r.a]||0)+1;});
+    const rows=Object.values(P).map(p=>{let pts=0,opps=0;Object.values(p.vs).forEach(w=>{pts+=Math.min(w,EVENT_CAP);opps++;});return {...p,pts,opps};})
+      .filter(p=>p.pts>0).sort((a,b)=>b.pts-a.pts||b.opps-a.opps||a.played-b.played||a.name.localeCompare(b.name));
+    if(S.screen!=='event')return;
+    const nameCell=p=>{const info=ver[p.id]||{},on=info.mld&&window.isOnline&&window.isOnline(info.mld);
+      return `<td class="fkpname">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
+    box.innerHTML=(rows.length?`<table class="fktable fkevtable"><thead><tr><th>#</th><th>Player</th><th>Wins</th><th>Members beaten</th></tr></thead><tbody>
+      ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}${i===0?' lead':''}"><td>${i===0?'👑':i+1}</td>${nameCell(p)}<td><b>${p.pts}</b></td><td>${p.opps}</td></tr>`).join('')}</tbody></table>
+      <p class="fknote fkleg"><span class="onldot"></span> online now · 👑 this week's leader</p>`
+      :'<p class="fknote">No qualifying matches yet this week. Log in, find another logged-in member who is online, and play — your win shows up here!</p>');
+  }
 
   /* ================= sound (tiny, made in the browser) ================= */
   let ac=null;
@@ -717,6 +758,7 @@ const FF=(function(){
       case 'cancelroom':cancelRoom();if(S.mm){S.mm.ref.off();S.mm=null;}LS.set('ff.cur',null);return homeScreen();
       case 'cancelinvite':cancelInvite();return homeScreen();
       case 'board':return boardScreen();
+      case 'event':return eventScreen();
       case 'tab':return boardScreen(b.dataset.k);
       case 'how':return howScreen('home');
       case 'resume':{const c=LS.get('ff.cur',null);if(c)openMatch(c.mid,c.my);return;}
@@ -741,6 +783,7 @@ const FF=(function(){
   function onClick(e){const b=e.target.closest('[data-f]');if(!b)return;e.preventDefault();act(b.dataset.f,b);}
 
   function open(){goFull();if(!S.me)profileScreen(homeScreen);else homeScreen();}
+  function openEvent(){goFull();if(!S.me)return profileScreen(eventScreen);eventScreen();} // jump straight to the ₹25 challenge (from a notification)
   document.addEventListener('click',e=>{
     const j=e.target.closest('[data-fkjoin]'),ig=e.target.closest('[data-fkignore]');
     if(ig){S.ignored.add(ig.dataset.fkignore);hidePopup(ig.dataset.fkignore);}
@@ -806,5 +849,5 @@ const FF=(function(){
     try{const u=new URL(location.href);u.searchParams.delete('ffjoin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}
     setTimeout(()=>{goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(j);else profileScreen(()=>join(j));},2600);})();
   setTimeout(()=>{if(db()){listenInvites();listenLive();}},1500);
-  return {open,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
+  return {open,openEvent,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
 })();
