@@ -86,7 +86,7 @@ read-blocked). ₹25 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): a SEPARATE
 COMPUTED from `ff/results` this week, filtered to matches where BOTH ids have `verified=true` — so nothing extra is
 written: member-vs-member matches already count on the normal board AND show here; non-member matches stay normal-only,
 exactly as asked. Score = wins, but beating the SAME member counts at most `EVENT_CAP`=3 times (fairness for the real
-money); tiebreak = distinct members beaten. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
+money); the cap is PER DAY (grouped by local calendar day), tiebreak = distinct members beaten. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
 ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹25 to the top name each
 week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
 Photo editing

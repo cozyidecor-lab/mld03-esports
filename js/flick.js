@@ -672,7 +672,7 @@ const FF=(function(){
   function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
 
   /* ===== ₹25 Weekly Challenge: a SEPARATE event board, only member-vs-member matches ===== */
-  const EVENT_CAP=3; // beating the SAME member counts at most this many times this week (keeps the ₹ prize fair)
+  const EVENT_CAP=3; // beating the SAME member counts at most this many times PER DAY (keeps the ₹ prize fair)
   function fmtLeft(ms){ms=Math.max(0,ms);const d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,mn=Math.floor(ms/60000)%60,s=Math.floor(ms/1000)%60;
     return d>0?`${d}d ${h}h ${mn}m`:h>0?`${h}h ${mn}m ${s}s`:`${mn}m ${s}s`;}
   function startEvCd(){clearInterval(S.evT);const tick=()=>{const b=el('ffEvCd');if(!b||S.screen!=='event'){clearInterval(S.evT);return;}b.textContent=fmtLeft(weekEnd()-Date.now());};tick();S.evT=setInterval(tick,1000);}
@@ -687,7 +687,7 @@ const FF=(function(){
           <div class="fkevcd"><small>⏳ Time left this week</small><b id="ffEvCd">…</b></div></div>
         <div id="ffEvBoard"><p class="fknote">Loading the challenge board…</p></div>
         <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>
-        <p class="fknote fkevrules">Your wins also count on the normal leaderboard, always. Here, each win over a <b>different</b> logged-in member counts — beating the same person counts up to ${EVENT_CAP} times.</p>
+        <p class="fknote fkevrules">Your wins also count on the normal leaderboard, always. Here, each win over a <b>different</b> logged-in member counts — beating the same person counts up to ${EVENT_CAP} times <b>a day</b>.</p>
       </div>`);
     startEvCd();
     const d=db();const box=el('ffEvBoard');
@@ -696,10 +696,12 @@ const FF=(function(){
     const since=weekStart();
     let v=await d.ref('ff/results').orderByChild('ts').startAt(since).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
     const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=since&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
-    const P={},get=(id,nm)=>P[id]=P[id]||{id,name:nm,vs:{},played:0};
+    const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}; // local calendar day
+    const P={},get=(id,nm)=>P[id]=P[id]||{id,name:nm,vs:{},beat:new Set(),played:0};
     R.forEach(r=>{const A=get(r.a,r.an),B=get(r.b,r.bn);A.played++;B.played++;
-      if(r.w===r.a)A.vs[r.b]=(A.vs[r.b]||0)+1;else if(r.w===r.b)B.vs[r.a]=(B.vs[r.a]||0)+1;});
-    const rows=Object.values(P).map(p=>{let pts=0,opps=0;Object.values(p.vs).forEach(w=>{pts+=Math.min(w,EVENT_CAP);opps++;});return {...p,pts,opps};})
+      if(r.w===r.a){A.vs[r.b+'|'+dayKey(r.ts)]=(A.vs[r.b+'|'+dayKey(r.ts)]||0)+1;A.beat.add(r.b);}
+      else if(r.w===r.b){B.vs[r.a+'|'+dayKey(r.ts)]=(B.vs[r.a+'|'+dayKey(r.ts)]||0)+1;B.beat.add(r.a);}});
+    const rows=Object.values(P).map(p=>{let pts=0;Object.values(p.vs).forEach(w=>{pts+=Math.min(w,EVENT_CAP);});return {...p,pts,opps:p.beat.size};})
       .filter(p=>p.pts>0).sort((a,b)=>b.pts-a.pts||b.opps-a.opps||a.played-b.played||a.name.localeCompare(b.name));
     if(S.screen!=='event')return;
     const nameCell=p=>{const info=ver[p.id]||{},on=info.mld&&window.isOnline&&window.isOnline(info.mld);
