@@ -161,7 +161,14 @@ challenges).
   player to quit (= a loss). Now `size()` skips a not-yet-laid-out stage (`r<2`, retries) and records `V.cw/ch`, and
   `frame()` self-heals every rAF: if the stage's client size drifts from `V.cw/ch` it re-fits the canvas, so the pieces
   can never stay invisible. Settings menu also has a manual "↻ Board looks blank? Fix it" (`data-f="redraw"`) that re-fits
-  without leaving the match. OWNER "WHO IS PLAYING?" (moderation): in an ONLINE match's ⚙ menu, if `window.isOwner()`,
+  without leaving the match. GHOST-OPPONENT / ABANDONED-MATCH FIX (flick.js `onlineTick`, `AWAY_GONE`=35s): a match used
+  to stay alive after a player's app closed/crashed/backgrounded — their turns just auto-passed every 15s, so the opponent
+  was stuck "playing a computer" (a dead idle account). Now the `mping` heartbeat stores `G.oppPing`; if the opponent's
+  app has been gone >35s during play/sd, the present player's client ends the match as its own win (forfeit, `awayleft`).
+  Also `FORM_NOSHOW`=30s: if a match sits in `form` because the OTHER side never showed up to pick a formation (e.g. a
+  stale invite joined after the inviter backgrounded — Firebase `onDisconnect` didn't fire), it is cancelled with NO
+  win/loss (`noscore`) instead of leaving the joiner stuck. These resolve the "my account was playing online while I did
+  nothing" / "felt like a computer opponent" reports. OWNER "WHO IS PLAYING?" (moderation): in an ONLINE match's ⚙ menu, if `window.isOwner()`,
   a "🔍 Who is playing? (owner)" button (`data-f="whois"` → `whoIs()`) reads both players' `ff/players/{id}` and shows,
   per side, whether they are a logged-in member (`verified`), their linked account name (`mld`), W/L and created date.
   Lets the owner tell a real member (verified ✓, account name = the person) from a GUEST (unproven typed name — the likely

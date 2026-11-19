@@ -15,6 +15,7 @@
    Times (match clock, 15 s turns, 30 s invitations) use the Firebase server clock. */
 const FF=(function(){
   const E=FFE,INVITE_MS=30000,TURN_MS=15000,CD_MS=3000,FORM_MS=20000;
+  const AWAY_GONE=35000,FORM_NOSHOW=30000; // opponent's app gone this long mid-match → end it; never-showed in formation → cancel it
   let MATCH_MS=120000;
   const el=id=>document.getElementById(id);
   const H_=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -555,7 +556,14 @@ const FF=(function(){
       if(S.screen!=='form'||!S.form||!S.form.o.online)formScreen({online:true,title:'Choose formation',opp:(m[opp]||{}).name||'Opponent',auto:true,back:'leave',
         note:'Waiting for both players to be ready…'});
       const note=el('ffFormNote');if(note)note.textContent=m['r'+opp]?`${(m[opp]||{}).name} is ready.`:`${(m[opp]||{}).name||'Opponent'} is choosing a formation…`;
+      // the other player never actually showed up to pick a formation (e.g. a stale invite joined after they left):
+      // don't sit here forever — cancel the match with NO win/loss after a while.
+      if(!c.noShowT&&!c.spec)c.noShowT=setTimeout(()=>{if(!S.mm||S.mm!==c)return;
+        c.ref.transaction(cur=>{if(cur===null)return null;if(cur.status!=='form'||cur['r'+opp])return; // started or they readied → leave it
+          return Object.assign({},cur,{status:'over',noscore:true,forfeit:true});},null,false).catch(()=>{});
+        c.ref.off();S.mm=null;LS.set('ff.cur',null);if(S.screen==='form')homeScreen('Your opponent didn’t show up — match cancelled.');},FORM_NOSHOW);
       return;}
+    if(c.noShowT){clearTimeout(c.noShowT);c.noShowT=null;} // match is starting — stop the no-show timer
     if(!G||G.mode!=='online'||G.mid!==c.mid){ // build the game from the saved state (also used to reconnect)
       startGame({mode:'online',kind:m.kind,mid:c.mid,my:c.my,ref:c.ref,spec:!!c.spec,names:{a:m.a.name,b:(m.b||{}).name||'Opponent'},
         v:viewOf(m),seen:m.turn,latest:m});
@@ -571,7 +579,7 @@ const FF=(function(){
       G.specRef=dd.ref('ff/spec/'+c.mid);G.specRef.on('value',s=>{if(G)G.specN=s.numChildren();});
       // "still here" signal on a separate path, so it never re-sends the match itself
       const pr=db().ref('ff/mping/'+c.mid);G.pingRef=pr;const beat=()=>pr.child(c.my).set(TS).catch(()=>{});beat();G.pingT=setInterval(beat,8000);
-      pr.on('value',s=>{const p=(s.val()||{})[opp];if(G)G.oppAway=!!p&&now()-p>25000;});
+      pr.on('value',s=>{const p=(s.val()||{})[opp];if(G){G.oppPing=p||0;G.oppAway=!!p&&now()-p>25000;}});
       if(m.status==='over')setTimeout(finish,600);
       return;}
     G.latest=m;
@@ -605,6 +613,12 @@ const FF=(function(){
   }
   function onlineTick(){
     const m=G.latest;if(!m||G.anim||G.pending||G.finished)return;const n=now();
+    // opponent's app has been gone (closed / crashed / backed out) for a while → end the dead match so I am not
+    // left flicking against a player who does nothing. Counts as my win, like any forfeit. Needs them to have been
+    // here first (G.oppPing was set), so a brief network blip or someone just slow-but-present never triggers it.
+    if((m.status==='play'||m.status==='sd')&&G.oppPing&&n-G.oppPing>AWAY_GONE){
+      G.ref.transaction(cur=>{if(cur===null)return null;if(cur.status!=='play'&&cur.status!=='sd')return;
+        return Object.assign({},cur,{status:'over',winner:G.my,forfeit:true,awayleft:true});},null,false).catch(()=>{});return;}
     if(m.status==='play'&&n>=m.end+300){ // time up while nobody was flicking
       G.ref.transaction(cur=>{if(cur===null)return null;if(cur.status!=='play'||now()<cur.end||cur.turn!==m.turn)return;
         const sa=cur.score.a,sb=cur.score.b;return sa!==sb?Object.assign({},cur,{status:'over',winner:sa>sb?'a':'b'}):Object.assign({},cur,{status:'sd',dl:now()+TURN_MS});},null,false).catch(()=>{});return;}
