@@ -661,16 +661,37 @@ const FF=(function(){
     const my=G.my,ref=G.ref;ref.transaction(cur=>{if(cur===null)return null;if(cur.status==='over')return;
       return Object.assign({},cur,{status:'over',winner:E.other(my),forfeit:true});},null,false).catch(()=>{});
   }
+  const ownerBtn=()=>(window.isOwner&&window.isOwner()&&G&&G.mode==='online')?'<button class="fkbtn" data-f="whois">🔍 Who is playing? (owner)</button>':'';
   function settings(){
     const ov=el('ffOver');if(!ov)return;ov.className='fkover menu';ov.hidden=false;
     if(G&&G.spec){ov.innerHTML=`<div class="fksetm"><b>Watching</b><button class="fkbtn" data-f="sound">${S.sound?'🔊 Sound: on':'🔇 Sound: off'}</button>
-      <button class="fkbtn" data-f="stopwatch">👋 Stop watching</button><button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;return;}
+      ${ownerBtn()}<button class="fkbtn" data-f="stopwatch">👋 Stop watching</button><button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;return;}
     ov.innerHTML=`<div class="fksetm"><b>Settings</b>
       <button class="fkbtn" data-f="sound">${S.sound?'🔊 Sound: on':'🔇 Sound: off'}</button>
       <button class="fkbtn" data-f="redraw">↻ Board looks blank? Fix it</button>
+      ${ownerBtn()}
       <button class="fkbtn" data-f="howin">❔ How to play</button>
       <button class="fkbtn" data-f="leave">🚪 ${G&&G.mode==='online'&&G.v.status!=='over'?'Leave match (counts as a loss)':'Leave match'}</button>
       <button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;
+  }
+  // Owner-only: reveal who the two online players really are (linked account + whether they logged in).
+  async function whoIs(){
+    const d=db();if(!d||!G)return;const L=G.latest||{};
+    const sides=[['a',L.a||{}],['b',L.b||{}]];
+    const cards=await Promise.all(sides.map(async([side,p])=>{
+      const nm=(G.names&&G.names[side])||p.name||'?';
+      if(!p.id)return `<div class="fkwho1"><b>${H_(nm)}</b><span>No saved profile for this player — can't trace it.</span></div>`;
+      let r={};try{r=(await d.ref('ff/players/'+p.id).get()).val()||{};}catch(e){}
+      const made=r.ts?new Date(r.ts).toLocaleDateString():'?';
+      return `<div class="fkwho1"><b>${H_(r.name||nm)}</b>
+        <span>Logged-in member: <em class="${r.verified?'yes':'no'}">${r.verified?'YES ✓':'NO — guest'}</em></span>
+        <span>Account name: <b>${H_(r.mld||'—')}</b></span>
+        <span>Record: ${r.w||0}W · ${r.l||0}L · ${r.m||0} played · since ${made}</span>
+        <span class="fkwhoid">profile id: ${H_(p.id)}</span></div>`;}));
+    const ov=el('ffOver');if(!ov)return;ov.className='fkover menu';ov.hidden=false;
+    ov.innerHTML=`<div class="fksetm fkwho"><b>Who is playing?</b>${cards.join('')}
+      <p class="fknote">“Logged-in member: YES” means they typed their own password — the <b>account name</b> is who they really are. “guest” means the name is just typed in, not proven, so it could be anyone.</p>
+      <button class="fkbtn red" data-f="closeset">Close</button></div>`;
   }
 
   /* ================= leaderboard ================= */
@@ -813,6 +834,7 @@ const FF=(function(){
       case 'closeset':{const ov=el('ffOver');if(ov)ov.hidden=true;return;}
       case 'redraw':{const ov=el('ffOver');if(ov)ov.hidden=true;             // force-rebuild the canvas (recover a blank board without losing the match)
         if(S.screen==='game'){size();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}return;}
+      case 'whois':if(window.isOwner&&window.isOwner())whoIs();return;
       case 'sound':S.sound=!S.sound;LS.set('ff.sound',S.sound);return settings();
       case 'howin':{const ov=el('ffOver');if(ov)ov.hidden=true;return toast('Drag back from your player, release to flick. Score in the top goal.');}
     }

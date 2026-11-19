@@ -161,7 +161,14 @@ challenges).
   player to quit (= a loss). Now `size()` skips a not-yet-laid-out stage (`r<2`, retries) and records `V.cw/ch`, and
   `frame()` self-heals every rAF: if the stage's client size drifts from `V.cw/ch` it re-fits the canvas, so the pieces
   can never stay invisible. Settings menu also has a manual "↻ Board looks blank? Fix it" (`data-f="redraw"`) that re-fits
-  without leaving the match. Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance
+  without leaving the match. OWNER "WHO IS PLAYING?" (moderation): in an ONLINE match's ⚙ menu, if `window.isOwner()`,
+  a "🔍 Who is playing? (owner)" button (`data-f="whois"` → `whoIs()`) reads both players' `ff/players/{id}` and shows,
+  per side, whether they are a logged-in member (`verified`), their linked account name (`mld`), W/L and created date.
+  Lets the owner tell a real member (verified ✓, account name = the person) from a GUEST (unproven typed name — the likely
+  impersonation/"hacker" case). LIMITATION: it shows only the CURRENT linked account (markSelfMember overwrites `mld`
+  each login); there is no readable per-device login HISTORY (`login/{id}/{dev}` is `.read:false` by the rules), so "has
+  this phone used other accounts before" can't be answered from stored data without adding new tracking.
+  Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance
   for full power in `shotFromAim` (the `/230`) is the other lever (changes feel for everyone, so ask first).
   Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
   positions → identical result on every phone. NO 4-DIGIT PIN ANYMORE (owner's call): joining a Flick player never asks

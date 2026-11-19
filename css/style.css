@@ -1224,6 +1224,15 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fkevtable tr.lead td{background:linear-gradient(90deg,rgba(240,180,74,.33),rgba(240,180,74,.12));font-weight:800}
 .fkevtable tr.lead td:first-child{font-size:1.05rem}
 .fkevrules{font-size:.82rem}
+/* owner-only "who is playing?" reveal */
+.fkwho{max-width:none;gap:9px}
+.fkwho1{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:4px;text-align:left}
+.fkwho .fkwho1>b{font:800 1.2rem var(--label)!important;color:#fff!important;-webkit-text-stroke:0!important;text-shadow:none!important;text-transform:none!important;letter-spacing:.01em}
+.fkwho .fkwho1 span{font-size:.84rem;color:#cfcfcf;font-weight:500}
+.fkwho .fkwho1 span b{font:700 .88rem var(--label)!important;color:#fff!important;-webkit-text-stroke:0!important;text-shadow:none!important;text-transform:none!important}
+.fkwho .fkwho1 em{font-style:normal;font-weight:800}
+.fkwho .fkwho1 em.yes{color:#22c55e}.fkwho .fkwho1 em.no{color:#ff6b6b}
+.fkwho .fkwhoid{opacity:.5;font-size:.68rem!important;word-break:break-all;color:#999}
 @media (max-width:420px){.fktable th:nth-child(5),.fktable td:nth-child(5){display:none}}
 /* result */
 .fkres{display:flex;flex-direction:column;gap:12px;max-width:440px;width:100%;margin:auto;text-align:center}
