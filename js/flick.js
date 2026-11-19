@@ -323,9 +323,11 @@ const FF=(function(){
   // left/right edge discs. The freed vertical space is biased DOWN (OY_TOP below) so most of it becomes
   // room at the bottom, where you pull back from your own discs. Keep it from getting too small on big screens.
   const PADX=86,PADY=52,OY_TOP=0.34;let V={s:1,ox:0,oy:0};
-  function size(){if(!cv)return;const st=el('ffStage');if(!st)return;const r=st.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);
+  function size(){if(!cv)return;const st=el('ffStage');if(!st)return;const r=st.getBoundingClientRect();
+    if(r.width<2||r.height<2)return; // stage not laid out yet (fullscreen/rotation still settling) — retry next frame, don't blank the board
+    const dpr=Math.min(2,devicePixelRatio||1);
     cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);cv.style.width=r.width+'px';cv.style.height=r.height+'px';
-    const s=Math.min(r.width/(E.W+PADX*2),r.height/(E.H+PADY*2));V={s,dpr,ox:(r.width-E.W*s)/2,oy:(r.height-E.H*s)*OY_TOP};}
+    const s=Math.min(r.width/(E.W+PADX*2),r.height/(E.H+PADY*2));V={s,dpr,ox:(r.width-E.W*s)/2,oy:(r.height-E.H*s)*OY_TOP,cw:r.width,ch:r.height};}
   const flip=()=>G&&G.my==='b';
   const tx=(x,y)=>flip()?[E.W-x,E.H-y]:[x,y];                       // field → view (player 2 sees the board turned 180°)
   const toScreen=(x,y)=>{const [a,b]=tx(x,y);return [V.ox+a*V.s,V.oy+b*V.s];};
@@ -424,6 +426,9 @@ const FF=(function(){
   }
   function frame(t){
     raf=requestAnimationFrame(frame);if(!G||!ctx)return;
+    // self-heal: if the pitch area changed size (entering full screen, rotating, keyboard closing, late layout),
+    // re-fit the canvas so the players and ball can never end up invisible / off-screen. Cheap: only acts on a real change.
+    const stg=el('ffStage');if(stg&&(Math.abs(stg.clientWidth-(V.cw||0))>1||Math.abs(stg.clientHeight-(V.ch||0))>1))size();
     let pos=G.v.st;
     if(G.anim){const a=G.anim,k=Math.min(a.frames.length-1,Math.floor((t-(a.t0||(a.t0=t)))/(1000/120)));
       pos=a.frames[k]||pos;while(a.ev<a.events.length&&a.events[a.ev].s<=k){const e=a.events[a.ev++];sfx(e.k,e.v);}
@@ -662,6 +667,7 @@ const FF=(function(){
       <button class="fkbtn" data-f="stopwatch">👋 Stop watching</button><button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;return;}
     ov.innerHTML=`<div class="fksetm"><b>Settings</b>
       <button class="fkbtn" data-f="sound">${S.sound?'🔊 Sound: on':'🔇 Sound: off'}</button>
+      <button class="fkbtn" data-f="redraw">↻ Board looks blank? Fix it</button>
       <button class="fkbtn" data-f="howin">❔ How to play</button>
       <button class="fkbtn" data-f="leave">🚪 ${G&&G.mode==='online'&&G.v.status!=='over'?'Leave match (counts as a loss)':'Leave match'}</button>
       <button class="fkbtn red" data-f="closeset">Back to the match</button></div>`;
@@ -804,6 +810,8 @@ const FF=(function(){
       case 'stopwatch':return stopWatching();
       case 'settings':return settings();
       case 'closeset':{const ov=el('ffOver');if(ov)ov.hidden=true;return;}
+      case 'redraw':{const ov=el('ffOver');if(ov)ov.hidden=true;             // force-rebuild the canvas (recover a blank board without losing the match)
+        if(S.screen==='game'){size();cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);}return;}
       case 'sound':S.sound=!S.sound;LS.set('ff.sound',S.sound);return settings();
       case 'howin':{const ov=el('ffOver');if(ov)ov.hidden=true;return toast('Drag back from your player, release to flick. Score in the top goal.');}
     }

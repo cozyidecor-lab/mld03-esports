@@ -152,7 +152,13 @@ challenges).
   Pitch sizing (flick.js `size()`): `PADX=86` makes the pitch WIDTH set the scale → a real side gutter (~44px) to pull
   back from left/right edge discs; `OY_TOP=0.34` biases the pitch UP so most of the freed vertical space becomes bottom
   room (~156px) where you pull back from your own discs. `toScreen`/`toField` both use `V.oy`, so the drag stays aligned.
-  Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance
+  BLANK-BOARD FIX: the board is a canvas sized from `#ffStage`; it used to be measured ONCE at `startGame` (during the
+  full-screen/layout transition) and only re-fit on a WINDOW resize, so a stage box change with no resize event (entering
+  full screen, keyboard closing, rotation settling) left the canvas blank — pitch showing but no players/ball, forcing the
+  player to quit (= a loss). Now `size()` skips a not-yet-laid-out stage (`r<2`, retries) and records `V.cw/ch`, and
+  `frame()` self-heals every rAF: if the stage's client size drifts from `V.cw/ch` it re-fits the canvas, so the pieces
+  can never stay invisible. Settings menu also has a manual "↻ Board looks blank? Fix it" (`data-f="redraw"`) that re-fits
+  without leaving the match. Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance
   for full power in `shotFromAim` (the `/230`) is the other lever (changes feel for everyone, so ask first).
   Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
   positions → identical result on every phone. NO 4-DIGIT PIN ANYMORE (owner's call): joining a Flick player never asks
