@@ -120,6 +120,7 @@ const FF=(function(){
 
   async function homeScreen(note){
     if(!S.me)return profileScreen(homeScreen);
+    markSelfMember(); // opening the game while logged in flags you right away
     const cur=LS.get('ff.cur',null),hist=LS.get('ff.history',[]);
     show('home',`${top('MLD Football Flick','exit')}
       <div class="fkhome">
@@ -616,8 +617,16 @@ const FF=(function(){
         <button class="fkbtn" data-f="board">LEADERBOARD</button><button class="fklink" data-f="home">Back to menu</button></div></div>`);
       stopGame();},1400);
   }
+  /* Stamp MY online Flick profile as a logged-in MLD member, live. Runs on every match (both phones) and when
+     the game/event opens, so a member is flagged whenever they actually play — not only at the password-login moment.
+     This is what the ₹25 event board uses to tell member-vs-member matches apart. Never clears it (logging in once = member). */
+  function markSelfMember(){try{const d=db();if(!d||!S.me||String(S.me.id).startsWith('local-'))return;
+    const m=(window.MLDAUTH&&MLDAUTH.me&&MLDAUTH.me())||null;if(!m)return;
+    d.ref('ff/players/'+S.me.id).update({verified:true,mld:m.name}).catch(()=>{});}catch(e){}}
   async function record(m,ref){ // exactly once per public match (database transaction on "rec")
-    const d=db();if(!d||!m.a||!m.b||!m.winner||m.noscore)return;
+    const d=db();if(!d)return;
+    markSelfMember(); // every public match, both phones check their own login state and flag it
+    if(!m.a||!m.b||!m.winner||m.noscore)return;
     if(GOD.has(m.a.id)||GOD.has(m.b.id))return; // matches with Yadav are never written to the leaderboard
     try{const r=await ref.child('rec').transaction(c=>c?undefined:true);if(!r.committed)return;
       const win=m[m.winner].id,lose=m[E.other(m.winner)].id;
@@ -678,6 +687,7 @@ const FF=(function(){
   function startEvCd(){clearInterval(S.evT);const tick=()=>{const b=el('ffEvCd');if(!b||S.screen!=='event'){clearInterval(S.evT);return;}b.textContent=fmtLeft(weekEnd()-Date.now());};tick();S.evT=setInterval(tick,1000);}
   async function eventScreen(){
     if(!S.me)return profileScreen(eventScreen);
+    markSelfMember();
     show('event',`${top('₹25 Weekly Challenge','home')}
       <div class="fkevent">
         <div class="fkevhero"><div class="fkevribbon">EVENT</div>
@@ -850,6 +860,7 @@ const FF=(function(){
   (function(){const j=new URLSearchParams(location.search).get('ffjoin');if(!j)return;
     try{const u=new URL(location.href);u.searchParams.delete('ffjoin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}
     setTimeout(()=>{goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(j);else profileScreen(()=>join(j));},2600);})();
-  setTimeout(()=>{if(db()){listenInvites();listenLive();}},1500);
+  document.addEventListener('mld-auth',()=>markSelfMember()); // log in while the game is loaded → flag it
+  setTimeout(()=>{if(db()){listenInvites();listenLive();markSelfMember();}},1500);
   return {open,openEvent,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
 })();

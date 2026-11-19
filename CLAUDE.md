@@ -79,7 +79,13 @@ player is online (`[data-profdot]` in openPlayer). auth.js fires `mld-auth` at i
 change (presence rule only checks `t`). Flick leaderboard (flick.js `boardScreen`): shows a green dot if `isOnline(mld)`.
 The BOLD-for-logged-in-members was REMOVED (owner's call — he didn't want it). But `auth.js linkFlick` STILL sets
 `ff/players/{ffid}/verified=true` on an actual password login (and `loadPlayers()` maps `verified`): this is the
-"is a logged-in member" flag the ₹25 WEEKLY FLICK CHALLENGE uses to count only member-vs-member matches.
+"is a logged-in member" flag the ₹25 WEEKLY FLICK CHALLENGE uses to count only member-vs-member matches. BUT linkFlick
+only runs at the password-login moment and only if an `ff.me` profile already existed then — so a member who logged in
+before making their Flick profile never got flagged (their matches were wrongly skipped on the event board). FIXED:
+flick.js `markSelfMember()` now stamps `ff/players/{ff.me}/{verified:true,mld:name}` LIVE whenever a logged-in member
+actually plays — called at the top of `record()` (every public match, on BOTH phones), on `homeScreen`/`eventScreen`
+open, on the `mld-auth` event, and once at init. So both sides get flagged by playing/opening the game while logged in;
+it never clears the flag (logging in once = member).
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
 read-blocked). ₹25 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): a SEPARATE event leaderboard, decorated as an event
 (gold/red hero, `EVENT` ribbon, big ₹25, live weekly countdown `#ffEvCd` via `startEvCd`/`fmtLeft`/`weekEnd`). It is
