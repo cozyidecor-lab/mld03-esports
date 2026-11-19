@@ -155,7 +155,14 @@ challenges).
   Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance
   for full power in `shotFromAim` (the `/230`) is the other lever (changes feel for everyone, so ask first).
   Engine = deterministic physics (+ − × ÷ √ only, fixed steps) and the medium computer AI; same flick from same
-  positions → identical result on every phone. Firebase paths under `ff/`: `players` (profile, PIN hash, w/l/m/cur/best),
+  positions → identical result on every phone. NO 4-DIGIT PIN ANYMORE (owner's call): joining a Flick player never asks
+  for a PIN. `createProfile(name,pin?,mld?,opts?)` stores a random internal `pin` string only to satisfy the DB rule
+  (`ff/players/$id` still `.validate`s `pin.isString()` — unchanged, no rules re-paste). A LOGGED-IN member's Flick player
+  IS their account: `needProfile()` (replaces the old name+PIN `profileScreen`/`signIn` gate everywhere a profile is
+  needed) reclaims their existing online player by their MLD name (`adoptByName`) or auto-creates one named after them
+  (`{verified:true}`, `mld`=their name) — so it follows them on any phone they log in on, no typing. A NON-member gets a
+  simple name-only player (internal random pin, device-local) and a "Log in to use your account player" hint. `signIn`
+  and the `#ffPin` field were removed. Firebase paths under `ff/`: `players` (profile, internal pin hash, w/l/m/cur/best),
   `names` (unique names), `invites` (30 s, transaction join), `rooms` (private codes), `matches` (one transaction per
   turn: checks turn number + side + positions, stores flick + before/after state), `mping` (presence), `results`
   (public results for weekly/monthly boards), `live` (matches in progress: menu badge "N matches live", Live now list on

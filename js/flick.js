@@ -37,20 +37,34 @@ const FF=(function(){
   const saved=()=>LS.get('ff.profiles',[]);
   function remember(p){const l=saved().filter(x=>x.id!==p.id);l.unshift({id:p.id,name:p.name});LS.set('ff.profiles',l.slice(0,6));LS.set('ff.me',p.id);S.me={id:p.id,name:p.name};}
   (function(){const id=LS.get('ff.me',null),p=saved().find(x=>x.id===id);if(p)S.me=p;})();
-  async function createProfile(name,pin,mld){
+  async function createProfile(name,pin,mld,opts){ // pin is optional now — nobody types one; a random one is stored only to satisfy the DB rule
     const d=db();if(!d)throw new Error('offline');
     const key=keyOf(name);if(key.length<2)throw new Error('Use at least 2 letters or numbers.');
     const id=d.ref('ff/players').push().key;
     const r=await d.ref('ff/names/'+key).transaction(cur=>cur?undefined:id);
-    if(!r.committed)throw new Error('That name is taken. If it is yours, use "I already have a profile".');
-    const rec={name,key,pin:await hashPin(id,pin),ts:TS,w:0,l:0,m:0,cur:0,best:0};if(mld)rec.mld=mld;
-    await d.ref('ff/players/'+id).set(rec);LS.set('ff.linkAsked.'+id,true); // already asked while typing the name
+    if(!r.committed)throw new Error('That name is already taken. Please pick a slightly different one.');
+    const pinPlain=pin||('x'+Math.random().toString(36).slice(2)+Date.now().toString(36)); // internal, never shown
+    const rec={name,key,pin:await hashPin(id,pinPlain),ts:TS,w:0,l:0,m:0,cur:0,best:0};
+    if(mld)rec.mld=mld;if(opts&&opts.verified)rec.verified=true;
+    await d.ref('ff/players/'+id).set(rec);LS.set('ff.linkAsked.'+id,true);
     remember({id,name});}
-  async function signIn(name,pin){
-    const d=db();if(!d)throw new Error('offline');
-    const id=(await d.ref('ff/names/'+keyOf(name)).get()).val();if(!id)throw new Error('No profile with that name.');
-    const p=(await d.ref('ff/players/'+id).get()).val();if(!p||p.pin!==await hashPin(id,pin))throw new Error('Wrong PIN.');
-    remember({id,name:p.name});}
+  const memberLogin=()=>(window.MLDAUTH&&MLDAUTH.me&&MLDAUTH.me())||null; // the logged-in MLD member, or null
+  async function adoptByName(name){ // reclaim an existing online profile that already has this name — no PIN needed
+    const d=db();if(!d)return false;
+    try{const id=(await d.ref('ff/names/'+keyOf(name)).get()).val();if(!id)return false;
+      const p=(await d.ref('ff/players/'+id).get()).val();if(!p)return false;
+      remember({id,name:p.name});return true;}catch(e){return false;}}
+  // Make sure we have a playable online profile WITHOUT ever asking for a PIN.
+  // Logged-in member: their Flick player IS their account — reclaim it by their MLD name, or make one linked to them.
+  // Not logged in: fall back to the simple name-only screen.
+  async function needProfile(next){
+    if(S.me&&!String(S.me.id).startsWith('local-'))return (next||homeScreen)();
+    const mem=memberLogin();
+    if(mem&&db()){try{const ok=await adoptByName(mem.name);
+        if(!ok)await createProfile(mem.name,null,mem.name,{verified:true});
+        markSelfMember();const n=next||S.afterProfile||homeScreen;S.afterProfile=null;return n();}catch(e){}}
+    return profileScreen(next);
+  }
   async function loadPlayers(){const d=db();if(!d)return [];try{const v=(await d.ref('ff/players').get()).val()||{};
     return Object.entries(v).map(([id,p])=>({id,mld:p.mld||null,verified:!!p.verified,name:p.name,w:p.w||0,l:p.l||0,m:p.m||0,cur:p.cur||0,best:p.best||0}));}catch(e){return [];}}
   const sortBoard=L=>L.filter(p=>!GOD.has(p.id)&&(p.m>0||p.w+p.l>0)).sort((a,b)=>b.w-a.w||(b.w/Math.max(1,b.w+b.l))-(a.w/Math.max(1,a.w+a.l))||a.l-b.l||a.name.localeCompare(b.name));
@@ -78,24 +92,24 @@ const FF=(function(){
     try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});}catch(e){}}
   const busy=()=>!!S.screen&&['game','form','wait','room','specwait'].includes(S.screen);
 
-  function profileScreen(next,mode){
-    S.afterProfile=next||S.afterProfile;const list=saved(),signin=mode==='signin';
+  function profileScreen(next){
+    S.afterProfile=next||S.afterProfile;const list=saved();const mem=memberLogin();
     show('profile',`${top('MLD Football Flick',list.length||S.me?'home':'exit')}
       <div class="fkname">
-        ${list.length&&!signin?`<div class="fksaved"><small>Your profiles on this phone</small>${list.map(p=>`<button class="fkbtn" data-f="use" data-id="${H_(p.id)}">Continue as <b>${H_(p.name)}</b></button>`).join('')}<small class="fkor">or create a new one</small></div>`:''}
-        <label for="ffName">${signin?'SIGN IN TO YOUR PROFILE':'ENTER YOUR PLAYER NAME'}</label>
-        <input id="ffName" maxlength="16" autocomplete="off" enterkeyhint="next" placeholder="Player name">${signin?'':'<div class="fksug" id="fkSug"></div>'}
-        <input id="ffPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" placeholder="4-digit PIN" type="password">
-        <p class="fknote">${signin?'Use the name and PIN you made before.':'Pick a 4-digit PIN. It keeps your name yours, and lets you sign in on another phone.'}</p>
+        ${list.length?`<div class="fksaved"><small>Your players on this phone</small>${list.map(p=>`<button class="fkbtn" data-f="use" data-id="${H_(p.id)}">Continue as <b>${H_(p.name)}</b></button>`).join('')}<small class="fkor">or make a new one</small></div>`:''}
+        <label for="ffName">${mem?'YOUR PLAYER NAME':'PICK A PLAYER NAME'}</label>
+        <input id="ffName" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Player name" value="${mem?H_(cleanName(mem.name)):''}">
+        <div class="fksug" id="fkSug"></div>
+        <p class="fknote">${mem?'This is your player for MLD Flick, linked to your account — no PIN needed. It follows you on any phone you log in on.':'No PIN needed. Tip: log in with the profile icon at the top and your player follows you on any phone.'}</p>
         <p class="fkmsg" id="ffMsg" hidden></p>
-        <button class="fkbtn red" data-f="${signin?'signin-ok':'create-ok'}">Continue</button>
-        <button class="fklink" data-f="${signin?'profile':'signin'}">${signin?'Create a new profile instead':'I already have a profile'}</button></div>`);
-    const i=el('ffName'),p=el('ffPin');
-    [i,p].forEach(x=>x.addEventListener('focus',()=>setTimeout(()=>x.scrollIntoView({block:'center'}),320)));
-    i.addEventListener('keydown',e=>{if(e.key==='Enter')p.focus();});
-    p.addEventListener('keydown',e=>{if(e.key==='Enter')act(signin?'signin-ok':'create-ok');});
-    if(!list.length||signin)setTimeout(()=>i.focus(),80);
-    S.pickMld=null;if(!signin){i.addEventListener('input',()=>{S.pickMld=null;suggest(i.value,'fkSug');});}
+        <button class="fkbtn red" data-f="create-ok">${mem?'Start playing':'Continue'}</button>
+        ${mem?'':'<button class="fklink" data-f="gologin">Log in to use your account player</button>'}</div>`);
+    const i=el('ffName');
+    i.addEventListener('focus',()=>setTimeout(()=>i.scrollIntoView({block:'center'}),320));
+    i.addEventListener('keydown',e=>{if(e.key==='Enter')act('create-ok');});
+    setTimeout(()=>i.focus(),80);
+    if(mem){S.pickMld=mem.name;suggest(mem.name,'fkSug');}
+    else{S.pickMld=null;i.addEventListener('input',()=>{S.pickMld=null;suggest(i.value,'fkSug');});}
   }
   /* "Are you this player?": MLD database players whose names match what is typed */
   function dbMatches(q){q=String(q||'').trim().toLowerCase();if(!q||typeof D==='undefined')return [];
@@ -119,7 +133,7 @@ const FF=(function(){
   function msg(t){const m=el('ffMsg');if(m){m.textContent=t;m.hidden=!t;}}
 
   async function homeScreen(note){
-    if(!S.me)return profileScreen(homeScreen);
+    if(!S.me)return needProfile(homeScreen);
     markSelfMember(); // opening the game while logged in flags you right away
     const cur=LS.get('ff.cur',null),hist=LS.get('ff.history',[]);
     show('home',`${top('MLD Football Flick','exit')}
@@ -686,7 +700,7 @@ const FF=(function(){
     return d>0?`${d}d ${h}h ${mn}m`:h>0?`${h}h ${mn}m ${s}s`:`${mn}m ${s}s`;}
   function startEvCd(){clearInterval(S.evT);const tick=()=>{const b=el('ffEvCd');if(!b||S.screen!=='event'){clearInterval(S.evT);return;}b.textContent=fmtLeft(weekEnd()-Date.now());};tick();S.evT=setInterval(tick,1000);}
   async function eventScreen(){
-    if(!S.me)return profileScreen(eventScreen);
+    if(!S.me)return needProfile(eventScreen);
     markSelfMember();
     show('event',`${top('₹25 Weekly Challenge','home')}
       <div class="fkevent">
@@ -749,21 +763,23 @@ const FF=(function(){
       case 'exit':return close();
       case 'home':return homeScreen();
       case 'profile':return profileScreen(homeScreen);
-      case 'signin':return profileScreen(null,'signin');
+      case 'signin':return profileScreen(homeScreen);
+      case 'gologin':if(window.MLDAUTH&&MLDAUTH.open)MLDAUTH.open();return;
       case 'use':{const p=saved().find(x=>x.id===b.dataset.id);if(p){remember(p);const n=S.afterProfile;S.afterProfile=null;return (n||homeScreen)();}return;}
-      case 'pickmld':{const n=b.dataset.n;S.pickMld=n;if(S.onPick)return S.onPick(n);const i=el('ffName');if(i)i.value=n.slice(0,16);suggest(n,'fkSug');const p=el('ffPin');if(p)p.focus();return;}
+      case 'pickmld':{const n=b.dataset.n;S.pickMld=n;if(S.onPick)return S.onPick(n);const i=el('ffName');if(i)i.value=n.slice(0,16);suggest(n,'fkSug');return;}
       case 'linkskip':LS.set('ff.linkAsked.'+S.me.id,true);return homeScreen();
-      case 'create-ok':case 'signin-ok':{
-        const name=cleanName((el('ffName')||{}).value),pin=((el('ffPin')||{}).value||'').trim();
-        if(name.length<2)return msg('Type your player name (at least 2 letters).');if(!/^\d{4}$/.test(pin))return msg('The PIN must be 4 digits.');
+      case 'create-ok':{
+        const name=cleanName((el('ffName')||{}).value);
+        if(name.length<2)return msg('Type a player name (at least 2 letters).');
         const btn=b;if(btn)btn.disabled=true;
-        try{if(!db()){if(f==='signin-ok')throw new Error('Signing in needs the internet.');remember({id:'local-'+keyOf(name),name});}
-          else if(f==='create-ok')await createProfile(name,pin,S.pickMld);else await signIn(name,pin);
+        try{const mem=memberLogin();
+          if(!db())remember({id:'local-'+keyOf(name),name});
+          else{await createProfile(name,null,S.pickMld||(mem&&mem.name)||null,{verified:!!mem});if(mem)markSelfMember();}
           const n=S.afterProfile;S.afterProfile=null;return (n||homeScreen)();}
         catch(e){msg(e.message==='offline'?'You are offline.':e.message);if(btn)btn.disabled=false;}return;}
-      case 'online':if(!S.me)return profileScreen(playOnline);if(String(S.me.id).startsWith('local-'))return homeScreen('Online play needs an online profile. Switch profile to make one.');return playOnline();
-      case 'cpu':if(!S.me)return profileScreen(()=>act('cpu'));return formScreen({title:'Play against computer',opp:'COMPUTER',cpu:true,note:'The computer picks its own formation.'});
-      case 'private':if(!S.me)return profileScreen(privateScreen);return privateScreen();
+      case 'online':if(!S.me||String(S.me.id).startsWith('local-'))return needProfile(playOnline);return playOnline();
+      case 'cpu':if(!S.me)return needProfile(()=>act('cpu'));return formScreen({title:'Play against computer',opp:'COMPUTER',cpu:true,note:'The computer picks its own formation.'});
+      case 'private':if(!S.me)return needProfile(privateScreen);return privateScreen();
       case 'mkroom':return makeRoom();
       case 'joinroom':return joinRoom();
       case 'copycode':try{await navigator.clipboard.writeText(S.room.code);b.textContent='Copied ✓';}catch(e){}return;
@@ -794,12 +810,12 @@ const FF=(function(){
   }
   function onClick(e){const b=e.target.closest('[data-f]');if(!b)return;e.preventDefault();act(b.dataset.f,b);}
 
-  function open(){goFull();if(!S.me)profileScreen(homeScreen);else homeScreen();}
-  function openEvent(){goFull();if(!S.me)return profileScreen(eventScreen);eventScreen();} // jump straight to the ₹25 challenge (from a notification)
+  function open(){goFull();if(!S.me)needProfile(homeScreen);else homeScreen();}
+  function openEvent(){goFull();if(!S.me)return needProfile(eventScreen);eventScreen();} // jump straight to the ₹25 challenge (from a notification)
   document.addEventListener('click',e=>{
     const j=e.target.closest('[data-fkjoin]'),ig=e.target.closest('[data-fkignore]');
     if(ig){S.ignored.add(ig.dataset.fkignore);hidePopup(ig.dataset.fkignore);}
-    if(j){const id=j.dataset.fkjoin;hidePopups();goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(id);else profileScreen(()=>join(id));}
+    if(j){const id=j.dataset.fkjoin;hidePopups();goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(id);else needProfile(()=>join(id));}
     if(e.target.closest('[data-ff="open"]'))open();
     const w=e.target.closest('.fklivebox [data-f="watch"]');if(w){goFull();watch(w.dataset.mid);}
   });
@@ -859,8 +875,9 @@ const FF=(function(){
   // opened from a tapped notification: auto-join that match
   (function(){const j=new URLSearchParams(location.search).get('ffjoin');if(!j)return;
     try{const u=new URL(location.href);u.searchParams.delete('ffjoin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}
-    setTimeout(()=>{goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(j);else profileScreen(()=>join(j));},2600);})();
-  document.addEventListener('mld-auth',()=>markSelfMember()); // log in while the game is loaded → flag it
+    setTimeout(()=>{goFull();if(S.me&&!String(S.me.id).startsWith('local-'))join(j);else needProfile(()=>join(j));},2600);})();
+  document.addEventListener('mld-auth',()=>{markSelfMember(); // log in while the game is loaded → flag it
+    if(S.screen==='profile'&&(!S.me||String(S.me.id).startsWith('local-'))&&memberLogin())needProfile(S.afterProfile||homeScreen);});
   setTimeout(()=>{if(db()){listenInvites();listenLive();markSelfMember();}},1500);
   return {open,openEvent,paintLive,_test:{setMatchMs:v=>{MATCH_MS=v;},state:()=>G,close,S,E}};
 })();
