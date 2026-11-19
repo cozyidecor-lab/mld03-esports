@@ -663,9 +663,14 @@ const FF=(function(){
     if(GOD.has(m.a.id)||GOD.has(m.b.id))return; // matches with Yadav are never written to the leaderboard
     try{const r=await ref.child('rec').transaction(c=>c?undefined:true);if(!r.committed)return;
       const win=m[m.winner].id,lose=m[E.other(m.winner)].id;
+      // Did the match end because a player LEFT (disconnect or explicit quit)? If so, only keep it OFF the ₹125 event
+      // when the winner was NOT already ahead — i.e. a likely genuine disconnect. If the leaver was LOSING (winner
+      // ahead), it counts on the event too, so quitting can't dodge a ₹125 loss.
+      const sc=m.score||{},wSc=sc[m.winner]||0,lSc=sc[E.other(m.winner)]||0;
+      const quit=!!(m.awayleft||m.forfeit),offEvent=quit&&wSc<=lSc; // af=1 → normal board counts it, ₹125 event skips it
       await Promise.all([[win,true],[lose,false]].map(([id,won])=>d.ref('ff/players/'+id).transaction(p=>{if(!p)return p;
         p.m=(p.m||0)+1;if(won){p.w=(p.w||0)+1;p.cur=(p.cur||0)+1;p.best=Math.max(p.best||0,p.cur);}else{p.l=(p.l||0)+1;p.cur=0;}return p;})));
-      await d.ref('ff/results').push({a:m.a.id,an:m.a.name,b:m.b.id,bn:m.b.name,w:win,sa:(m.score||{}).a||0,sb:(m.score||{}).b||0,ts:TS,...(m.awayleft?{af:1}:{})}); // af = won because opponent's app left; counts on the normal board but NOT the ₹125 event
+      await d.ref('ff/results').push({a:m.a.id,an:m.a.name,b:m.b.id,bn:m.b.name,w:win,sa:(m.score||{}).a||0,sb:(m.score||{}).b||0,ts:TS,...(offEvent?{af:1}:{})});
     }catch(e){}
   }
   function leaveMatch(){

@@ -164,9 +164,11 @@ challenges).
   without leaving the match. GHOST-OPPONENT / ABANDONED-MATCH FIX (flick.js `onlineTick`, `AWAY_GONE`=35s): a match used
   to stay alive after a player's app closed/crashed/backgrounded — their turns just auto-passed every 15s, so the opponent
   was stuck "playing a computer" (a dead idle account). Now the `mping` heartbeat stores `G.oppPing`; if the opponent's
-  app has been gone >35s during play/sd, the present player's client ends the match as its own win (forfeit, `awayleft`). Such away-forfeit results are pushed to
-`ff/results` with `af:1`; they count on the normal board but `eventScreen` filters them out (`!r.af`) so a disconnect win
-does NOT count toward the ₹125 event (owner's call).
+  app has been gone >35s during play/sd, the present player's client ends the match as its own win (forfeit, `awayleft`). `record()` tags a result `af:1` when the
+match ended by a LEAVE (`awayleft` disconnect OR explicit `forfeit`/quit) AND the winner was NOT already ahead on score
+(`wSc<=lSc`); `af` rows count on the normal board but `eventScreen` filters them out (`!r.af`). So a genuine disconnect
+with no lead stays off the ₹125 event, BUT quitting/disconnecting while LOSING still counts on the event — you can't dodge
+a ₹125 loss by leaving (owner's call). Normal full-time wins always count (winner is always ahead).
   Also `FORM_NOSHOW`=30s: if a match sits in `form` because the OTHER side never showed up to pick a formation (e.g. a
   stale invite joined after the inviter backgrounded — Firebase `onDisconnect` didn't fire), it is cancelled with NO
   win/loss (`noscore`) instead of leaving the joiner stuck. These resolve the "my account was playing online while I did
