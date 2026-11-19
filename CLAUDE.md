@@ -176,7 +176,12 @@ a ₹125 loss by leaving (owner's call). Normal full-time wins always count (win
   a "🔍 Who is playing? (owner)" button (`data-f="whois"` → `whoIs()`) reads both players' `ff/players/{id}` and shows,
   per side, whether they are a logged-in member (`verified`), their linked account name (`mld`), W/L and created date.
   Lets the owner tell a real member (verified ✓, account name = the person) from a GUEST (unproven typed name — the likely
-  impersonation/"hacker" case). LIMITATION: it shows only the CURRENT linked account (markSelfMember overwrites `mld`
+  impersonation/"hacker" case). OWNER "PLAYER MATCH LOG" (flick.js `auditScreen`/`auditList`, button on `boardScreen` when
+  `isOwner()`): type a name → lists that player's recent `ff/results` with W/L, score, date; flags losses where they never
+  scored (⚠, the walkover/ghost sign) and shows which rows are already `af` ("off ₹125"). Used to find disconnect/walkover
+  wins taken against a player. NOTE: pre-fix ghost wins have no `af` tag, so ⚠ is a hint (lost 0–x), not proof; results are
+  create-only by the rules so rows can't be deleted in-app — exclude specific ones from the event via code or delete in the
+  Firebase console, and fix a player's `w/l` counters there if needed. LIMITATION: it shows only the CURRENT linked account (markSelfMember overwrites `mld`
   each login); there is no readable per-device login HISTORY (`login/{id}/{dev}` is `.read:false` by the rules), so "has
   this phone used other accounts before" can't be answered from stored data without adding new tracking.
   Owner (WaCky) tuned this to a drawn outline; if asked to loosen edge-dragging further, also reducing the pull distance

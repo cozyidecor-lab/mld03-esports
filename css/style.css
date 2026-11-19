@@ -1233,6 +1233,21 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fkwho .fkwho1 em{font-style:normal;font-weight:800}
 .fkwho .fkwho1 em.yes{color:#22c55e}.fkwho .fkwho1 em.no{color:#ff6b6b}
 .fkwho .fkwhoid{opacity:.5;font-size:.68rem!important;word-break:break-all;color:#999}
+/* owner-only player match log */
+.fkaudit{display:flex;flex-direction:column;gap:11px}
+.fkaudit input{background:#fff;color:#111;border:0;border-radius:13px;padding:13px 15px;font:600 1rem var(--label)}
+.fkaudsum{color:#fff;font:700 .9rem var(--label);letter-spacing:.01em;margin:0}
+.fkaudsum b{color:#ff6b6b}
+#ffAudList{display:flex;flex-direction:column;gap:7px}
+.fkaud1{background:#1a1a1a;border:1px solid #333;border-left:4px solid #2c8a3b;border-radius:11px;padding:9px 12px;display:flex;flex-direction:column;gap:2px;text-align:left}
+.fkaud1.l{border-left-color:#777}
+.fkaud1.warn{border-left-color:#e3191f;background:#2a1414}
+.fkaud1 .fkaudtop{font:600 .95rem var(--label);color:#eee}
+.fkaud1 .fkaudtop b{color:#fff;font-weight:800}
+.fkaud1.w .fkaudtop b:first-child{color:#22c55e}.fkaud1.l .fkaudtop b:first-child{color:#ff8a8a}
+.fkaud1 em{font-style:normal;font-weight:700;font-size:.78rem;color:#ffb0b0}
+.fkaud1 .fkafb{color:#f0b44a}
+.fkaud1 span{color:#aaa;font-size:.8rem}
 @media (max-width:420px){.fktable th:nth-child(5),.fktable td:nth-child(5){display:none}}
 /* result */
 .fkres{display:flex;flex-direction:column;gap:12px;max-width:440px;width:100%;margin:auto;text-align:center}

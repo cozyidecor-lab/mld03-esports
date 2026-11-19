@@ -717,7 +717,8 @@ const FF=(function(){
   async function boardScreen(tab){
     tab=tab||'all';
     show('board',`${top('Leaderboard')}<div class="fkboard"><div class="fktabs">${[['all','All-time'],['week','This week'],['month','This month']].map(([k,l])=>`<button class="${k===tab?'on':''}" data-f="tab" data-k="${k}">${l}</button>`).join('')}</div>
-      <div id="ffBoard"><p class="fknote">Loading…</p></div><p class="fknote">Only public online matches count. Computer and private matches don't.</p></div>`);
+      <div id="ffBoard"><p class="fknote">Loading…</p></div><p class="fknote">Only public online matches count. Computer and private matches don't.</p>
+      ${(window.isOwner&&window.isOwner())?'<button class="fkbtn" data-f="audit" style="margin-top:12px">🔎 Check a player\'s matches (owner)</button>':''}</div>`);
     const d=db();const box=el('ffBoard');if(!d){box.innerHTML='<p class="fknote">The leaderboard is not available right now.</p>';return;}
     const players=await loadPlayers(),linkMap={};players.forEach(pp=>{linkMap[pp.id]={mld:pp.mld,verified:pp.verified};});
     let rows=[];
@@ -735,6 +736,35 @@ const FF=(function(){
     box.innerHTML=(rows.length?`<table class="fktable"><thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Played</th><th>Win %</th><th>Streak</th></tr></thead><tbody>
       ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}"><td>${i+1}</td>${nameCell(p)}<td><b>${p.w}</b></td><td>${p.l}</td><td>${p.m||p.w+p.l}</td><td>${Math.round(p.w/Math.max(1,p.w+p.l)*100)}%</td><td>${p.cur?'🔥'+p.cur:'–'}</td></tr>`).join('')}</tbody></table>
       <p class="fknote fkleg"><span class="onldot"></span> online now</p>`:'<p class="fknote">No matches yet. Be the first: PLAY ONLINE!</p>');
+  }
+  /* owner-only: look up ONE player's online match history (to spot walkover / disconnect wins taken against them) */
+  async function auditScreen(q){
+    show('audit',`${top('Player match log','board')}
+      <div class="fkaudit">
+        <p class="fknote">Owner tool: a player's recent online matches. ⚠ marks a loss where they never scored — the usual sign of a walkover / someone who had left.</p>
+        <input id="ffAud" maxlength="16" autocomplete="off" placeholder="Type a player name…" value="${H_(q||'')}">
+        <div id="ffAudList"><p class="fknote">Type a name above.</p></div></div>`);
+    const i=el('ffAud');if(i){i.addEventListener('input',()=>{clearTimeout(S.audT);S.audT=setTimeout(()=>auditList(i.value),300);});setTimeout(()=>i.focus(),80);}
+    if(q)auditList(q);
+  }
+  async function auditList(q){
+    q=String(q||'').trim().toLowerCase();const box=el('ffAudList');if(!box)return;
+    if(q.length<2){box.innerHTML='<p class="fknote">Type at least 2 letters.</p>';return;}
+    const d=db();if(!d){box.innerHTML='<p class="fknote">Not available right now.</p>';return;}
+    box.innerHTML='<p class="fknote">Loading…</p>';
+    let v=await d.ref('ff/results').get().catch(()=>null);
+    const all=v?Object.values(v.val()||{}):[];
+    const mine=all.filter(r=>String(r.an||'').toLowerCase().includes(q)||String(r.bn||'').toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts).slice(0,80);
+    if(S.screen!=='audit')return;
+    if(!mine.length){box.innerHTML='<p class="fknote">No online matches found for that name.</p>';return;}
+    let wins=0,losses=0,warn=0;
+    const rows=mine.map(r=>{
+      const aMe=String(r.an||'').toLowerCase().includes(q),opp=aMe?r.bn:r.an,mySc=(aMe?r.sa:r.sb)||0,opSc=(aMe?r.sb:r.sa)||0,won=(aMe?r.a:r.b)===r.w;
+      const ghost=!won&&mySc===0;won?wins++:losses++;if(ghost)warn++;
+      const dt=new Date(r.ts).toLocaleString();
+      return `<div class="fkaud1 ${won?'w':'l'}${ghost?' warn':''}"><div class="fkaudtop"><b>${won?'WON':'LOST'}</b> vs <b>${H_(opp||'?')}</b>${ghost?' <em>⚠ never scored</em>':''}${r.af?' <em class="fkafb">off ₹125</em>':''}</div>
+        <span>${mySc} – ${opSc} · ${dt}</span></div>`;}).join('');
+    box.innerHTML=`<p class="fkaudsum">${mine.length} matches · ${wins}W ${losses}L · <b>${warn}</b> possible walkover loss${warn===1?'':'es'}</p>${rows}`;
   }
   function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime();}
   function weekEnd(){return weekStart()+7*86400000;}
@@ -833,6 +863,7 @@ const FF=(function(){
       case 'cancelroom':cancelRoom();if(S.mm){S.mm.ref.off();S.mm=null;}LS.set('ff.cur',null);return homeScreen();
       case 'cancelinvite':cancelInvite();return homeScreen();
       case 'board':return boardScreen();
+      case 'audit':if(window.isOwner&&window.isOwner())auditScreen();return;
       case 'event':return eventScreen();
       case 'tab':return boardScreen(b.dataset.k);
       case 'how':return howScreen('home');
