@@ -665,7 +665,7 @@ const FF=(function(){
       const win=m[m.winner].id,lose=m[E.other(m.winner)].id;
       await Promise.all([[win,true],[lose,false]].map(([id,won])=>d.ref('ff/players/'+id).transaction(p=>{if(!p)return p;
         p.m=(p.m||0)+1;if(won){p.w=(p.w||0)+1;p.cur=(p.cur||0)+1;p.best=Math.max(p.best||0,p.cur);}else{p.l=(p.l||0)+1;p.cur=0;}return p;})));
-      await d.ref('ff/results').push({a:m.a.id,an:m.a.name,b:m.b.id,bn:m.b.name,w:win,sa:(m.score||{}).a||0,sb:(m.score||{}).b||0,ts:TS});
+      await d.ref('ff/results').push({a:m.a.id,an:m.a.name,b:m.b.id,bn:m.b.name,w:win,sa:(m.score||{}).a||0,sb:(m.score||{}).b||0,ts:TS,...(m.awayleft?{af:1}:{})}); // af = won because opponent's app left; counts on the normal board but NOT the ₹125 event
     }catch(e){}
   }
   function leaveMatch(){
@@ -761,7 +761,7 @@ const FF=(function(){
     const players=await loadPlayers(),ver={};players.forEach(p=>{ver[p.id]={name:p.name,verified:p.verified,mld:p.mld};});
     const since=weekStart();
     let v=await d.ref('ff/results').orderByChild('ts').startAt(since).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
-    const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=since&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
+    const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=since&&!r.af&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
     const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}; // local calendar day
     const P={},get=(id,nm)=>P[id]=P[id]||{id,name:nm,vs:{},beat:new Set(),played:0};
     R.forEach(r=>{const A=get(r.a,r.an),B=get(r.b,r.bn);A.played++;B.played++;
