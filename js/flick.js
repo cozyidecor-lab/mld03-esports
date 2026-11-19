@@ -143,7 +143,7 @@ const FF=(function(){
           ${note?`<p class="fkmsg">${H_(note)}</p>`:''}<div id="ffResume"></div></div>
         <div class="fkmenu">
           <div id="fkHomeLive"></div>
-          <button class="fkbtn event" data-f="event"><span>₹25</span> <span class="fkevl">WEEKLY CHALLENGE<i>Beat members · win the pot</i></span></button>
+          <button class="fkbtn event" data-f="event"><span>₹125</span> <span class="fkevl">WEEKLY CHALLENGE<i>Beat members · win the pot</i></span></button>
           <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY ONLINE</button>
           <button class="fkbtn" data-f="cpu"><span>🤖</span> PLAY AGAINST COMPUTER</button>
           <button class="fkbtn" data-f="private"><span>🔒</span> PRIVATE ROOM</button>
@@ -708,12 +708,13 @@ const FF=(function(){
   async function eventScreen(){
     if(!S.me)return needProfile(eventScreen);
     markSelfMember();
-    show('event',`${top('₹25 Weekly Challenge','home')}
+    show('event',`${top('₹125 Weekly Challenge','home')}
       <div class="fkevent">
         <div class="fkevhero"><div class="fkevribbon">EVENT</div>
-          <div class="fkevprize"><small>WIN</small><b>₹25</b></div>
+          <div class="fkevprize"><small>WIN</small><b>₹125</b></div>
           <h2>Weekly Flick Challenge</h2>
-          <p>Top this board by Sunday night and win <b>₹25</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
+          <p>Top this board by Sunday night and win <b>₹125</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
+          <p class="fkevdonor">🎁 This week's pot is boosted by a kind donation.</p>
           <div class="fkevcd"><small>⏳ Time left this week</small><b id="ffEvCd">…</b></div></div>
         <div id="ffEvBoard"><p class="fknote">Loading the challenge board…</p></div>
         <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>

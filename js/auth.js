@@ -50,8 +50,8 @@
      (keep the old ones too). A red dot shows on the profile icon until the member opens it.
      'action' decides what happens on tap — 'flick-event' jumps straight to the ₹25 challenge. */
   const NOTIFS=[
-    {id:'flick-weekly-25',icon:'₹25',title:'₹25 Weekly Flick Challenge',
-     body:'Top this week’s Flick leaderboard and win ₹25! Only matches where both players are logged-in members count. Tap to see the event and play.',
+    {id:'flick-weekly-125',icon:'₹125',title:'₹125 Weekly Flick Challenge',
+     body:'The prize just grew to ₹125 (boosted by a kind donation)! Top this week’s Flick leaderboard to win it. Only matches where both players are logged-in members count. Tap to see the event and play.',
      cta:'See the challenge →',action:'flick-event'}
   ];
   const readIds=()=>LS.get('mld-notif-read',[]);

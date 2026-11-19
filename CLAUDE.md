@@ -51,7 +51,8 @@ modal (`#authModal`); logged in → shows the player's photo, taps to a RIGHT-SI
 runner-up/tours from `byName`), achievement progress (`MLDach.panelHtml(n)` = X/total bar + 3 "closest to unlocking"
 mini progress bars), and Log out at the bottom. "See all achievements" reuses the `data-acview` handler. NOTIFICATIONS
 (auth.js): between "View my full profile" and the stat tiles sits a `.apnotifs` section listing `NOTIFS` (an array of
-announcement cards — first is the ₹25 Flick challenge). A member with an unopened notification gets a red dot on their
+announcement cards — first is the ₹125 Flick challenge; bump the card's `id` when re-announcing so the dot re-lights for
+everyone). A member with an unopened notification gets a red dot on their
 profile icon (`#authBtn.hasnotif::after`); read state is per-device in localStorage `mld-notif-read`. Tapping a card
 (`data-notifopen`) marks it read (`markRead` → `paintBtn` removes the dot once ALL are read; a still-pending one keeps it)
 and runs its `action` — `flick-event` closes the panel and calls `FF.openEvent()`. To SEND A NEW UPDATE: append one more
@@ -87,13 +88,15 @@ actually plays — called at the top of `record()` (every public match, on BOTH 
 open, on the `mld-auth` event, and once at init. So both sides get flagged by playing/opening the game while logged in;
 it never clears the flag (logging in once = member).
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
-read-blocked). ₹25 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): a SEPARATE event leaderboard, decorated as an event
-(gold/red hero, `EVENT` ribbon, big ₹25, live weekly countdown `#ffEvCd` via `startEvCd`/`fmtLeft`/`weekEnd`). It is
+read-blocked). ₹125 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): prize is ₹25 from the owner + a ₹100 anonymous
+donation = ₹125 (amount lives in the eventScreen text, the `.fkbtn.event` home banner, and the `NOTIFS` card — update all
+three together if it changes again). A SEPARATE event leaderboard, decorated as an event
+(gold/red hero, `EVENT` ribbon, big ₹125, live weekly countdown `#ffEvCd` via `startEvCd`/`fmtLeft`/`weekEnd`). It is
 COMPUTED from `ff/results` this week, filtered to matches where BOTH ids have `verified=true` — so nothing extra is
 written: member-vs-member matches already count on the normal board AND show here; non-member matches stay normal-only,
 exactly as asked. Score = wins, but beating the SAME member counts at most `EVENT_CAP`=3 times (fairness for the real
 money); the cap is PER DAY (grouped by local calendar day), tiebreak = distinct members beaten. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
-ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹25 to the top name each
+ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹125 to the top name each
 week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
 Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick

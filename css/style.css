@@ -792,7 +792,7 @@ body.fl-full .flexit{width:38px;height:38px}
 .apnotif{display:flex;align-items:center;gap:11px;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:13px;padding:11px;color:var(--ink);cursor:pointer;position:relative}
 .apnotif:active{transform:scale(.99)}
 .apnotif.new{border-color:rgba(227,25,31,.5);background:linear-gradient(160deg,rgba(227,25,31,.14),var(--panel-2) 72%)}
-.apnicon{flex:none;width:40px;height:40px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font:700 .92rem var(--label)}
+.apnicon{flex:none;width:40px;height:40px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font:700 .78rem var(--label);letter-spacing:-.01em;white-space:nowrap}
 .apntext{min-width:0;display:flex;flex-direction:column;gap:2px}
 .apntext b{font:700 .96rem var(--label);letter-spacing:.01em}
 .apntext small{color:var(--muted);font-size:.82rem;line-height:1.42}
@@ -1217,6 +1217,7 @@ body.ff-open .top,body.ff-open .app,body.ff-open .goatsound{visibility:hidden}
 .fkevprize b{font:400 3.1rem var(--display);color:#f0b44a;text-shadow:0 2px 14px rgba(240,180,74,.5)}
 .fkevhero h2{margin:2px 0 0;font:400 1.7rem/.98 var(--display);text-transform:uppercase;color:#fff}
 .fkevhero>p{margin:7px auto 0;max-width:34ch;color:rgba(255,255,255,.88);font-size:.88rem;line-height:1.5}
+.fkevdonor{color:#f0b44a;font-weight:700;font-size:.84rem;margin-top:7px}
 .fkevcd{margin-top:13px;background:rgba(0,0,0,.28);border-radius:13px;padding:9px}
 .fkevcd small{display:block;font:700 .64rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 .fkevcd b{font:400 1.5rem var(--display);color:#fff;font-variant-numeric:tabular-nums}
