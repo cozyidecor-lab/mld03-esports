@@ -4,6 +4,28 @@ Live at https://www.mld03-esports.store (GitHub Pages, publishes from `main`).
 Plain static site: no build step. Edit files, commit, push to `main`; live within ~2 minutes.
 The owner is not technical: explain in simple words, never delete existing stats.
 
+## FUTURE ROADMAP — multi-league MLD (NOT built yet; do NOT implement until WaCky says go)
+Owner's long-term vision (shared Nov 2026, informational only — no code written for it yet). Like real football's
+pyramid:
+- **MLD-03 Esports** = parent org. Under it, FOUR independent leagues, each its own world (own WhatsApp group, own
+  players, own stats, own league champion), all running the SAME season system (Authentic → Co-op → Dream Team → Team
+  Tour): **MLD Plasma** (red) = the current/original group (was "the main group", renamed Plasma; years old, mature — all
+  current `data.js` players belong here), **MLD Vapor** (blue, just started, needs months to mature before it runs the
+  season system), **MLD Nova** (purple) and **MLD Flux** (green) later. Players get added to the DB league-by-league as
+  each league's season system begins.
+- **MLD Champions Cup** = after each season (Team Tour is last), the top 2 TEAMS from each league play an inter-league
+  championship (UCL-style). Also a parallel inter-league SOLO tour.
+- **MLD D'or stays ONE OVERALL award across ALL leagues** (never per-league) AND must include Champions Cup performance.
+  The D'or-secrecy rule still holds across leagues.
+- Site will need per-league browsing (sections/filters per league) + an overall "All MLD" view.
+- Timeline owner expects: ~3–4 months to stand up the system; rollout phased (Plasma live first — nothing changes for
+  current members — add each league's section as it matures).
+- Likely clean implementation when the time comes: a `league` tag on each player/stat row (one DB, filterable), league
+  colours as above, a new inter-league tournament type for the Champions Cup; the season engine + D'or formula stay the
+  same, just fed per-league and combined for the D'or. Open design decision to confirm with owner then: does a player
+  belong to exactly one league (recommended) and only meet other leagues in the Champions Cup, or can they be in several?
+
+
 ## MLD D'or is SECRET (owner's rule — do not break)
 The MLD D'or is awarded every 3 seasons (next edition = S13+S14+S15). Its standings are a SURPRISE revealed only at a
 ceremony after the final season: top 30 revealed 10/day, then a top-5 vote, then the winner. So UNLIKE every other
