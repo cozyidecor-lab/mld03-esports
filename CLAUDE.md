@@ -52,8 +52,8 @@ runner-up/tours from `byName`), achievement progress (`MLDach.panelHtml(n)` = X/
 mini progress bars), and Log out at the bottom. "See all achievements" reuses the `data-acview` handler. NOTIFICATIONS
 (auth.js): between "View my full profile" and the stat tiles sits a `.apnotifs` section listing `NOTIFS` (an array of
 announcement cards — first is the ₹125 Flick challenge; bump the card's `id` when re-announcing so the dot re-lights for
-everyone). A member with an unopened notification gets a red dot on their
-profile icon (`#authBtn.hasnotif::after`); read state is per-device in localStorage `mld-notif-read`. Tapping a card
+everyone). A member with an unopened notification gets a small red "!" badge on their
+profile icon (`#authBtn.hasnotif::after`, a compact exclamation mark — not a big pulsing dot); read state is per-device in localStorage `mld-notif-read`. Tapping a card
 (`data-notifopen`) marks it read (`markRead` → `paintBtn` removes the dot once ALL are read; a still-pending one keeps it)
 and runs its `action` — `flick-event` closes the panel and calls `FF.openEvent()`. To SEND A NEW UPDATE: append one more
 object to `NOTIFS` with a NEW `id` (keep the old ones); everyone's dot lights up until they open it. Self-serve photo editing
@@ -95,7 +95,12 @@ three together if it changes again). A SEPARATE event leaderboard, decorated as 
 COMPUTED from `ff/results` this week, filtered to matches where BOTH ids have `verified=true` — so nothing extra is
 written: member-vs-member matches already count on the normal board AND show here; non-member matches stay normal-only,
 exactly as asked. Score = wins, but beating the SAME member counts at most `EVENT_CAP`=3 times (fairness for the real
-money); the cap is PER DAY (grouped by local calendar day), tiebreak = distinct members beaten. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
+money); the cap is PER DAY (grouped by local calendar day), tiebreak = distinct members beaten. FIXED WINDOW: the event
+runs between constants `EVENT_START`/`EVENT_END` (frozen ms, currently Mon 2026-11-16 → Mon 2026-11-23 00:00 IST), NOT a
+rolling week. While `Date.now()<EVENT_END` the page is live (countdown via `startEvCd` flips the page at 0); after
+`EVENT_END` it is READ-ONLY and shows the WINNER (`rows[0]`) — trophy + name + "takes ₹125" + final standings, no PLAY
+NOW, title "₹125 Challenge — Result". To run a NEW event: set new `EVENT_START`/`EVENT_END` (and `EVENT_AMOUNT`/home
+banner/`NOTIFS` if the prize changes). Winner view is ONLY on the event page (not home), owner's call. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
 ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹125 to the top name each
 week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
 Photo editing

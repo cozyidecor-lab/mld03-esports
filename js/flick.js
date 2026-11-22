@@ -770,33 +770,41 @@ const FF=(function(){
   function weekEnd(){return weekStart()+7*86400000;}
   function monthStart(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime();}
 
-  /* ===== ₹25 Weekly Challenge: a SEPARATE event board, only member-vs-member matches ===== */
-  const EVENT_CAP=3; // beating the SAME member counts at most this many times PER DAY (keeps the ₹ prize fair)
+  /* ===== ₹125 Challenge: a SEPARATE event board, only member-vs-member matches =====
+     The event runs between two fixed timestamps. While live it is a participatable board with a countdown;
+     after EVENT_END it freezes and the page shows the WINNER (read-only). To run a NEW event, set a new
+     EVENT_START/EVENT_END (and update the ₹ amount in the home banner + NOTIFS if it changes). */
+  const EVENT_CAP=3;        // beating the SAME member counts at most this many times PER DAY (keeps the ₹ prize fair)
+  const EVENT_AMOUNT=125;
+  const EVENT_START=1794767400000; // Mon 2026-11-16 00:00 IST
+  const EVENT_END=1795372200000;   // Mon 2026-11-23 00:00 IST — after this the page shows the winner, read-only
+  const evLive=()=>Date.now()<EVENT_END;
   function fmtLeft(ms){ms=Math.max(0,ms);const d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,mn=Math.floor(ms/60000)%60,s=Math.floor(ms/1000)%60;
     return d>0?`${d}d ${h}h ${mn}m`:h>0?`${h}h ${mn}m ${s}s`:`${mn}m ${s}s`;}
-  function startEvCd(){clearInterval(S.evT);const tick=()=>{const b=el('ffEvCd');if(!b||S.screen!=='event'){clearInterval(S.evT);return;}b.textContent=fmtLeft(weekEnd()-Date.now());};tick();S.evT=setInterval(tick,1000);}
+  function startEvCd(){clearInterval(S.evT);const tick=()=>{if(S.screen!=='event'){clearInterval(S.evT);return;}
+    const left=EVENT_END-Date.now();if(left<=0){clearInterval(S.evT);return eventScreen();} // just ended → flip to the winner view
+    const b=el('ffEvCd');if(b)b.textContent=fmtLeft(left);};tick();S.evT=setInterval(tick,1000);}
   async function eventScreen(){
     if(!S.me)return needProfile(eventScreen);
-    markSelfMember();
-    show('event',`${top('₹125 Weekly Challenge','home')}
+    markSelfMember();const live=evLive();
+    show('event',`${top(live?'₹125 Weekly Challenge':'₹125 Challenge — Result','home')}
       <div class="fkevent">
-        <div class="fkevhero"><div class="fkevribbon">EVENT</div>
-          <div class="fkevprize"><small>WIN</small><b>₹125</b></div>
+        <div class="fkevhero${live?'':' done'}"><div class="fkevribbon">${live?'EVENT':'ENDED'}</div>
+          <div class="fkevprize"><small>${live?'WIN':'WINNER GETS'}</small><b>₹${EVENT_AMOUNT}</b></div>
           <h2>Weekly Flick Challenge</h2>
-          <p>Top this board by Sunday night and win <b>₹125</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
+          ${live?`<p>Top this board by tonight and win <b>₹${EVENT_AMOUNT}</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
           <p class="fkevdonor">🎁 This week's pot is boosted by a kind donation.</p>
-          <div class="fkevcd"><small>⏳ Time left this week</small><b id="ffEvCd">…</b></div></div>
+          <div class="fkevcd"><small>⏳ Time left</small><b id="ffEvCd">…</b></div>`:`<div id="ffEvWin" class="fkevwin"><p class="fknote">Working out the winner…</p></div>`}</div>
         <div id="ffEvBoard"><p class="fknote">Loading the challenge board…</p></div>
-        <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>
-        <p class="fknote fkevrules">Your wins also count on the normal leaderboard, always. Here, each win over a <b>different</b> logged-in member counts — beating the same person counts up to ${EVENT_CAP} times <b>a day</b>.</p>
+        ${live?'<button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>':''}
+        <p class="fknote fkevrules">${live?`Your wins also count on the normal leaderboard, always. Here, each win over a <b>different</b> logged-in member counts — beating the same person counts up to ${EVENT_CAP} times <b>a day</b>.`:'This event has ended — these are the final standings. A new challenge may start again soon.'}</p>
       </div>`);
-    startEvCd();
+    if(live)startEvCd();
     const d=db();const box=el('ffEvBoard');
     if(!d){box.innerHTML='<p class="fknote">The challenge board is not available right now.</p>';return;}
     const players=await loadPlayers(),ver={};players.forEach(p=>{ver[p.id]={name:p.name,verified:p.verified,mld:p.mld};});
-    const since=weekStart();
-    let v=await d.ref('ff/results').orderByChild('ts').startAt(since).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
-    const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=since&&!r.af&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
+    let v=await d.ref('ff/results').orderByChild('ts').startAt(EVENT_START).get().catch(()=>null);if(!v)v=await d.ref('ff/results').get().catch(()=>null);
+    const R=v?Object.values(v.val()||{}).filter(r=>r.ts>=EVENT_START&&r.ts<EVENT_END&&!r.af&&ver[r.a]&&ver[r.a].verified&&ver[r.b]&&ver[r.b].verified).sort((a,b)=>a.ts-b.ts):[];
     const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}; // local calendar day
     const P={},get=(id,nm)=>P[id]=P[id]||{id,name:nm,vs:{},beat:new Set(),played:0};
     R.forEach(r=>{const A=get(r.a,r.an),B=get(r.b,r.bn);A.played++;B.played++;
@@ -805,12 +813,15 @@ const FF=(function(){
     const rows=Object.values(P).map(p=>{let pts=0;Object.values(p.vs).forEach(w=>{pts+=Math.min(w,EVENT_CAP);});return {...p,pts,opps:p.beat.size};})
       .filter(p=>p.pts>0).sort((a,b)=>b.pts-a.pts||b.opps-a.opps||a.played-b.played||a.name.localeCompare(b.name));
     if(S.screen!=='event')return;
+    if(!live){const w=rows[0],win=el('ffEvWin');if(win)win.innerHTML=w
+      ?`<div class="fkevtrophy">🏆</div><small>WINNER</small><b class="fkevwname">${H_(w.name)}</b><span>${w.pts} win${w.pts===1?'':'s'} over ${w.opps} member${w.opps===1?'':'s'} — takes <b>₹${EVENT_AMOUNT}</b></span>`
+      :`<small>RESULT</small><b class="fkevwname">No winner</b><span>No qualifying member-vs-member matches this time.</span>`;}
     const nameCell=p=>{const info=ver[p.id]||{},on=info.mld&&window.isOnline&&window.isOnline(info.mld);
       return `<td class="fkpname">${H_(p.name)}${on?'<span class="onldot"></span>':''}</td>`;};
     box.innerHTML=(rows.length?`<table class="fktable fkevtable"><thead><tr><th>#</th><th>Player</th><th>Wins</th><th>Members beaten</th></tr></thead><tbody>
       ${rows.slice(0,50).map((p,i)=>`<tr class="${S.me&&p.id===S.me.id?'me':''}${i===0?' lead':''}"><td>${i===0?'👑':i+1}</td>${nameCell(p)}<td><b>${p.pts}</b></td><td>${p.opps}</td></tr>`).join('')}</tbody></table>
-      <p class="fknote fkleg"><span class="onldot"></span> online now · 👑 this week's leader</p>`
-      :'<p class="fknote">No qualifying matches yet this week. Log in, find another logged-in member who is online, and play — your win shows up here!</p>');
+      <p class="fknote fkleg"><span class="onldot"></span> online now · 👑 ${live?"this week's leader":'winner'}</p>`
+      :`<p class="fknote">${live?'No qualifying matches yet this week. Log in, find another logged-in member who is online, and play — your win shows up here!':'No qualifying member-vs-member matches were played.'}</p>`);
   }
 
   /* ================= sound (tiny, made in the browser) ================= */
