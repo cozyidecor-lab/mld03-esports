@@ -31,6 +31,14 @@
   }
   renderSeason();
 
+  /* ---------- Co-op registration banner (owner: flip COOP_REG to false to hide when it closes) ---------- */
+  const COOP_REG=true;
+  (function(){const b=document.getElementById('coopReg');if(!b)return;
+    if(!COOP_REG){b.innerHTML='';return;}
+    b.innerHTML=`<div class="coopreg"><svg class="crt" aria-hidden="true"><use href="#t-coop"/></svg>
+      <div class="crtx"><span class="crtag"><span class="live-dot"></span>Registration open</span>
+        <b>S14 Co-op Tour</b><small>Grab a partner — Season 14 Co-op registration has started. Sign up in your MLD group.</small></div></div>`;})();
+
   /* ---------- small toast ---------- */
   let toastT=0;
   function toast(msg){let t=document.getElementById('mldToast');if(!t){t=document.createElement('div');t.id='mldToast';t.setAttribute('role','status');document.body.appendChild(t);}

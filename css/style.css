@@ -243,6 +243,35 @@ h2.sec small{font:600 .8rem var(--label);letter-spacing:.12em;color:var(--muted)
 .quest .who b{display:block;font:400 1.6rem/1 var(--display);text-transform:uppercase}
 .quest .who small{font:600 .72rem var(--label);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .quest .facts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Co-op registration banner (Home) */
+.coopreg{display:flex;align-items:center;gap:13px;background:linear-gradient(120deg,rgba(227,25,31,.17),rgba(240,180,74,.12));border:1px solid rgba(240,180,74,.5);border-radius:18px;padding:13px 15px;margin:14px 0}
+.coopreg .crt{width:44px;height:44px;flex:none}
+.coopreg .crtx{min-width:0}
+.coopreg .crtag{display:inline-flex;align-items:center;gap:6px;font:700 .64rem var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+.coopreg .crtx b{display:block;font:400 1.5rem/1 var(--display);text-transform:uppercase;margin:3px 0 2px}
+.coopreg .crtx small{display:block;color:var(--muted);font-size:.84rem;line-height:1.4}
+/* side-quests accordion (overrides the old 2-col .quest layout) */
+.quests{display:flex;flex-direction:column;gap:12px}
+.quests .quest{display:block;border-radius:20px;overflow:hidden}
+.qhead{display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:none;border:0;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.qhead:active{transform:scale(.995)}
+.qicon{flex:none;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;background:var(--panel-2)}
+.qicon.f2p{font:800 1rem var(--label);letter-spacing:.02em;color:#1a1200;background:linear-gradient(135deg,#f6d36b,#e0a92e)}
+.qicon.mandhi{background:linear-gradient(135deg,#ffcf8a,#e3601f)}
+.qht{flex:1;min-width:0}
+.qht b{display:block;font:400 1.5rem/1 var(--display);text-transform:uppercase}
+.qht small{color:var(--muted);font:600 .72rem var(--label);letter-spacing:.1em;text-transform:uppercase}
+.qchev{flex:none;color:var(--muted);transition:transform .2s}
+.quest.open .qchev{transform:rotate(180deg)}
+.qbody{display:none;padding:0 14px 16px}
+.quest.open .qbody{display:block}
+.qimg{display:block;width:100%;height:auto;border-radius:14px}
+.qbody .facts{margin:11px 0}.qbody .who{margin-top:4px}
+/* side-quest champion chips on a profile */
+.sqchip{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.sqchip.sq-f2p{background:linear-gradient(135deg,rgba(246,211,107,.22),rgba(224,169,46,.14));border-color:rgba(240,180,74,.6);color:#f0b44a}
+.sqchip.sq-f2p b{color:#f0b44a;font-weight:800}
+.sqchip.sq-mandhi{background:rgba(227,96,31,.17);border-color:rgba(227,96,31,.5);color:#ffb085}
 .lchart{position:relative;margin-top:6px;--c:var(--red)}
 .lchart svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
 .lchart .gl{stroke:var(--line);stroke-width:1}

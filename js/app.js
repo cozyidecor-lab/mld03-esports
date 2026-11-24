@@ -79,7 +79,7 @@ function navIcon(c){
   return c.ic[0]==='#'?`<svg><use href="${c.ic}"/></svg>`:ICON[c.ic];
 }
 function renderHome(){
-  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'Mandi Challenge'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'achievements':{id:'achievements',t:'Achievements',lead:()=>(typeof ACHE!=='undefined'?ACHE.L.length:73)+' badges to unlock'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
+  const all={home:{id:'home',t:'Home',lead:()=>'Season 14 · what is on now'},'side-quests':{id:'side-quests',t:'Side quests',lead:()=>'F2P & Mandhi challenges'},'all-players':{id:'all-players',t:'MLD Database',lead:()=>'All MLD players'},goat:{id:'goat',t:'MLD GOAT 🐐',lead:()=>'All-time rank by MLD Index'},compare:{id:'compare',t:'Compare',lead:()=>'Two players, head to head'},games:{id:'games',t:'Mini Games',lead:()=>'MLD Football Flick'},'achievements':{id:'achievements',t:'Achievements',lead:()=>(typeof ACHE!=='undefined'?ACHE.L.length:73)+' badges to unlock'},'fun-facts':{id:'fun-facts',t:'Fun Facts',lead:()=>'Records, roasts & weird stats'}};
   CATS.forEach(c=>all[c.id]=c);
   let k=0;
   $('#dnav').innerHTML=GROUPS.map(([g,ids])=>`${g?`<div class="dgroup" style="--d:${k++}">${g}</div>`:''}${ids.map(id=>{const c=all[id];
@@ -319,7 +319,7 @@ function openPlayer(n){
   const rows=D.log.filter(r=>r[2]===n);const tro=D.trophies.filter(t=>t[2]===n);const goat=n===GOAT;
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}<span class="onlinedot" data-profdot hidden title="Online now"></span></h3><span class="nlbtns"><button class="linkbtn" data-copylink="${esc(n)}" aria-label="Copy link to ${esc(n)}'s profile" title="Copy profile link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1.2-1.2"/></svg></button><span id="likeBox"></span></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}</div>
+    <div class="sub">All-time rank #${p.crk} · ${s(p.t,'tournament')}</div><div class="namelike"><h3>${esc(n)}<span class="onlinedot" data-profdot hidden title="Online now"></span></h3><span class="nlbtns"><button class="linkbtn" data-copylink="${esc(n)}" aria-label="Copy link to ${esc(n)}'s profile" title="Copy profile link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1.2-1.2"/></svg></button><span id="likeBox"></span></span></div><div class="proftags">${typeof tierChip==='function'?tierChip(n):''}${fChip(n)}${founderTag(n,'big')}${typeof sideQuestChips==='function'?sideQuestChips(n):''}</div>
     <div class="pcrow"><button class="pcbtn" data-pcard="${esc(n)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg>Download player card</button><button class="rsbtn" data-roast="${esc(n)}">🔥 Roast</button></div>
     ${cabinet(n)}
     <div class="kv"><div class="tile red"><b>${p.g}</b><span>Goals</span></div><div class="tile"><b>${fmt(p.r)}</b><span>Avg rating</span></div><div class="tile"><b>${fmt(p.cs)}</b><span>Career score</span></div>
@@ -520,27 +520,45 @@ async function savePhoto(n,file){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-rmphoto]');if(!b||!sheetOpen)return;
   const m={...PHOTOS};delete m[sheetOpen];$('#photoMsg').textContent='Saving…';publishPhotos(m,sheetOpen);});
 
-/* ---- side quests (kept low-key, not part of main honours) ---- */
-const MANDI="images/side-quests/mandi-challenge.jpg", MANDI_IC="images/trophies/mandi.jpg";
-const SIDE=[{id:'mandi',name:'Mandi Challenge',game:'eFootball',winner:'Hudaifa',length:'1 week',wins:10,
-  about:'A week of quick eFootball tournaments. Whoever wins the most takes the mandi.',prize:'Quarter mandi',img:MANDI}];
+/* ---- side quests: special one-off challenges, NOT part of main honours (don't count toward all-time stats).
+   Each has a winner who earns a little icon on their profile. To add one: append to SIDE (give it an id, kind,
+   icon, winner, about, facts, img). A winner already in data.js keeps their normal profile + the quest icon. ---- */
+const MANDI="images/side-quests/mandi-challenge.jpg", MANDI_IC="images/trophies/mandi.jpg", F2P_IMG="images/side-quests/f2p-challenge.jpg";
+const SIDE=[
+  {id:'f2p',name:'F2P Challenge',kind:'f2p',icon:'F2P',chip:'champion',winner:'Hudaifa',img:F2P_IMG,
+   alt:'Hudaifa holding the MLD 03 F2P Tour champion trophy',
+   about:'A tournament played with ONLY standard, trending, featured and highlight cards — no epics. A pure free-to-play test of skill, with everyone on a level field.',
+   facts:[['F2P only','Cards allowed'],['🏆','Champion']]},
+  {id:'mandhi',name:'Mandhi Challenge',kind:'mandhi',icon:'🐔',chip:'Mandhi champ',winner:'Hudaifa',img:MANDI,
+   alt:'Hudaifa holding the MLD Mandhi Challenge champion trophy',
+   about:'One week of madness — around 70 quick knockout tournaments (Round of 8) packed into a single week. Whoever won the most took the mandhi.',
+   facts:[['~70','Quick tours · RO8'],['1 week','How long']]}
+];
 SIDE.forEach(q=>{if(!byName[q.winner])byName[q.winner]={n:q.winner,g:0,t:0,pt:0,ru:0,mt:0,side:true};});
+const questsWon=n=>SIDE.filter(q=>q.winner===n);
+function sideQuestChips(n){const w=questsWon(n);if(!w.length)return '';
+  return w.map(q=>`<span class="chip sqchip sq-${q.kind}" title="${esc(q.name)} champion">${q.kind==='f2p'?'<b>F2P</b>':q.icon} ${esc(q.chip)}</span>`).join('');}
 function sideView(){
-  return {t:'Side <em>Quests</em>',p:'Fun challenges outside the main MLD tournaments. They do not count toward all-time stats.',
-   b:SIDE.map(q=>`<div class="quest"><img alt="Hudaifa holding the QT Mandhi Challenge champion trophy" src="${q.img}">
-     <div class="qb"><div class="tags"><span class="chip on">${esc(q.game)}</span><span class="chip">${esc(q.length)}</span></div>
-       <h3>${esc(q.name)}</h3><p class="note" style="margin:0">${esc(q.about)}</p>
-       <button class="who" data-p="${esc(q.winner)}" style="border:0;text-align:left;color:inherit">${avatar(q.winner)}<div><small>Winner</small><b>${esc(q.winner)}</b></div></button>
-       <div class="facts"><div class="tile red"><b>${q.wins}</b><span>Tournaments won</span></div><div class="tile"><b style="font-size:1.3rem;line-height:1.2">${esc(q.prize)}</b><span>Prize</span></div></div>
-     </div></div>`).join('')};
+  return {t:'Side <em>Quests</em>',p:'Fun one-off challenges outside the main MLD tournaments. They don’t count toward all-time stats. Tap one to see the details.',
+   b:`<div class="quests">${SIDE.map((q,i)=>`<div class="quest${i===0?' open':''}">
+     <button class="qhead" data-questtoggle="${q.id}"><span class="qicon ${q.kind}">${q.kind==='f2p'?'F2P':q.icon}</span>
+       <span class="qht"><b>${esc(q.name)}</b><small>Champion · ${esc(q.winner)}</small></span><span class="qchev">▾</span></button>
+     <div class="qbody"><img class="qimg" alt="${esc(q.alt)}" src="${q.img}" loading="lazy">
+       <p class="note" style="margin:11px 0 0">${esc(q.about)}</p>
+       <div class="facts">${q.facts.map((f,j)=>`<div class="tile${j===0?' red':''}"><b>${esc(f[0])}</b><span>${esc(f[1])}</span></div>`).join('')}</div>
+       <button class="who" data-p="${esc(q.winner)}" style="border:0;text-align:left;color:inherit">${avatar(q.winner)}<div><small>Champion</small><b>${esc(q.winner)}</b></div></button>
+     </div></div>`).join('')}</div>`};
 }
+document.addEventListener('click',e=>{const b=e.target.closest('[data-questtoggle]');if(!b)return;
+  const c=b.closest('.quest');if(c)c.classList.toggle('open');});
 function openSidePlayer(n){
-  const qs=SIDE.filter(q=>q.winner===n);
+  const qs=questsWon(n);
   $('#sheetBody').innerHTML=`<div class="grab"></div><button class="ibtn close" data-close="1" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     ${avatar(n,'bigav')}<div class="photo-tools" id="photoTools"></div>
-    <div class="sub">Side quest player</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div>${cabinet(n)}
+    <div class="sub">Side quest champion</div><div class="namelike"><h3>${esc(n)}</h3><span id="likeBox"></span></div>
+    <div class="proftags">${sideQuestChips(n)}</div>
     <p class="note">No main MLD tournament stats recorded for ${esc(n)} yet.</p>
-    <h2 class="sec">Side quests</h2><div class="rows">${qs.map(q=>`<button class="boot" data-go="side-quests" style="width:100%;text-align:left;color:inherit"><div class="s" style="font-size:.9rem">${esc(q.game)}</div><div class="who">${esc(q.name)}<small>Won ${q.wins} quick tournaments in ${esc(q.length)} · ${esc(q.prize)}</small></div><div class="n">1st</div></button>`).join('')}</div>`;
+    <h2 class="sec">Side quests won</h2><div class="rows">${qs.map(q=>`<button class="boot" data-go="side-quests" style="width:100%;text-align:left;color:inherit"><div class="s" style="font-size:.9rem">${q.kind==='f2p'?'F2P':q.icon}</div><div class="who">${esc(q.name)}<small>Champion</small></div><div class="n">1st</div></button>`).join('')}</div>`;
   $('#sheetBody').classList.remove('founder');
   $('#sheet').classList.add('on');$('#sheetBody').scrollTop=0;sheetOpen=n;renderPhotoTools(n);mountLike(n);
 }

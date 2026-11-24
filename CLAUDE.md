@@ -151,7 +151,18 @@ challenges).
   Icon: `images/fun-facts.jpg`. Roasts stay about football stats only.
 - `js/card.js`: downloadable MLD player card (button on every profile). Canvas 1080×1350, colour = tier,
   big number = MLD Index; all from data, nothing to update by hand.
-- `js/home.js`: Season progress at the TOP of Home (edit `SEASON_NOW` tour `stage`: index, 'done' or null; Authentic uses
+- SIDE QUESTS (in `js/app.js`, menu → Extras → "Side quests"): special one-off challenges, NOT part of main honours/
+  all-time stats. `SIDE` array = the quests; currently two, both won by **Hudaifa**: **F2P Challenge** (`kind:'f2p'`, gold
+  "F2P" icon; played with only standard/trending/featured/highlight cards, no epics; photo `images/side-quests/f2p-challenge.jpg`)
+  and **Mandhi Challenge** (`kind:'mandhi'`, 🐔 icon; ~70 quick RO8 tournaments in one week; photo `mandi-challenge.jpg`).
+  `sideView` renders them as a tap-to-expand ACCORDION (`[data-questtoggle]` toggles `.quest.open`). `sideQuestChips(n)`
+  puts a little champion badge in the profile `.proftags` (shown in both `openPlayer` and `openSidePlayer`). `honours()`
+  counts them via the `SQ` key (cabinet shows "Side quest ×N", mandi trophy icon `MANDI_IC`). A winner already in data.js
+  (like Hudaifa) keeps their normal profile + the icon; a winner NOT in data.js gets a `side:true` stub profile. To ADD a
+  quest: append to `SIDE` (id, kind, icon, chip, winner, about, facts, img, alt). MANDHI WINNER CONFIRMED = Hudaifa (per
+  the committed scaffold's trophy photo); owner may give a different name later.
+- `js/home.js`: a CO-OP REGISTRATION banner on Home (`#coopReg` in index.html, filled by home.js; flip `COOP_REG=false`
+  to hide when registration closes) announcing "S14 Co-op Tour — Registration open" (no link, owner's call). Season progress at the TOP of Home (edit `SEASON_NOW` tour `stage`: index, 'done' or null; Authentic uses
   UCL stages League → Play-offs → R16 → QF → SF → Final with match-share weights), 🎲 random
   player button, copy-profile-link (links look like `/?p=Name`), toast. S-tier profiles get `.sheet.stier` gold styling.
 - `js/roast.js`: 🔥 Roast button on profiles; ~27 stat-based roast templates (conditions on data.js), each tap a new one, Share.
