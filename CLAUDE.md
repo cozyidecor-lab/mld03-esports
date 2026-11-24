@@ -156,8 +156,10 @@ challenges).
   "F2P" icon; played with only standard/trending/featured/highlight cards, no epics; photo `images/side-quests/f2p-challenge.jpg`)
   and **Mandhi Challenge** (`kind:'mandhi'`, 🐔 icon; ~70 quick RO8 tournaments in one week; photo `mandi-challenge.jpg`).
   `sideView` renders them as a tap-to-expand ACCORDION (`[data-questtoggle]` toggles `.quest.open`). `sideQuestChips(n)`
-  puts a little champion badge in the profile `.proftags` (shown in both `openPlayer` and `openSidePlayer`). `honours()`
-  counts them via the `SQ` key (cabinet shows "Side quest ×N", mandi trophy icon `MANDI_IC`). A winner already in data.js
+  puts the quest icon(s) in the profile `.proftags` (both `openPlayer` and `openSidePlayer`) as TAPPABLE buttons
+  (`data-questinfo` → a `.qinfo` popup with that quest's description + facts). Hudaifa won BOTH, so his profile shows the
+  F2P and 🐔 icons. (Side quests are NOT in the trophy cabinet/`honours()` — owner wanted a single representation, just the
+  two tappable icons, not a duplicate "Side quest" cabinet trophy.) A winner already in data.js
   (like Hudaifa) keeps their normal profile + the icon; a winner NOT in data.js gets a `side:true` stub profile. To ADD a
   quest: append to `SIDE` (id, kind, icon, chip, winner, about, facts, img, alt). MANDHI WINNER CONFIRMED = Hudaifa (per
   the committed scaffold's trophy photo); owner may give a different name later.

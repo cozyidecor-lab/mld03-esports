@@ -423,7 +423,6 @@ const HON=[
   {k:'RU-D',label:'Runner-up · Solo Dream Team',sym:'#t-runner'},
   {k:'RU-A',label:'Runner-up · Solo Authentic',sym:'#t-runner'},
   {k:'RU-C',label:'Runner-up · Co-op',sym:'#t-runner'},
-  {k:'SQ',label:'Side quest',mandi:true},
 ];
 const honoursCache={};
 function honours(n){
@@ -434,7 +433,6 @@ function honours(n){
     if(t[3]==='Player Trophy')add(t[1]);else if(t[3]==='Manager Trophy')add('M');else if(t[3]==='Runner-up')add('RU-'+t[1]);});
   D.awards.forEach(a=>{if(names(a[5]).includes(n))add('GB');if(names(a[3]).includes(n))add('GS');});
   SEASON_AW.forEach(a=>{if(names(a[5]).includes(n))add('SGB');if(names(a[3]).includes(n))add('SGS');});
-  SIDE.forEach(q=>{if(q.winner===n)add('SQ');});
   return honoursCache[n]=HON.filter(h=>c[h.k]).map(h=>({...h,n:c[h.k]}));
 }
 const icon=h=>h.mandi?`<img alt="" src="${MANDI_IC}" style="border-radius:50%">`:h.img?`<img alt="" src="${TROPHY}">`:`<svg class="tico"><use href="${h.sym}"/></svg>`;
@@ -537,7 +535,20 @@ const SIDE=[
 SIDE.forEach(q=>{if(!byName[q.winner])byName[q.winner]={n:q.winner,g:0,t:0,pt:0,ru:0,mt:0,side:true};});
 const questsWon=n=>SIDE.filter(q=>q.winner===n);
 function sideQuestChips(n){const w=questsWon(n);if(!w.length)return '';
-  return w.map(q=>`<span class="chip sqchip sq-${q.kind}" title="${esc(q.name)} champion">${q.kind==='f2p'?'<b>F2P</b>':q.icon} ${esc(q.chip)}</span>`).join('');}
+  return w.map(q=>`<button class="chip sqchip sq-${q.kind}" data-questinfo="${q.id}" title="${esc(q.name)} champion — tap for details">${q.kind==='f2p'?'<b>F2P</b>':q.icon} ${esc(q.chip)}</button>`).join('');}
+// tap a side-quest icon (on a profile) → a little popup with that quest's description
+document.addEventListener('click',e=>{const b=e.target.closest('[data-questinfo]');if(!b)return;e.preventDefault();
+  const q=SIDE.find(x=>x.id===b.dataset.questinfo);if(!q)return;
+  const ov=document.createElement('div');ov.className='qinfo';
+  ov.innerHTML=`<div class="qinfobox"><button class="ibtn qinfox" data-qclose aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="qicon ${q.kind}">${q.kind==='f2p'?'F2P':q.icon}</span>
+    <h3>${esc(q.name)}</h3><div class="qiwin">🏆 Champion · <b>${esc(q.winner)}</b></div>
+    <p class="note">${esc(q.about)}</p>
+    <div class="facts">${q.facts.map((f,j)=>`<div class="tile${j===0?' red':''}"><b>${esc(f[0])}</b><span>${esc(f[1])}</span></div>`).join('')}</div>
+    <button class="chip on" data-go="side-quests" data-qclose style="border:0;margin-top:4px">See all side quests →</button></div>`;
+  document.body.appendChild(ov);requestAnimationFrame(()=>ov.classList.add('on'));
+  ov.addEventListener('click',ev=>{if(ev.target===ov||ev.target.closest('[data-qclose]')){ov.classList.remove('on');setTimeout(()=>ov.remove(),180);}});
+});
 function sideView(){
   return {t:'Side <em>Quests</em>',p:'Fun one-off challenges outside the main MLD tournaments. They don’t count toward all-time stats. Tap one to see the details.',
    b:`<div class="quests">${SIDE.map((q,i)=>`<div class="quest${i===0?' open':''}">
