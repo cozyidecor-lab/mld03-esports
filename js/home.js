@@ -32,7 +32,7 @@
   renderSeason();
 
   /* ---------- Co-op registration banner (owner: flip COOP_REG to false to hide when it closes) ---------- */
-  const COOP_REG=true;
+  const COOP_REG=false;
   (function(){const b=document.getElementById('coopReg');if(!b)return;
     if(!COOP_REG){b.innerHTML='';return;}
     b.innerHTML=`<div class="coopreg"><svg class="crt" aria-hidden="true"><use href="#t-coop"/></svg>
