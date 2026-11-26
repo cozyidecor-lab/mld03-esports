@@ -144,7 +144,7 @@ const FF=(function(){
           ${note?`<p class="fkmsg">${H_(note)}</p>`:''}<div id="ffResume"></div></div>
         <div class="fkmenu">
           <div id="fkHomeLive"></div>
-          <button class="fkbtn event" data-f="event"><span>₹125</span> <span class="fkevl">WEEKLY CHALLENGE<i>Beat members · win the pot</i></span></button>
+          <button class="fkbtn event" data-f="event"><span>₹${EVENT_AMOUNT}</span> <span class="fkevl">WEEKLY CHALLENGE<i>Beat members · win the pot</i></span></button>
           <button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY ONLINE</button>
           <button class="fkbtn" data-f="cpu"><span>🤖</span> PLAY AGAINST COMPUTER</button>
           <button class="fkbtn" data-f="private"><span>🔒</span> PRIVATE ROOM</button>
@@ -775,9 +775,9 @@ const FF=(function(){
      after EVENT_END it freezes and the page shows the WINNER (read-only). To run a NEW event, set a new
      EVENT_START/EVENT_END (and update the ₹ amount in the home banner + NOTIFS if it changes). */
   const EVENT_CAP=3;        // beating the SAME member counts at most this many times PER DAY (keeps the ₹ prize fair)
-  const EVENT_AMOUNT=125;
-  const EVENT_START=1794767400000; // Mon 2026-11-16 00:00 IST
-  const EVENT_END=1795372200000;   // Mon 2026-11-23 00:00 IST — after this the page shows the winner, read-only
+  const EVENT_AMOUNT=250;
+  const EVENT_START=1795684501089; // Thu 2026-11-26 14:45 IST
+  const EVENT_END=1796289301089;   // Thu 2026-12-03 14:45 IST — after this the page shows the winner, read-only
   const evLive=()=>Date.now()<EVENT_END;
   function fmtLeft(ms){ms=Math.max(0,ms);const d=Math.floor(ms/86400000),h=Math.floor(ms/3600000)%24,mn=Math.floor(ms/60000)%60,s=Math.floor(ms/1000)%60;
     return d>0?`${d}d ${h}h ${mn}m`:h>0?`${h}h ${mn}m ${s}s`:`${mn}m ${s}s`;}
@@ -787,13 +787,12 @@ const FF=(function(){
   async function eventScreen(){
     if(!S.me)return needProfile(eventScreen);
     markSelfMember();const live=evLive();
-    show('event',`${top(live?'₹125 Weekly Challenge':'₹125 Challenge — Result','home')}
+    show('event',`${top(live?`₹${EVENT_AMOUNT} Weekly Challenge`:`₹${EVENT_AMOUNT} Challenge — Result`,'home')}
       <div class="fkevent">
         <div class="fkevhero${live?'':' done'}"><div class="fkevribbon">${live?'EVENT':'ENDED'}</div>
           <div class="fkevprize"><small>${live?'WIN':'WINNER GETS'}</small><b>₹${EVENT_AMOUNT}</b></div>
           <h2>Weekly Flick Challenge</h2>
-          ${live?`<p>Top this board by tonight and win <b>₹${EVENT_AMOUNT}</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
-          <p class="fkevdonor">🎁 This week's pot is boosted by a kind donation.</p>
+          ${live?`<p>Top this board before it ends and win <b>₹${EVENT_AMOUNT}</b>. Only matches where <b>both players are logged-in members</b> count here.</p>
           <div class="fkevcd"><small>⏳ Time left</small><b id="ffEvCd">…</b></div>`:`<div id="ffEvWin" class="fkevwin"><p class="fknote">Working out the winner…</p></div>`}</div>
         <div id="ffEvBoard"><p class="fknote">Loading the challenge board…</p></div>
         ${live?'<button class="fkbtn red big" data-f="online"><span>🌐</span> PLAY NOW</button>':''}

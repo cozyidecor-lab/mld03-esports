@@ -110,21 +110,21 @@ actually plays — called at the top of `record()` (every public match, on BOTH 
 open, on the `mld-auth` event, and once at init. So both sides get flagged by playing/opening the game while logged in;
 it never clears the flag (logging in once = member).
 Already seeded: all 196 players' hashes are in Firebase `secret/`. Rules PUBLISHED by WaCky (test mode closed, secret
-read-blocked). ₹125 WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): prize is ₹25 from the owner + a ₹100 anonymous
-donation = ₹125 (amount lives in the eventScreen text, the `.fkbtn.event` home banner, and the `NOTIFS` card — update all
-three together if it changes again). A SEPARATE event leaderboard, decorated as an event
-(gold/red hero, `EVENT` ribbon, big ₹125, live weekly countdown `#ffEvCd` via `startEvCd`/`fmtLeft`/`weekEnd`). It is
+read-blocked). ₹ WEEKLY CHALLENGE (DONE, flick.js `eventScreen`): the amount is the `EVENT_AMOUNT` constant (CURRENTLY
+₹250; the eventScreen title/hero/win-line AND the `.fkbtn.event` home banner all read `EVENT_AMOUNT`, but the `NOTIFS`
+card text in auth.js is MANUAL — update it when the amount changes). A SEPARATE event leaderboard, decorated as an event
+(gold/red hero, `EVENT` ribbon, big ₹ amount, live countdown `#ffEvCd` via `startEvCd`/`fmtLeft`). It is
 COMPUTED from `ff/results` this week, filtered to matches where BOTH ids have `verified=true` — so nothing extra is
 written: member-vs-member matches already count on the normal board AND show here; non-member matches stay normal-only,
 exactly as asked. Score = wins, but beating the SAME member counts at most `EVENT_CAP`=3 times (fairness for the real
 money); the cap is PER DAY (grouped by local calendar day), tiebreak = distinct members beaten. FIXED WINDOW: the event
-runs between constants `EVENT_START`/`EVENT_END` (frozen ms, currently Mon 2026-11-16 → Mon 2026-11-23 00:00 IST), NOT a
-rolling week. While `Date.now()<EVENT_END` the page is live (countdown via `startEvCd` flips the page at 0); after
-`EVENT_END` it is READ-ONLY and shows the WINNER (`rows[0]`) — trophy + name + "takes ₹125" + final standings, no PLAY
-NOW, title "₹125 Challenge — Result". To run a NEW event: set new `EVENT_START`/`EVENT_END` (and `EVENT_AMOUNT`/home
-banner/`NOTIFS` if the prize changes). Winner view is ONLY on the event page (not home), owner's call. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
-ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives ₹125 to the top name each
-week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
+runs between constants `EVENT_START`/`EVENT_END` (frozen ms, CURRENTLY Thu 2026-11-26 14:45 → Thu 2026-12-03 14:45 IST),
+NOT a rolling week. While `Date.now()<EVENT_END` the page is live (countdown via `startEvCd` flips the page at 0); after
+`EVENT_END` it is READ-ONLY and shows the WINNER (`rows[0]`) — trophy + name + "takes ₹<amount>" + final standings, no PLAY
+NOW. To run a NEW event: set new `EVENT_START`/`EVENT_END` + `EVENT_AMOUNT`, and give the `NOTIFS` card a NEW `id` (so the
+"!" badge re-lights) with updated text. Winner view is ONLY on the event page (not home), owner's call. Reached from a gold `.fkbtn.event` banner on the Flick home (above PLAY
+ONLINE), from the account-panel notification, or directly via `FF.openEvent()`. The owner gives the ₹ prize to the top
+name each week (manual payout). NO Firebase rule change (reuses `ff/results`). NEXT (still TBD with owner): direct Flick challenge.
 Photo editing
 dropped. Other logged-in features TBD with owner (ideas floated: predictions game, in-site D'or jury vote, direct Flick
 challenges).
